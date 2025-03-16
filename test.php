@@ -87,7 +87,7 @@ $validator->extend('is_a', \Gzhegow\Validator\Core\Rule\IsARule::class);
 $validator->extend('is_subclass_of', \Gzhegow\Validator\Core\Rule\IsSubclassOfRule::class);
 $validator->extend('list', \Gzhegow\Validator\Core\Rule\ListRule::class);
 //
-// > а эти правила можно подключать по желанию - они используют \Gzhegow\Lib для проверок данных
+// > а эти правила можно подключать по желанию - они используют \Gzhegow\Lib\Lib и \Gzhegow\Calendar\Calendar для проверок данных
 // > например, чтобы числом считалась в том числе строка с числом, а не только integer
 // > или, например, чтобы число больше нуля могло интерпретироваться как timestamp
 $validator->extend('a_date', \Gzhegow\Validator\Core\Rule\ADateRule::class);
@@ -106,7 +106,6 @@ $validator->extend('a_uuid', \Gzhegow\Validator\Core\Rule\AUuidRule::class);
 
 
 // >>> ЗАПУСКАЕМ!
-
 
 // > TEST
 // > создаем валидатор и запускаем проверку

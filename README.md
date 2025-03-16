@@ -132,7 +132,6 @@ $validator->extend('a_uuid', \Gzhegow\Validator\Core\Rule\AUuidRule::class);
 
 // >>> ЗАПУСКАЕМ!
 
-
 // > TEST
 // > создаем валидатор и запускаем проверку
 $fn = function () {
