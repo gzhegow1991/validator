@@ -401,8 +401,8 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //
 // (function ($validation) {
 //     $validation->addData([
-//         'file'  => __DIR__ . '/var/test/file.txt',
-//         'image' => __DIR__ . '/var/test/file.jpg',
+//         'file'  => __DIR__ . '/tests/var/file.txt',
+//         'image' => __DIR__ . '/tests/var/file.jpg',
 //     ]);
 //
 //     $validation->addRules('file', [ Rule::file([ [ 'txt' ], [ 'text/' ] ]) ]);
