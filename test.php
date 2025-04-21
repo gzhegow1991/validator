@@ -60,8 +60,8 @@ class Rule extends \Gzhegow\Validator\Rule\Kit\Rule
 
 // > создаем enum-ы для тестирования правила InEnum (только для PHP >8.1.0)
 if (PHP_VERSION_ID >= 80100) {
-    require_once __DIR__ . '/enum/HelloWorldEnum.php';
-    require_once __DIR__ . '/enum/HelloWorldBackedEnum.php';
+    require_once __DIR__ . '/tests/src/Enum/HelloWorldEnum.php';
+    require_once __DIR__ . '/tests/src/Enum/HelloWorldBackedEnum.php';
 }
 
 
