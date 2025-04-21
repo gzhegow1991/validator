@@ -1,0 +1,38 @@
+{
+  "name": "gzhegow/validator",
+  "type": "library",
+  "version": "1.0.0",
+  "license": "MIT",
+
+  "authors": [
+    {
+      "name": "gzhegow",
+      "email": "6562680@gmail.com"
+    }
+  ],
+
+  "require": {
+    "php": "^7.3|^8.0",
+
+    "gzhegow/lib": "~1.0"
+  },
+  "suggest": {
+    "ext-json": "*",
+    "ext-mbstring": "*"
+  },
+
+  "autoload": {
+    "psr-4": {
+      "Gzhegow\\Validator\\": "src/"
+    }
+  },
+
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+
+  "config": {
+    "optimize-autoloader": true,
+
+    "sort-packages": false
+  }
+}
