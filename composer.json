@@ -24,6 +24,15 @@
   "autoload": {
     "psr-4": {
       "Gzhegow\\Validator\\": "src/"
+    },
+    "exclude-from-classmap": [
+      "tests/src"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Gzhegow\\Validator\\": "src/",
+      "Gzhegow\\Validator\\Tests\\": "tests/src/"
     }
   },
 

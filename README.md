@@ -42,7 +42,8 @@ ini_set('memory_limit', '32M');
 
 
 
-// > добавляем несколько функция для тестирования
+// >>> ОБЪЯВЛЯЕМ несколько функция для тестирования
+
 function _values($separator = null, ...$values) : string
 {
     return \Gzhegow\Lib\Lib::debug()->values($separator, [], ...$values);
@@ -78,18 +79,20 @@ function _assert_stdout(
 }
 
 
-
+// > укорачиваем имя класса в тестах, потому что он здесь вызывается более 100 раз
 class Rule extends \Gzhegow\Validator\Rule\Kit\Rule
 {
 }
 
-
+// > создаем enum-ы для тестирования правила InEnum (только для PHP >8.1.0)
 if (PHP_VERSION_ID >= 80100) {
     require_once __DIR__ . '/enum/HelloWorldEnum.php';
     require_once __DIR__ . '/enum/HelloWorldBackedEnum.php';
 }
 
 
+
+// >>> ДОБАВЛЯЕМ валидатор в проект
 
 // > сначала всегда фабрика (она также создает зарегистрированные Rule, т.е. можно подключить IoC контейнер)
 $factory = new \Gzhegow\Validator\ValidatorFactory();
@@ -129,7 +132,7 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
     $registry
 );
 
-// > регистрируем фасад в статику для удобного доступа из закрытых контекстов
+// >>> регистрируем фасад в статику для удобного доступа из закрытых контекстов
 \Gzhegow\Validator\Validator::setFacade($validator);
 
 
