@@ -44,7 +44,7 @@ class GteFieldRule extends AbstractRule
         if (null !== $parameter1) {
             if (! Lib::type()->int($flagsMode, $parameter1)) {
                 throw new LogicException(
-                    'The `parameters[1]` should be integer, and known as `flags`'
+                    [ 'The `parameters[1]` should be integer, and known as `flags`', $parameter1 ]
                 );
             }
         }

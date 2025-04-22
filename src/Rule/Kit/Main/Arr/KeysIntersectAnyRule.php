@@ -66,18 +66,12 @@ class KeysIntersectAnyRule extends AbstractRule
                 $cmpNative = false;
                 $cmpCustomFlagsMode = $int;
 
-            } elseif (Lib::type()->userbool($bool, $parameter1)) {
-                $cmpNativeIsStrict = $bool;
-
             } elseif (Lib::type()->string_not_empty($string, $parameter1)) {
                 $cmpNativeIsStrict = ('strict' === $string);
 
             } else {
                 throw new LogicException(
-                    [
-                        'The `parameters[1]` should be string "strict", integer (`flags`), userbool (`isStrict`)',
-                        $parameter1,
-                    ]
+                    [ 'The `parameters[1]` should be string "strict" or integer (`flags`)', $parameter1 ]
                 );
             }
         }

@@ -41,18 +41,12 @@ class UniqueRule extends AbstractRule
                 $cmpNative = false;
                 $cmpCustomFlagsMode = $int;
 
-            } elseif (Lib::type()->userbool($bool, $parameter0)) {
-                $cmpNativeIsStrict = $bool;
-
             } elseif (Lib::type()->string_not_empty($string, $parameter0)) {
                 $cmpNativeIsStrict = ('strict' === $string);
 
             } else {
                 throw new LogicException(
-                    [
-                        'The `parameters[0]` should be string "strict", integer (`flags`), userbool (`isStrict`)',
-                        $parameter0,
-                    ]
+                    [ 'The `parameters[0]` should be string "strict" or integer (`flags`)', $parameter0 ]
                 );
             }
         }

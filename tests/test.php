@@ -2,7 +2,6 @@
 
 define('__ROOT__', __DIR__ . '/..');
 
-require_once getenv('COMPOSER_HOME') . '/vendor/autoload.php';
 require_once __ROOT__ . '/vendor/autoload.php';
 
 

@@ -46,9 +46,7 @@ class BetweenRule extends AbstractRule
 
         $flagsMode = null;
         if (null !== $parameter2) {
-            $theType = Lib::type();
-
-            if (! $theType->int($flagsMode, $parameter2)) {
+            if (! Lib::type()->int($flagsMode, $parameter2)) {
                 throw new LogicException(
                     [ 'The `parameters[2]` should be integer, and known as `flags`', $parameter2 ]
                 );
