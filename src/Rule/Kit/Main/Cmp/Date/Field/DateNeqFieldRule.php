@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\Field;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -25,7 +26,9 @@ class DateNeqFieldRule extends AbstractRule
         if ([] === $value) return static::message();
 
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `dateMinField`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
@@ -43,14 +46,16 @@ class DateNeqFieldRule extends AbstractRule
             return static::message();
         }
 
-        if (! $theType->date($dateModel, $fieldValue)) {
-            return 'validation.fatal';
+        if (! $theType->date($dateNeq, $fieldValue)) {
+            return null;
         }
 
         $flagsMode = _CMP_MODE_DATE_VS_USEC;
         if (null !== $parameter1) {
             if (! $theType->string_not_empty($mode, $parameter1)) {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [ 'The `parameters[1]` should be non-empty string, and known as `mode`', $parameter1 ]
+                );
             }
 
             $modes = [
@@ -67,7 +72,15 @@ class DateNeqFieldRule extends AbstractRule
             $flagsMode = $modes[ $mode ] ?? null;
 
             if (null === $flagsMode) {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [
+                        ''
+                        . 'The `mode` should be one of: '
+                        . '[ ' . implode(' ][ ', array_keys($modes)) . ' ]',
+                        //
+                        $mode,
+                    ]
+                );
             }
         }
 
@@ -76,7 +89,7 @@ class DateNeqFieldRule extends AbstractRule
             _CMP_RESULT_NAN_RETURN
         );
 
-        $status = $fnCmp($date, $dateModel);
+        $status = $fnCmp($date, $dateNeq);
 
         if (0 === $status) {
             return static::message();

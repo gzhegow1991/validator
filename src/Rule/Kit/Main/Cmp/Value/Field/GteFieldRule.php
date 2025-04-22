@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\Field;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -25,7 +26,9 @@ class GteFieldRule extends AbstractRule
         if ([] === $value) return static::message();
 
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `dateGteField`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
@@ -40,7 +43,9 @@ class GteFieldRule extends AbstractRule
         $flagsMode = null;
         if (null !== $parameter1) {
             if (! Lib::type()->int($flagsMode, $parameter1)) {
-                return 'validation.fatal';
+                throw new LogicException(
+                    'The `parameters[1]` should be integer, and known as `flags`'
+                );
             }
         }
 

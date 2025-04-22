@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Cmp\Value;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -25,22 +26,32 @@ class InsideRule extends AbstractRule
         if ([] === $value) return static::message();
 
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `valueMin`'
+            );
+        }
+
+        if (! isset($this->parameters[ 1 ])) {
+            throw new LogicException(
+                'The `parameters[1]` should be present, and known as `valueMax`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
-        $parameter1 = $this->parameters[ 1 ] ?? null;
+        $parameter1 = $this->parameters[ 1 ];
         $parameter2 = $this->parameters[ 2 ] ?? null;
 
         $valueMin = $parameter0;
-        $valueMax = $parameter1 ?? $valueMin;
+        $valueMax = $parameter1;
 
         $flagsMode = null;
         if (null !== $parameter2) {
             $theType = Lib::type();
 
             if (! $theType->int($flagsMode, $parameter2)) {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [ 'The `parameters[2]` should be integer, and known as `flags`', $parameter2 ]
+                );
             }
         }
 
@@ -52,11 +63,15 @@ class InsideRule extends AbstractRule
         $status = $fnCmp($valueMin, $valueMax);
 
         if (! is_int($status)) {
-            return 'validation.fatal';
+            throw new LogicException(
+                [ 'The `valueMin` and `valueMax` are incomparable', $valueMin, $valueMax ]
+            );
         }
 
         if (0 <= $status) {
-            return 'validation.fatal';
+            throw new LogicException(
+                [ 'The `valueMin` should be greater than `valueMax`', $valueMin, $valueMax ]
+            );
         }
 
         $statusMin = $fnCmp($value[ 0 ], $valueMin);

@@ -5,6 +5,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\In;
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\GenericRule;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -41,14 +42,16 @@ class InRule extends AbstractRule
         if ([] === $value) return static::message();
 
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `list`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
         $parameter1 = $this->parameters[ 1 ] ?? null;
 
         if (! is_array($parameter0)) {
-            return 'validation.fatal';
+            return static::message();
         }
 
         $cmpNative = true;
@@ -62,8 +65,16 @@ class InRule extends AbstractRule
             } elseif (Lib::type()->userbool($bool, $parameter1)) {
                 $cmpNativeIsStrict = $bool;
 
+            } elseif (Lib::type()->string_not_empty($string, $parameter1)) {
+                $cmpNativeIsStrict = ('strict' === $string);
+
             } else {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [
+                        'The `parameters[1]` should be string "strict", integer (`flags`), userbool (`isStrict`)',
+                        $parameter1,
+                    ]
+                );
             }
         }
 

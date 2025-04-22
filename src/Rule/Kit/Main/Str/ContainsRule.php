@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Str;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -24,31 +25,31 @@ class ContainsRule extends AbstractRule
     {
         if ([] === $value) return static::message();
 
-        if (! Lib::type()->string($string, $value[ 0 ])) {
-            return static::message();
-        }
-
-        if ('' === $string) {
-            return static::message();
-        }
-
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `needle`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
 
-        if (! Lib::type()->string($stringToContains, $parameter0)) {
-            return 'validation.fatal';
+        if (! Lib::type()->string_not_empty($string, $value[ 0 ])) {
+            return static::message();
         }
 
-        if ('' === $stringToContains) {
+        if (! Lib::type()->string($needle, $parameter0)) {
+            throw new LogicException(
+                [ 'The `parameters[0]` should be string', $needle ]
+            );
+        }
+
+        if ('' === $needle) {
             return null;
         }
 
         $fnStrpos = Lib::str()->mb_func('strpos');
 
-        if (false === $fnStrpos($string, $stringToContains)) {
+        if (false === $fnStrpos($string, $needle)) {
             return static::message();
         }
 

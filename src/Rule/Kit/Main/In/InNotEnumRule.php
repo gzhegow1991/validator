@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\In;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -25,7 +26,9 @@ class InNotEnumRule extends AbstractRule
         if ([] === $value) return static::message();
 
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `enum`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
@@ -34,10 +37,10 @@ class InNotEnumRule extends AbstractRule
 
         $theType = Lib::type();
 
-        $status = $theType->struct_enum($enumClass, $parameter0);
-
-        if (! $status) {
-            return 'validation.fatal';
+        if (! $theType->struct_enum($enumClass, $parameter0)) {
+            throw new LogicException(
+                [ 'The `parameters[0]` should be enum class or object', $parameter0 ]
+            );
         }
 
         $status = $theType->enum_case($enumItemObject, $enumItem, $enumClass);

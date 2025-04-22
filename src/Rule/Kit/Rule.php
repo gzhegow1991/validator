@@ -27,13 +27,13 @@ class Rule implements RuleDefinitionInterface
             \Gzhegow\Validator\Rule\Kit\Implicit\PresentedWithAllRule::class,
             //
             \Gzhegow\Validator\Rule\Kit\Main\Arr\DiffAllRule::class,
-            \Gzhegow\Validator\Rule\Kit\Main\Arr\DiffOneRule::class,
+            \Gzhegow\Validator\Rule\Kit\Main\Arr\DiffAnyRule::class,
             \Gzhegow\Validator\Rule\Kit\Main\Arr\IntersectAllRule::class,
-            \Gzhegow\Validator\Rule\Kit\Main\Arr\IntersectOneRule::class,
+            \Gzhegow\Validator\Rule\Kit\Main\Arr\IntersectAnyRule::class,
             \Gzhegow\Validator\Rule\Kit\Main\Arr\KeysDiffAllRule::class,
-            \Gzhegow\Validator\Rule\Kit\Main\Arr\KeysDiffOneRule::class,
+            \Gzhegow\Validator\Rule\Kit\Main\Arr\KeysDiffAnyRule::class,
             \Gzhegow\Validator\Rule\Kit\Main\Arr\KeysIntersectAllRule::class,
-            \Gzhegow\Validator\Rule\Kit\Main\Arr\KeysIntersectOneRule::class,
+            \Gzhegow\Validator\Rule\Kit\Main\Arr\KeysIntersectAnyRule::class,
             \Gzhegow\Validator\Rule\Kit\Main\Arr\UniqueRule::class,
             //
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\Field\DateEqFieldRule::class,
@@ -164,7 +164,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Implicit\BlankRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -172,7 +172,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Implicit\NotBlankRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -180,7 +180,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Implicit\PresentRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -188,7 +188,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Implicit\NotPresentRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -196,7 +196,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Implicit\PresentAnyRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -204,7 +204,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Implicit\PresentedWithoutAllRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -212,7 +212,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Implicit\PresentPairRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -220,7 +220,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Implicit\PresentedWithOneRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -228,7 +228,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Implicit\PresentSideRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -236,7 +236,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Implicit\PresentedWithoutOneRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -244,7 +244,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Implicit\PresentSetRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -252,7 +252,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Implicit\PresentedWithAllRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -262,15 +262,15 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Arr\DiffAllRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
-    public static function diff_one(array $parameters = [])
+    public static function diff_any(array $parameters = [])
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
-            \Gzhegow\Validator\Rule\Kit\Main\Arr\DiffOneRule::class,
-            $parameters
+            \Gzhegow\Validator\Rule\Kit\Main\Arr\DiffAnyRule::class,
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -278,15 +278,15 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Arr\IntersectAllRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
-    public static function intersect_one(array $parameters = [])
+    public static function intersect_any(array $parameters = [])
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
-            \Gzhegow\Validator\Rule\Kit\Main\Arr\IntersectOneRule::class,
-            $parameters
+            \Gzhegow\Validator\Rule\Kit\Main\Arr\IntersectAnyRule::class,
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -294,15 +294,15 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Arr\KeysDiffAllRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
-    public static function keys_diff_one(array $parameters = [])
+    public static function keys_diff_any(array $parameters = [])
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
-            \Gzhegow\Validator\Rule\Kit\Main\Arr\KeysDiffOneRule::class,
-            $parameters
+            \Gzhegow\Validator\Rule\Kit\Main\Arr\KeysDiffAnyRule::class,
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -310,15 +310,15 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Arr\KeysIntersectAllRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
-    public static function keys_intersect_one(array $parameters = [])
+    public static function keys_intersect_any(array $parameters = [])
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
-            \Gzhegow\Validator\Rule\Kit\Main\Arr\KeysIntersectOneRule::class,
-            $parameters
+            \Gzhegow\Validator\Rule\Kit\Main\Arr\KeysIntersectAnyRule::class,
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -326,7 +326,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Arr\UniqueRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -336,7 +336,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\Field\DateEqFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -344,7 +344,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\Field\DateNeqFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -352,7 +352,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\Field\DateGtFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -360,7 +360,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\Field\DateLtFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -368,7 +368,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\Field\DateMaxFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -376,7 +376,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\Field\DateMinFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -385,7 +385,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\DateBetweenRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -393,7 +393,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\DateInsideRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -401,7 +401,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\DateEqRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -409,7 +409,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\DateNeqRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -417,7 +417,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\DateGtRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -425,7 +425,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\DateLtRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -433,7 +433,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\DateMaxRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -441,7 +441,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Date\DateMinRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -451,7 +451,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Size\SizeBetweenRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -459,7 +459,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Size\SizeMaxRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -467,7 +467,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Size\SizeMinRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -475,7 +475,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Size\SizeRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -485,7 +485,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\Field\EqFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -493,7 +493,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\Field\NeqFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -501,7 +501,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\Field\GtFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -509,7 +509,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\Field\LtFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -517,7 +517,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\Field\LteFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -525,7 +525,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\Field\GteFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -534,7 +534,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\BetweenRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -542,7 +542,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\InsideRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -550,7 +550,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\EqRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -558,7 +558,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\NeqRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -566,7 +566,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\GtRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -574,7 +574,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\LtRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -582,7 +582,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\LteRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -590,7 +590,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Cmp\Value\GteRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -600,7 +600,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Format\JsonRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -610,7 +610,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\In\Field\InFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -618,7 +618,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\In\Field\InNotFieldRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -627,7 +627,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\In\InEnumRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -635,7 +635,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\In\InNotEnumRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -643,7 +643,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\In\InNotRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -651,7 +651,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\In\InRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -661,7 +661,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Net\IpInSubnetsRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -669,7 +669,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Net\IpInSubnetsV4Rule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -677,7 +677,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Net\IpInSubnetsV6Rule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -687,7 +687,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Obj\IsOfARule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -695,7 +695,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Obj\IsOfClassRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -703,7 +703,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Obj\IsOfSubclassRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -711,7 +711,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Obj\StructIsARule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -719,7 +719,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Obj\StructIsClassRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -727,7 +727,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Obj\StructIsSubclassRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -737,7 +737,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Str\ContainsRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -745,7 +745,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Str\CtypeAlnumRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -753,7 +753,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Str\CtypeAlphaRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -761,7 +761,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Str\CtypeDigitRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -769,7 +769,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Str\EndsRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -777,7 +777,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Str\RegexNotRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -785,7 +785,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Str\RegexRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -793,7 +793,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\Str\StartsRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -803,7 +803,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\ArrayRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -811,7 +811,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\DictRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -819,7 +819,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\GettypeRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -827,7 +827,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\ListRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -835,7 +835,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\ObjectRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -843,7 +843,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Main\UuidRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -853,7 +853,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Date\DateRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -861,7 +861,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Date\DateTzRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -869,7 +869,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Date\DateTzNamedRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -877,7 +877,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Date\DateTzOffsetRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -885,7 +885,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Date\IntervalRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -893,7 +893,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Date\TimezoneNamedRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -901,7 +901,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Date\TimezoneOffsetRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -909,7 +909,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Date\TimezoneRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -919,7 +919,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\File\FileRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -927,7 +927,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\File\ImageRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -937,7 +937,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Net\AddressIpRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -945,7 +945,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Net\AddressIpV4Rule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -953,7 +953,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Net\AddressIpV6Rule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -961,7 +961,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Net\AddressMacRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -969,7 +969,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Net\SubnetRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -977,7 +977,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Net\SubnetV4Rule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -985,7 +985,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Net\SubnetV6Rule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -995,7 +995,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Social\EmailRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1003,7 +1003,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Social\PhoneRealRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1011,7 +1011,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Social\PhoneRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1019,7 +1019,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Social\TelRealRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1027,7 +1027,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Social\TelRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1037,7 +1037,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Url\HostRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1045,7 +1045,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Url\LinkRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1053,7 +1053,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\Url\UrlRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1063,7 +1063,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\BooleanRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1071,7 +1071,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\BoolRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1079,7 +1079,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\DecimalRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1087,7 +1087,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\DoubleRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1095,7 +1095,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\FloatRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1103,7 +1103,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\IntegerRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1111,7 +1111,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\IntRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1119,7 +1119,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\NumericRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1127,7 +1127,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\NumericIntRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1135,7 +1135,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\NumericFloatRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1143,7 +1143,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\NumRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1151,7 +1151,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\StringRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1159,7 +1159,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\TrimRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1167,7 +1167,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\UserboolFalseRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1175,7 +1175,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\UserboolRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 
@@ -1183,7 +1183,7 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromClassAndParameters(
             \Gzhegow\Validator\Rule\Kit\Type\UserboolTrueRule::class,
-            $parameters
+            [ 'parameters' => $parameters ]
         );
     }
 }

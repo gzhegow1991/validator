@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Arr;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -24,27 +25,35 @@ class KeysIntersectAllRule extends AbstractRule
     {
         if ([] === $value) return static::message();
 
+        if (! isset($this->parameters[ 0 ])) {
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `arrayToIntersectAll`'
+            );
+        }
+
+        $parameter0 = $this->parameters[ 0 ];
+        $parameter1 = $this->parameters[ 1 ] ?? null;
+
         $valueArray = $value[ 0 ];
+
         if (! is_array($valueArray)) {
             return static::message();
         }
+
         if ([] === $valueArray) {
             return static::message();
         }
 
         $valueKeysArray = array_keys($valueArray);
 
-        if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
-        }
-
-        $parameter0 = $this->parameters[ 0 ];
-        $parameter1 = $this->parameters[ 1 ] ?? null;
-
         $arrayToIntersectAll = $parameter0;
+
         if (! is_array($arrayToIntersectAll)) {
-            return 'validation.fatal';
+            throw new LogicException(
+                [ 'The `arrayToIntersectAll` should be array', $arrayToIntersectAll ]
+            );
         }
+
         if ([] === $arrayToIntersectAll) {
             return static::message();
         }
@@ -60,8 +69,16 @@ class KeysIntersectAllRule extends AbstractRule
             } elseif (Lib::type()->userbool($bool, $parameter1)) {
                 $cmpNativeIsStrict = $bool;
 
+            } elseif (Lib::type()->string_not_empty($string, $parameter1)) {
+                $cmpNativeIsStrict = ('strict' === $string);
+
             } else {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [
+                        'The `parameters[1]` should be string "strict", integer (`flags`), userbool (`isStrict`)',
+                        $parameter1,
+                    ]
+                );
             }
         }
 

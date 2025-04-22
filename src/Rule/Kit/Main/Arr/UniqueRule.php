@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Arr;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -24,12 +25,13 @@ class UniqueRule extends AbstractRule
     {
         if ([] === $value) return static::message();
 
+        $parameter0 = $this->parameters[ 0 ] ?? null;
+
         $array = $value[ 0 ];
+
         if (! is_array($array)) {
             return static::message();
         }
-
-        $parameter0 = $this->parameters[ 0 ] ?? null;
 
         $cmpNative = true;
         $cmpNativeIsStrict = true;
@@ -42,8 +44,16 @@ class UniqueRule extends AbstractRule
             } elseif (Lib::type()->userbool($bool, $parameter0)) {
                 $cmpNativeIsStrict = $bool;
 
+            } elseif (Lib::type()->string_not_empty($string, $parameter0)) {
+                $cmpNativeIsStrict = ('strict' === $string);
+
             } else {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [
+                        'The `parameters[0]` should be string "strict", integer (`flags`), userbool (`isStrict`)',
+                        $parameter0,
+                    ]
+                );
             }
         }
 

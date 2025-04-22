@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Cmp\Date;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -24,7 +25,13 @@ class DateMaxRule extends AbstractRule
     {
         if ([] === $value) return static::message();
 
-        $parameter0 = $this->parameters[ 0 ] ?? null;
+        if (! isset($this->parameters[ 0 ])) {
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `dateMax`'
+            );
+        }
+
+        $parameter0 = $this->parameters[ 0 ];
         $parameter1 = $this->parameters[ 1 ] ?? null;
 
         $theType = Lib::type();
@@ -33,14 +40,18 @@ class DateMaxRule extends AbstractRule
             return static::message();
         }
 
-        if (! $theType->date($dateModel, $parameter0)) {
-            return 'validation.fatal';
+        if (! $theType->date($dateMax, $parameter0)) {
+            throw new LogicException(
+                [ 'The `parameters[0]` should be valid date', $parameter0 ]
+            );
         }
 
         $flagsMode = _CMP_MODE_DATE_VS_USEC;
         if (null !== $parameter1) {
             if (! $theType->string_not_empty($mode, $parameter1)) {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [ 'The `parameters[1]` should be non-empty string, and known as `mode`', $parameter1 ]
+                );
             }
 
             $modes = [
@@ -57,7 +68,15 @@ class DateMaxRule extends AbstractRule
             $flagsMode = $modes[ $mode ] ?? null;
 
             if (null === $flagsMode) {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [
+                        ''
+                        . 'The `mode` should be one of: '
+                        . '[ ' . implode(' ][ ', array_keys($modes)) . ' ]',
+                        //
+                        $mode,
+                    ]
+                );
             }
         }
 
@@ -66,7 +85,7 @@ class DateMaxRule extends AbstractRule
             _CMP_RESULT_NAN_RETURN
         );
 
-        $status = $fnCmp($date, $dateModel);
+        $status = $fnCmp($date, $dateMax);
 
         if (0 < $status) {
             return static::message();

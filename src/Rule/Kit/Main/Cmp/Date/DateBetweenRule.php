@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Cmp\Date;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -25,11 +26,15 @@ class DateBetweenRule extends AbstractRule
         if ([] === $value) return static::message();
 
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `dateMin`'
+            );
         }
 
         if (! isset($this->parameters[ 1 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[1]` should be present, and known as `dateMax`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
@@ -43,24 +48,29 @@ class DateBetweenRule extends AbstractRule
         }
 
         if (! $theType->date($dateMin, $parameter0)) {
-            return 'validation.fatal';
+            throw new LogicException(
+                [ 'The `parameters[0]` should be valid date', $parameter0 ]
+            );
         }
 
-        if (null === $parameter1) {
-            $dateMax = $dateMin;
-
-        } elseif (! $theType->date($dateMax, $parameter1)) {
-            return 'validation.fatal';
+        if (! $theType->date($dateMax, $parameter1)) {
+            throw new LogicException(
+                [ 'The `parameters[1]` should be valid date', $parameter1 ]
+            );
         }
 
         if ($dateMin > $dateMax) {
-            return 'validation.fatal';
+            throw new LogicException(
+                [ 'The `dateMin` should be greater than `dateMax`', $dateMin, $dateMax ]
+            );
         }
 
         $flagsMode = _CMP_MODE_DATE_VS_USEC;
         if (null !== $parameter2) {
             if (! $theType->string_not_empty($mode, $parameter2)) {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [ 'The `parameters[2]` should be non-empty string, and known as `mode`', $parameter2 ]
+                );
             }
 
             $modes = [
@@ -77,7 +87,15 @@ class DateBetweenRule extends AbstractRule
             $flagsMode = $modes[ $mode ] ?? null;
 
             if (null === $flagsMode) {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [
+                        ''
+                        . 'The `mode` should be one of: '
+                        . '[ ' . implode(' ][ ', array_keys($modes)) . ' ]',
+                        //
+                        $mode,
+                    ]
+                );
             }
         }
 

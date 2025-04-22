@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\In\Field;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -25,7 +26,9 @@ class InNotFieldRule extends AbstractRule
         if ([] === $value) return static::message();
 
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `listField`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
@@ -34,11 +37,11 @@ class InNotFieldRule extends AbstractRule
         $fieldPath = $validation->fieldPathOrAbsolute($parameter0, $path);
         $fieldValue = $validation->get($fieldPath, [ $this ]);
         if ($this === $fieldValue) {
-            return 'validation.fatal';
+            return static::message();
         }
 
         if (! is_array($fieldValue)) {
-            return 'validation.fatal';
+            return null;
         }
 
         $cmpNative = true;
@@ -52,8 +55,16 @@ class InNotFieldRule extends AbstractRule
             } elseif (Lib::type()->userbool($bool, $parameter1)) {
                 $cmpNativeIsStrict = $bool;
 
+            } elseif (Lib::type()->string_not_empty($string, $parameter1)) {
+                $cmpNativeIsStrict = ('strict' === $string);
+
             } else {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [
+                        'The `parameters[1]` should be string "strict", integer (`flags`), userbool (`isStrict`)',
+                        $parameter1,
+                    ]
+                );
             }
         }
 

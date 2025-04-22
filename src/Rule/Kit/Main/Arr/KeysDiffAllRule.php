@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Arr;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -24,27 +25,35 @@ class KeysDiffAllRule extends AbstractRule
     {
         if ([] === $value) return static::message();
 
-        $valueArray = $value[ 0 ];
-        if (! is_array($valueArray)) {
-            return static::message();
-        }
-        if ([] === $valueArray) {
-            return null;
-        }
-
-        $valueKeysArray = array_keys($valueArray);
-
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `arrayToDiffAll`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
         $parameter1 = $this->parameters[ 1 ] ?? null;
 
-        $arrayToDiffAll = $parameter0;
-        if (! is_array($arrayToDiffAll)) {
-            return 'validation.fatal';
+        $valueArray = $value[ 0 ];
+
+        if (! is_array($valueArray)) {
+            return static::message();
         }
+
+        if ([] === $valueArray) {
+            return null;
+        }
+
+        $valueArrayKeys = array_keys($valueArray);
+
+        $arrayToDiffAll = $parameter0;
+
+        if (! is_array($arrayToDiffAll)) {
+            throw new LogicException(
+                [ 'The `arrayToDiffAll` should be array', $arrayToDiffAll ]
+            );
+        }
+
         if ([] === $arrayToDiffAll) {
             return null;
         }
@@ -60,8 +69,16 @@ class KeysDiffAllRule extends AbstractRule
             } elseif (Lib::type()->userbool($bool, $parameter1)) {
                 $cmpNativeIsStrict = $bool;
 
+            } elseif (Lib::type()->string_not_empty($string, $parameter1)) {
+                $cmpNativeIsStrict = ('strict' === $string);
+
             } else {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [
+                        'The `parameters[1]` should be string "strict", integer (`flags`), userbool (`isStrict`)',
+                        $parameter1,
+                    ]
+                );
             }
         }
 
@@ -79,7 +96,7 @@ class KeysDiffAllRule extends AbstractRule
 
         foreach ( $arrayToDiffAll as $v ) {
             $found = false;
-            foreach ( $valueKeysArray as $vv ) {
+            foreach ( $valueArrayKeys as $vv ) {
                 $bool = $cmpNative
                     ? ($cmpNativeIsStrict ? ($v === $vv) : ($v == $vv))
                     : (0 === $fnCmp($v, $vv));

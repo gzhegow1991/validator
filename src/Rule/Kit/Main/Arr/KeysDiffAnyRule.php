@@ -4,16 +4,17 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Arr;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
-class KeysDiffOneRule extends AbstractRule
+class KeysDiffAnyRule extends AbstractRule
 {
-    const NAME = 'keys_diff_one';
+    const NAME = 'keys_diff_any';
 
     public static function message(array $conditions = []) : string
     {
-        return 'validation.keys_diff_one';
+        return 'validation.keys_diff_any';
     }
 
 
@@ -24,7 +25,17 @@ class KeysDiffOneRule extends AbstractRule
     {
         if ([] === $value) return static::message();
 
+        if (! isset($this->parameters[ 0 ])) {
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `arrayToDiffAny`'
+            );
+        }
+
+        $parameter0 = $this->parameters[ 0 ];
+        $parameter1 = $this->parameters[ 1 ] ?? null;
+
         $valueArray = $value[ 0 ];
+
         if (! is_array($valueArray)) {
             return static::message();
         }
@@ -34,18 +45,15 @@ class KeysDiffOneRule extends AbstractRule
 
         $valueKeysArray = array_keys($valueArray);
 
-        if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+        $arrayToDiffAny = $parameter0;
+
+        if (! is_array($arrayToDiffAny)) {
+            throw new LogicException(
+                [ 'The `arrayToDiffAny` should be array', $arrayToDiffAny ]
+            );
         }
 
-        $parameter0 = $this->parameters[ 0 ];
-        $parameter1 = $this->parameters[ 1 ] ?? null;
-
-        $arrayToDiffOne = $parameter0;
-        if (! is_array($arrayToDiffOne)) {
-            return 'validation.fatal';
-        }
-        if ([] === $arrayToDiffOne) {
+        if ([] === $arrayToDiffAny) {
             return null;
         }
 
@@ -60,8 +68,16 @@ class KeysDiffOneRule extends AbstractRule
             } elseif (Lib::type()->userbool($bool, $parameter1)) {
                 $cmpNativeIsStrict = $bool;
 
+            } elseif (Lib::type()->string_not_empty($string, $parameter1)) {
+                $cmpNativeIsStrict = ('strict' === $string);
+
             } else {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [
+                        'The `parameters[1]` should be string "strict", integer (`flags`), userbool (`isStrict`)',
+                        $parameter1,
+                    ]
+                );
             }
         }
 
@@ -77,7 +93,7 @@ class KeysDiffOneRule extends AbstractRule
 
         $status = false;
 
-        foreach ( $arrayToDiffOne as $v ) {
+        foreach ( $arrayToDiffAny as $v ) {
             $found = false;
             foreach ( $valueKeysArray as $vv ) {
                 $bool = $cmpNative

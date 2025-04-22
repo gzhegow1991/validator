@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Cmp\Size;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -25,7 +26,9 @@ class SizeRule extends AbstractRule
         if ([] === $value) return static::message();
 
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `size`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
@@ -33,17 +36,41 @@ class SizeRule extends AbstractRule
 
         $theType = Lib::type();
 
-        if (! $theType->int($sizeModel, $parameter0)) {
-            return 'validation.fatal';
+        if (! $theType->int($sizeEq, $parameter0)) {
+            throw new LogicException(
+                [ 'The `parameters[0]` should be integer', $parameter0 ]
+            );
         }
 
         $mode = 'size';
         if (null !== $parameter1) {
             if (! $theType->string_not_empty($mode, $parameter1)) {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [ 'The `parameters[2]` should be non-empty string, and known as `mode`', $parameter1 ]
+                );
+            }
+
+            $modes = [
+                'size'    => true,
+                'count'   => true,
+                'strsize' => true,
+                'strlen'  => true,
+            ];
+
+            if (! isset($modes[ $mode ])) {
+                throw new LogicException(
+                    [
+                        ''
+                        . 'The `mode` should be one of: '
+                        . '[ ' . implode(' ][ ', array_keys($modes)) . ' ]',
+                        //
+                        $mode,
+                    ]
+                );
             }
         }
 
+        $fnSize = '';
         if ('size' === $mode) {
             $fnSize = [ Lib::php(), 'size' ];
 
@@ -55,9 +82,6 @@ class SizeRule extends AbstractRule
 
         } elseif ('strlen' === $mode) {
             $fnSize = [ Lib::str(), 'strlen' ];
-
-        } else {
-            return 'validation.fatal';
         }
 
         $size = $fnSize($value[ 0 ]);
@@ -66,7 +90,7 @@ class SizeRule extends AbstractRule
             return static::message();
         }
 
-        if ($size !== $sizeModel) {
+        if ($size !== $sizeEq) {
             return static::message();
         }
 

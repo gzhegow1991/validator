@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Str;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -24,29 +25,31 @@ class RegexRule extends AbstractRule
     {
         if ([] === $value) return static::message();
 
-        if (! Lib::type()->string($string, $value[ 0 ])) {
-            return static::message();
-        }
-
-        if ('' === $string) {
-            return static::message();
-        }
-
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `regex`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
         $parameter1 = $this->parameters[ 1 ] ?? null;
 
-        if (! Lib::type()->string($regex, $parameter0)) {
-            return 'validation.fatal';
+        if (! Lib::type()->string_not_empty($string, $value[ 0 ])) {
+            return static::message();
+        }
+
+        if (! Lib::type()->string_not_empty($regex, $parameter0)) {
+            throw new LogicException(
+                [ 'The `parameters[0]` should be non-empty string', $parameter0 ]
+            );
         }
 
         $regexFlags = '';
         if (null !== $parameter1) {
             if (! Lib::type()->string_not_empty($regexFlags, $parameter1)) {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [ 'The `parameters[1]` should be non-empty string, and known as `flags`', $parameter1 ]
+                );
             }
         }
 
@@ -60,7 +63,9 @@ class RegexRule extends AbstractRule
         }
 
         if (false === $isValid) {
-            return 'validation.fatal';
+            throw new LogicException(
+                [ 'The `regexp` should be valid regular expression', $regexp ]
+            );
         }
 
         if (0 === preg_match($regexp, $string)) {

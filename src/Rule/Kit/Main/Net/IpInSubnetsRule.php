@@ -5,6 +5,7 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Net;
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\GenericRule;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -41,7 +42,9 @@ class IpInSubnetsRule extends AbstractRule
         if ([] === $value) return static::message();
 
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `subnets`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];

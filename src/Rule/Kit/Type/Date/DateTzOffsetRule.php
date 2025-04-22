@@ -4,6 +4,7 @@ namespace Gzhegow\Validator\Rule\Kit\Type\Date;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\GenericRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 use Gzhegow\Validator\Rule\Kit\Type\AbstractRuleType;
 
@@ -41,7 +42,9 @@ class DateTzOffsetRule extends AbstractRuleType
         if ([] === $value) return static::message();
 
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `formats`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
@@ -52,7 +55,9 @@ class DateTzOffsetRule extends AbstractRuleType
             ?? [];
 
         if ([] === $formats) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `formats` should be non-empty string or array'
+            );
         }
 
         $allowedTimeZoneTypes = [ 1 ];

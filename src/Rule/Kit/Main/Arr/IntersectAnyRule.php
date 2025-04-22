@@ -4,16 +4,17 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Arr;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
+use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
-class DiffOneRule extends AbstractRule
+class IntersectAnyRule extends AbstractRule
 {
-    const NAME = 'diff_one';
+    const NAME = 'intersect_any';
 
     public static function message(array $conditions = []) : string
     {
-        return 'validation.diff_one';
+        return 'validation.intersect_any';
     }
 
 
@@ -24,27 +25,35 @@ class DiffOneRule extends AbstractRule
     {
         if ([] === $value) return static::message();
 
-        $valueArray = $value[ 0 ];
-        if (! is_array($valueArray)) {
-            return static::message();
-        }
-        if ([] === $valueArray) {
-            return null;
-        }
-
         if (! isset($this->parameters[ 0 ])) {
-            return 'validation.fatal';
+            throw new LogicException(
+                'The `parameters[0]` should be present, and known as `arrayToIntersectAny`'
+            );
         }
 
         $parameter0 = $this->parameters[ 0 ];
         $parameter1 = $this->parameters[ 1 ] ?? null;
 
-        $arrayToDiffOne = $parameter0;
-        if (! is_array($arrayToDiffOne)) {
-            return 'validation.fatal';
+        $valueArray = $value[ 0 ];
+
+        if (! is_array($valueArray)) {
+            return static::message();
         }
-        if ([] === $arrayToDiffOne) {
-            return null;
+
+        if ([] === $valueArray) {
+            return static::message();
+        }
+
+        $arrayToIntersectAny = $parameter0;
+
+        if (! is_array($arrayToIntersectAny)) {
+            throw new LogicException(
+                [ 'The `arrayToIntersectAny` should be array', $arrayToIntersectAny ]
+            );
+        }
+
+        if ([] === $arrayToIntersectAny) {
+            return static::message();
         }
 
         $cmpNative = true;
@@ -58,8 +67,16 @@ class DiffOneRule extends AbstractRule
             } elseif (Lib::type()->userbool($bool, $parameter1)) {
                 $cmpNativeIsStrict = $bool;
 
+            } elseif (Lib::type()->string_not_empty($string, $parameter1)) {
+                $cmpNativeIsStrict = ('strict' === $string);
+
             } else {
-                return 'validation.fatal';
+                throw new LogicException(
+                    [
+                        'The `parameters[1]` should be string "strict", integer (`flags`), userbool (`isStrict`)',
+                        $parameter1,
+                    ]
+                );
             }
         }
 
@@ -75,24 +92,17 @@ class DiffOneRule extends AbstractRule
 
         $status = false;
 
-        foreach ( $arrayToDiffOne as $v ) {
-            $found = false;
+        foreach ( $arrayToIntersectAny as $v ) {
             foreach ( $valueArray as $vv ) {
                 $bool = $cmpNative
                     ? ($cmpNativeIsStrict ? ($v === $vv) : ($v == $vv))
                     : (0 === $fnCmp($v, $vv));
 
                 if ($bool) {
-                    $found = true;
+                    $status = true;
 
-                    break;
+                    break 2;
                 }
-            }
-
-            if (! $found) {
-                $status = true;
-
-                break;
             }
         }
 
