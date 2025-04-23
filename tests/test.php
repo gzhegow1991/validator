@@ -1,8 +1,6 @@
 <?php
 
-define('__ROOT__', __DIR__ . '/..');
-
-require_once __ROOT__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 
 // > настраиваем PHP
@@ -19,6 +17,12 @@ ini_set('memory_limit', '32M');
 
 // > объявляем несколько функция для тестирования
 $ffn = new class {
+    function root() : string
+    {
+        return realpath(__DIR__ . '/..');
+    }
+
+
     function value_array_multiline($value, ?int $maxLevel = null, array $options = []) : string
     {
         return \Gzhegow\Lib\Lib::debug()->value_array_multiline($value, $maxLevel, $options);
@@ -60,8 +64,8 @@ $ffn = new class {
 
 // > создаем enum-ы для тестирования правила InEnum (только для PHP >8.1.0)
 if (PHP_VERSION_ID >= 80100) {
-    require_once __ROOT__ . '/tests/src/Enum/HelloWorldEnum.php';
-    require_once __ROOT__ . '/tests/src/Enum/HelloWorldBackedEnum.php';
+    require_once $ffn->root() . '/tests/src/Enum/HelloWorldEnum.php';
+    require_once $ffn->root() . '/tests/src/Enum/HelloWorldBackedEnum.php';
 }
 
 
@@ -399,10 +403,10 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //     $validation->addRules('timezone', [ \Gzhegow\Validator\Rule\Kit\Rule::timezone() ]);
 // })($validation);
 //
-// (function ($validation) {
+// (function ($validation) use ($ffn) {
 //     $validation->addData([
-//         'file'  => __ROOT__ . '/tests/var/file.txt',
-//         'image' => __ROOT__ . '/tests/var/file.jpg',
+//         'file'  => $ffn->root() . '/tests/var/file.txt',
+//         'image' => $ffn->root() . '/tests/var/file.jpg',
 //     ]);
 //
 //     $validation->addRules('file', [ \Gzhegow\Validator\Rule\Kit\Rule::file([ [ 'txt' ], [ 'text/' ] ]) ]);
@@ -498,7 +502,10 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //     $validation->addRules('userbool_true', [ \Gzhegow\Validator\Rule\Kit\Rule::userbool_true() ]);
 // })($validation);
 //
-// $validation->passes();
+// $status = $validation->passes();
+// $ffn->print($status, $validation->messages());
+// $ffn->print_array_multiline($validation->getRules());
+// die();
 
 
 // >>> Тесты

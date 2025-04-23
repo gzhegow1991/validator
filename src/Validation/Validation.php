@@ -421,7 +421,7 @@ class Validation implements ValidationInterface
     }
 
 
-    public function rules(array $fillKeys = []) : array
+    public function getRules() : array
     {
         if (! $this->isBuilt) {
             $this->build();
@@ -429,10 +429,25 @@ class Validation implements ValidationInterface
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
-            $this->process();
+        $result = [];
 
-            $this->isProcessed = true;
+        foreach ( $this->rulesMerged as $dotKeypath => $list ) {
+            $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
+
+            $dotPath = implode('.', $thePath);
+
+            $result[ $dotPath ] = $list;
+        }
+
+        return $result;
+    }
+
+    public function rules(array $fillKeys = []) : array
+    {
+        if (! $this->isBuilt) {
+            $this->build();
+
+            $this->isBuilt = true;
         }
 
         $hasValue = ([] !== $fillKeys);

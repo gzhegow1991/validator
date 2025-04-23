@@ -45,6 +45,8 @@ interface ValidationInterface
     public function messages() : array;
 
 
+    public function getRules() : array;
+
     public function rules(array $fillKeys = []) : array;
 
 
