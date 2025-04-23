@@ -50,52 +50,51 @@ ini_set('memory_limit', '32M');
 
 
 // > объявляем несколько функция для тестирования
-function _values($separator = null, ...$values) : string
-{
-    return \Gzhegow\Lib\Lib::debug()->values($separator, [], ...$values);
-}
-
-function _array_multiline($value, ?int $maxLevel = null, array $options = []) : string
-{
-    return \Gzhegow\Lib\Lib::debug()->value_array_multiline($value, $maxLevel, $options);
-}
-
-function _print(...$values) : void
-{
-    echo _values(' | ', ...$values) . PHP_EOL;
-}
-
-function _print_array_multiline($value, ?int $maxLevel = null, array $options = [])
-{
-    echo _array_multiline($value, $maxLevel, $options) . PHP_EOL;
-}
-
-function _assert_stdout(
-    \Closure $fn, array $fnArgs = [],
-    string $expectedStdout = null
-) : void
-{
-    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-
-    \Gzhegow\Lib\Lib::test()->assertStdout(
-        $trace,
-        $fn, $fnArgs,
-        $expectedStdout
-    );
-}
+$ffn = new class {
+    function value_array_multiline($value, ?int $maxLevel = null, array $options = []) : string
+    {
+        return \Gzhegow\Lib\Lib::debug()->value_array_multiline($value, $maxLevel, $options);
+    }
 
 
-// > укорачиваем имя класса в тестах, потому что он в README.md используется более 100 раз
-class Rule extends \Gzhegow\Validator\Rule\Kit\Rule
-{
-}
+    function values($separator = null, ...$values) : string
+    {
+        return \Gzhegow\Lib\Lib::debug()->values([], $separator, ...$values);
+    }
+
+
+    function print(...$values) : void
+    {
+        echo $this->values(' | ', ...$values) . PHP_EOL;
+    }
+
+    function print_array_multiline($value, ?int $maxLevel = null, array $options = []) : void
+    {
+        echo $this->value_array_multiline($value, $maxLevel, $options) . PHP_EOL;
+    }
+
+
+    function assert_stdout(
+        \Closure $fn, array $fnArgs = [],
+        string $expectedStdout = null
+    ) : void
+    {
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+
+        \Gzhegow\Lib\Lib::test()->assertStdout(
+            $trace,
+            $fn, $fnArgs,
+            $expectedStdout
+        );
+    }
+};
+
 
 // > создаем enum-ы для тестирования правила InEnum (только для PHP >8.1.0)
 if (PHP_VERSION_ID >= 80100) {
     require_once __ROOT__ . '/tests/src/Enum/HelloWorldEnum.php';
     require_once __ROOT__ . '/tests/src/Enum/HelloWorldBackedEnum.php';
 }
-
 
 
 // >>> ЗАПУСКАЕМ!
@@ -176,23 +175,23 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'presented_with_all' => 0,
 //     ]);
 //
-//     $validation->addRules('blank', [ Rule::blank() ]);
-//     $validation->addRules('not_blank', [ Rule::not_blank() ]);
+//     $validation->addRules('blank', [ \Gzhegow\Validator\Rule\Kit\Rule::blank() ]);
+//     $validation->addRules('not_blank', [ \Gzhegow\Validator\Rule\Kit\Rule::not_blank() ]);
 //     //
-//     $validation->addRules('present', [ Rule::present() ]);
-//     $validation->addRules('not_present', [ Rule::not_present() ]);
+//     $validation->addRules('present', [ \Gzhegow\Validator\Rule\Kit\Rule::present() ]);
+//     $validation->addRules('not_present', [ \Gzhegow\Validator\Rule\Kit\Rule::not_present() ]);
 //     //
-//     $validation->addRules('present_any', [ Rule::present_any([ [ '_present_any_a', '_present_any_b' ] ]) ]);
-//     $validation->addRules('presented_without_all', [ Rule::presented_without_all([ [ '_present_any_a', '_present_any_b' ] ]) ]);
+//     $validation->addRules('present_any', [ \Gzhegow\Validator\Rule\Kit\Rule::present_any([ [ '_present_any_a', '_present_any_b' ] ]) ]);
+//     $validation->addRules('presented_without_all', [ \Gzhegow\Validator\Rule\Kit\Rule::presented_without_all([ [ '_present_any_a', '_present_any_b' ] ]) ]);
 //     //
-//     $validation->addRules('present_pair', [ Rule::present_pair([ [ '_present_pair_a', '_present_pair_b' ] ]) ]);
-//     $validation->addRules('presented_with_one', [ Rule::presented_with_one([ [ '_present_pair_a', '_present_pair_b' ] ]) ]);
+//     $validation->addRules('present_pair', [ \Gzhegow\Validator\Rule\Kit\Rule::present_pair([ [ '_present_pair_a', '_present_pair_b' ] ]) ]);
+//     $validation->addRules('presented_with_one', [ \Gzhegow\Validator\Rule\Kit\Rule::presented_with_one([ [ '_present_pair_a', '_present_pair_b' ] ]) ]);
 //     //
-//     $validation->addRules('present_side', [ Rule::present_side([ [ '_present_side_a', '_present_side_b' ] ]) ]);
-//     $validation->addRules('presented_without_one', [ Rule::presented_without_one([ [ '_present_side_a', '_present_side_b' ] ]) ]);
+//     $validation->addRules('present_side', [ \Gzhegow\Validator\Rule\Kit\Rule::present_side([ [ '_present_side_a', '_present_side_b' ] ]) ]);
+//     $validation->addRules('presented_without_one', [ \Gzhegow\Validator\Rule\Kit\Rule::presented_without_one([ [ '_present_side_a', '_present_side_b' ] ]) ]);
 //     //
-//     $validation->addRules('present_set', [ Rule::present_set([ [ '_present_set_a', '_present_set_b' ] ]) ]);
-//     $validation->addRules('presented_with_all', [ Rule::presented_with_all([ [ '_present_set_a', '_present_set_b' ] ]) ]);
+//     $validation->addRules('present_set', [ \Gzhegow\Validator\Rule\Kit\Rule::present_set([ [ '_present_set_a', '_present_set_b' ] ]) ]);
+//     $validation->addRules('presented_with_all', [ \Gzhegow\Validator\Rule\Kit\Rule::presented_with_all([ [ '_present_set_a', '_present_set_b' ] ]) ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -208,15 +207,15 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'unique'             => [ 'name1', 'Name1' ],
 //     ]);
 //
-//     $validation->addRules('diff_all', [ Rule::diff_all([ [ 4 ] ]) ]);
-//     $validation->addRules('diff_any', [ Rule::diff_any([ [ 1, 2, 3, 4 ] ]) ]);
-//     $validation->addRules('intersect_all', [ Rule::intersect_all([ [ 1, 2, 3 ] ]) ]);
-//     $validation->addRules('intersect_any', [ Rule::intersect_any([ [ 1 ] ]) ]);
-//     $validation->addRules('keys_diff_all', [ Rule::keys_diff_all([ [ 4 ] ]) ]);
-//     $validation->addRules('keys_diff_any', [ Rule::keys_diff_any([ [ 1, 2, 3, 4 ] ]) ]);
-//     $validation->addRules('keys_intersect_all', [ Rule::keys_intersect_all([ [ 1, 2, 3 ] ]) ]);
-//     $validation->addRules('keys_intersect_any', [ Rule::keys_intersect_any([ [ 1 ] ]) ]);
-//     $validation->addRules('unique', [ Rule::unique() ]);
+//     $validation->addRules('diff_all', [ \Gzhegow\Validator\Rule\Kit\Rule::diff_all([ [ 4 ] ]) ]);
+//     $validation->addRules('diff_any', [ \Gzhegow\Validator\Rule\Kit\Rule::diff_any([ [ 1, 2, 3, 4 ] ]) ]);
+//     $validation->addRules('intersect_all', [ \Gzhegow\Validator\Rule\Kit\Rule::intersect_all([ [ 1, 2, 3 ] ]) ]);
+//     $validation->addRules('intersect_any', [ \Gzhegow\Validator\Rule\Kit\Rule::intersect_any([ [ 1 ] ]) ]);
+//     $validation->addRules('keys_diff_all', [ \Gzhegow\Validator\Rule\Kit\Rule::keys_diff_all([ [ 4 ] ]) ]);
+//     $validation->addRules('keys_diff_any', [ \Gzhegow\Validator\Rule\Kit\Rule::keys_diff_any([ [ 1, 2, 3, 4 ] ]) ]);
+//     $validation->addRules('keys_intersect_all', [ \Gzhegow\Validator\Rule\Kit\Rule::keys_intersect_all([ [ 1, 2, 3 ] ]) ]);
+//     $validation->addRules('keys_intersect_any', [ \Gzhegow\Validator\Rule\Kit\Rule::keys_intersect_any([ [ 1 ] ]) ]);
+//     $validation->addRules('unique', [ \Gzhegow\Validator\Rule\Kit\Rule::unique() ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -241,21 +240,21 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'date_min_field' => new \DateTime('@5'),
 //     ]);
 //
-//     $validation->addRules('date_between', [ Rule::date_between([ '@5', '@10' ]) ]);
-//     $validation->addRules('date_inside', [ Rule::date_inside([ '@0', '@10' ]) ]);
-//     $validation->addRules('date_eq', [ Rule::date_eq([ '@5' ]) ]);
-//     $validation->addRules('date_neq', [ Rule::date_neq([ '@0' ]) ]);
-//     $validation->addRules('date_gt', [ Rule::date_gt([ '@0' ]) ]);
-//     $validation->addRules('date_lt', [ Rule::date_lt([ '@10' ]) ]);
-//     $validation->addRules('date_max', [ Rule::date_max([ '@5' ]) ]);
-//     $validation->addRules('date_min', [ Rule::date_min([ '@5' ]) ]);
+//     $validation->addRules('date_between', [ \Gzhegow\Validator\Rule\Kit\Rule::date_between([ '@5', '@10' ]) ]);
+//     $validation->addRules('date_inside', [ \Gzhegow\Validator\Rule\Kit\Rule::date_inside([ '@0', '@10' ]) ]);
+//     $validation->addRules('date_eq', [ \Gzhegow\Validator\Rule\Kit\Rule::date_eq([ '@5' ]) ]);
+//     $validation->addRules('date_neq', [ \Gzhegow\Validator\Rule\Kit\Rule::date_neq([ '@0' ]) ]);
+//     $validation->addRules('date_gt', [ \Gzhegow\Validator\Rule\Kit\Rule::date_gt([ '@0' ]) ]);
+//     $validation->addRules('date_lt', [ \Gzhegow\Validator\Rule\Kit\Rule::date_lt([ '@10' ]) ]);
+//     $validation->addRules('date_max', [ \Gzhegow\Validator\Rule\Kit\Rule::date_max([ '@5' ]) ]);
+//     $validation->addRules('date_min', [ \Gzhegow\Validator\Rule\Kit\Rule::date_min([ '@5' ]) ]);
 //     //
-//     $validation->addRules('date_eq_field', [ Rule::date_eq_field([ '_date_field_5' ]) ]);
-//     $validation->addRules('date_neq_field', [ Rule::date_neq_field([ '_date_field_0' ]) ]);
-//     $validation->addRules('date_gt_field', [ Rule::date_gt_field([ '_date_field_0' ]) ]);
-//     $validation->addRules('date_lt_field', [ Rule::date_lt_field([ '_date_field_10' ]) ]);
-//     $validation->addRules('date_max_field', [ Rule::date_max_field([ '_date_field_5' ]) ]);
-//     $validation->addRules('date_min_field', [ Rule::date_min_field([ '_date_field_5' ]) ]);
+//     $validation->addRules('date_eq_field', [ \Gzhegow\Validator\Rule\Kit\Rule::date_eq_field([ '_date_field_5' ]) ]);
+//     $validation->addRules('date_neq_field', [ \Gzhegow\Validator\Rule\Kit\Rule::date_neq_field([ '_date_field_0' ]) ]);
+//     $validation->addRules('date_gt_field', [ \Gzhegow\Validator\Rule\Kit\Rule::date_gt_field([ '_date_field_0' ]) ]);
+//     $validation->addRules('date_lt_field', [ \Gzhegow\Validator\Rule\Kit\Rule::date_lt_field([ '_date_field_10' ]) ]);
+//     $validation->addRules('date_max_field', [ \Gzhegow\Validator\Rule\Kit\Rule::date_max_field([ '_date_field_5' ]) ]);
+//     $validation->addRules('date_min_field', [ \Gzhegow\Validator\Rule\Kit\Rule::date_min_field([ '_date_field_5' ]) ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -266,10 +265,10 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'size'         => [ 1, 1, 1 ],
 //     ]);
 //
-//     $validation->addRules('size_between', [ Rule::size_between([ 3, 3 ]) ]);
-//     $validation->addRules('size_min', [ Rule::size_min([ 3 ]) ]);
-//     $validation->addRules('size_max', [ Rule::size_max([ 3 ]) ]);
-//     $validation->addRules('size', [ Rule::size([ 3 ]) ]);
+//     $validation->addRules('size_between', [ \Gzhegow\Validator\Rule\Kit\Rule::size_between([ 3, 3 ]) ]);
+//     $validation->addRules('size_min', [ \Gzhegow\Validator\Rule\Kit\Rule::size_min([ 3 ]) ]);
+//     $validation->addRules('size_max', [ \Gzhegow\Validator\Rule\Kit\Rule::size_max([ 3 ]) ]);
+//     $validation->addRules('size', [ \Gzhegow\Validator\Rule\Kit\Rule::size([ 3 ]) ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -294,21 +293,21 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'gte_field' => 'b',
 //     ]);
 //
-//     $validation->addRules('between', [ Rule::between([ 'b', 'c' ]) ]);
-//     $validation->addRules('inside', [ Rule::inside([ 'a', 'c' ]) ]);
-//     $validation->addRules('eq', [ Rule::eq([ 'b' ]) ]);
-//     $validation->addRules('neq', [ Rule::neq([ 'a' ]) ]);
-//     $validation->addRules('gt', [ Rule::gt([ 'a' ]) ]);
-//     $validation->addRules('lt', [ Rule::lt([ 'c' ]) ]);
-//     $validation->addRules('lte', [ Rule::lte([ 'b' ]) ]);
-//     $validation->addRules('gte', [ Rule::gte([ 'b' ]) ]);
+//     $validation->addRules('between', [ \Gzhegow\Validator\Rule\Kit\Rule::between([ 'b', 'c' ]) ]);
+//     $validation->addRules('inside', [ \Gzhegow\Validator\Rule\Kit\Rule::inside([ 'a', 'c' ]) ]);
+//     $validation->addRules('eq', [ \Gzhegow\Validator\Rule\Kit\Rule::eq([ 'b' ]) ]);
+//     $validation->addRules('neq', [ \Gzhegow\Validator\Rule\Kit\Rule::neq([ 'a' ]) ]);
+//     $validation->addRules('gt', [ \Gzhegow\Validator\Rule\Kit\Rule::gt([ 'a' ]) ]);
+//     $validation->addRules('lt', [ \Gzhegow\Validator\Rule\Kit\Rule::lt([ 'c' ]) ]);
+//     $validation->addRules('lte', [ \Gzhegow\Validator\Rule\Kit\Rule::lte([ 'b' ]) ]);
+//     $validation->addRules('gte', [ \Gzhegow\Validator\Rule\Kit\Rule::gte([ 'b' ]) ]);
 //     //
-//     $validation->addRules('eq_field', [ Rule::eq_field([ '_field_b' ]) ]);
-//     $validation->addRules('neq_field', [ Rule::neq_field([ '_field_a' ]) ]);
-//     $validation->addRules('gt_field', [ Rule::gt_field([ '_field_a' ]) ]);
-//     $validation->addRules('lt_field', [ Rule::lt_field([ '_field_c' ]) ]);
-//     $validation->addRules('lte_field', [ Rule::lte_field([ '_field_b' ]) ]);
-//     $validation->addRules('gte_field', [ Rule::gte_field([ '_field_b' ]) ]);
+//     $validation->addRules('eq_field', [ \Gzhegow\Validator\Rule\Kit\Rule::eq_field([ '_field_b' ]) ]);
+//     $validation->addRules('neq_field', [ \Gzhegow\Validator\Rule\Kit\Rule::neq_field([ '_field_a' ]) ]);
+//     $validation->addRules('gt_field', [ \Gzhegow\Validator\Rule\Kit\Rule::gt_field([ '_field_a' ]) ]);
+//     $validation->addRules('lt_field', [ \Gzhegow\Validator\Rule\Kit\Rule::lt_field([ '_field_c' ]) ]);
+//     $validation->addRules('lte_field', [ \Gzhegow\Validator\Rule\Kit\Rule::lte_field([ '_field_b' ]) ]);
+//     $validation->addRules('gte_field', [ \Gzhegow\Validator\Rule\Kit\Rule::gte_field([ '_field_b' ]) ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -316,7 +315,7 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'json' => json_encode([ 1, 2, 3 ]),
 //     ]);
 //
-//     $validation->addRules('json', [ Rule::json() ]);
+//     $validation->addRules('json', [ \Gzhegow\Validator\Rule\Kit\Rule::json() ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -331,13 +330,13 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'in'           => 1,
 //     ]);
 //
-//     $validation->addRules('in_field', [ Rule::in_field([ '../_field_in' ]) ]);
-//     $validation->addRules('in_not_field', [ Rule::in_not_field([ '../_field_in' ]) ]);
+//     $validation->addRules('in_field', [ \Gzhegow\Validator\Rule\Kit\Rule::in_field([ '../_field_in' ]) ]);
+//     $validation->addRules('in_not_field', [ \Gzhegow\Validator\Rule\Kit\Rule::in_not_field([ '../_field_in' ]) ]);
 //     //
-//     $validation->addRules('in_enum', [ Rule::in_enum([ '\Gzhegow\Validator\Tests\Enum\HelloWorldBackedEnum' ]) ]);
-//     $validation->addRules('in_not_enum', [ Rule::in_not_enum([ '\Gzhegow\Validator\Tests\Enum\HelloWorldBackedEnum' ]) ]);
-//     $validation->addRules('in_not', [ Rule::in_not([ [ 1, 2, 3 ] ]) ]);
-//     $validation->addRules('in', [ Rule::in([ [ 1, 2, 3 ] ]) ]);
+//     $validation->addRules('in_enum', [ \Gzhegow\Validator\Rule\Kit\Rule::in_enum([ '\Gzhegow\Validator\Tests\Enum\HelloWorldBackedEnum' ]) ]);
+//     $validation->addRules('in_not_enum', [ \Gzhegow\Validator\Rule\Kit\Rule::in_not_enum([ '\Gzhegow\Validator\Tests\Enum\HelloWorldBackedEnum' ]) ]);
+//     $validation->addRules('in_not', [ \Gzhegow\Validator\Rule\Kit\Rule::in_not([ [ 1, 2, 3 ] ]) ]);
+//     $validation->addRules('in', [ \Gzhegow\Validator\Rule\Kit\Rule::in([ [ 1, 2, 3 ] ]) ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -347,9 +346,9 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'ip_in_subnets_v6' => '::1',
 //     ]);
 //
-//     $validation->addRules('ip_in_subnets', [ Rule::ip_in_subnets([ '127.0.0.1/32' ]) ]);
-//     $validation->addRules('ip_in_subnets_v4', [ Rule::ip_in_subnets_v4([ '127.0.0.1/32' ]) ]);
-//     $validation->addRules('ip_in_subnets_v6', [ Rule::ip_in_subnets_v6([ '::1/128' ]) ]);
+//     $validation->addRules('ip_in_subnets', [ \Gzhegow\Validator\Rule\Kit\Rule::ip_in_subnets([ '127.0.0.1/32' ]) ]);
+//     $validation->addRules('ip_in_subnets_v4', [ \Gzhegow\Validator\Rule\Kit\Rule::ip_in_subnets_v4([ '127.0.0.1/32' ]) ]);
+//     $validation->addRules('ip_in_subnets_v6', [ \Gzhegow\Validator\Rule\Kit\Rule::ip_in_subnets_v6([ '::1/128' ]) ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -362,12 +361,12 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'struct_is_subclass' => \DateTime::class,
 //     ]);
 //
-//     $validation->addRules('is_of_a', [ Rule::is_of_a([ \DateTimeInterface::class ]) ]);
-//     $validation->addRules('is_of_class', [ Rule::is_of_class([ \DateTime::class ]) ]);
-//     $validation->addRules('is_of_subclass', [ Rule::is_of_subclass([ \DateTimeInterface::class ]) ]);
-//     $validation->addRules('struct_is_a', [ Rule::struct_is_a([ \DateTimeInterface::class ]) ]);
-//     $validation->addRules('struct_is_class', [ Rule::struct_is_class([ \DateTime::class ]) ]);
-//     $validation->addRules('struct_is_subclass', [ Rule::struct_is_subclass([ \DateTimeInterface::class ]) ]);
+//     $validation->addRules('is_of_a', [ \Gzhegow\Validator\Rule\Kit\Rule::is_of_a([ \DateTimeInterface::class ]) ]);
+//     $validation->addRules('is_of_class', [ \Gzhegow\Validator\Rule\Kit\Rule::is_of_class([ \DateTime::class ]) ]);
+//     $validation->addRules('is_of_subclass', [ \Gzhegow\Validator\Rule\Kit\Rule::is_of_subclass([ \DateTimeInterface::class ]) ]);
+//     $validation->addRules('struct_is_a', [ \Gzhegow\Validator\Rule\Kit\Rule::struct_is_a([ \DateTimeInterface::class ]) ]);
+//     $validation->addRules('struct_is_class', [ \Gzhegow\Validator\Rule\Kit\Rule::struct_is_class([ \DateTime::class ]) ]);
+//     $validation->addRules('struct_is_subclass', [ \Gzhegow\Validator\Rule\Kit\Rule::struct_is_subclass([ \DateTimeInterface::class ]) ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -382,14 +381,14 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'starts'      => 'hello123',
 //     ]);
 //
-//     $validation->addRules('contains', [ Rule::contains([ 'ello1' ]) ]);
-//     $validation->addRules('ctype_alnum', [ Rule::ctype_alnum() ]);
-//     $validation->addRules('ctype_alpha', [ Rule::ctype_alpha() ]);
-//     $validation->addRules('ctype_digit', [ Rule::ctype_digit() ]);
-//     $validation->addRules('ends', [ Rule::ends([ '123' ]) ]);
-//     $validation->addRules('regex_not', [ Rule::regex_not([ '[a-z]' ]) ]);
-//     $validation->addRules('regex', [ Rule::regex([ '[a-z0-9]' ]) ]);
-//     $validation->addRules('starts', [ Rule::starts([ 'hello' ]) ]);
+//     $validation->addRules('contains', [ \Gzhegow\Validator\Rule\Kit\Rule::contains([ 'ello1' ]) ]);
+//     $validation->addRules('ctype_alnum', [ \Gzhegow\Validator\Rule\Kit\Rule::ctype_alnum() ]);
+//     $validation->addRules('ctype_alpha', [ \Gzhegow\Validator\Rule\Kit\Rule::ctype_alpha() ]);
+//     $validation->addRules('ctype_digit', [ \Gzhegow\Validator\Rule\Kit\Rule::ctype_digit() ]);
+//     $validation->addRules('ends', [ \Gzhegow\Validator\Rule\Kit\Rule::ends([ '123' ]) ]);
+//     $validation->addRules('regex_not', [ \Gzhegow\Validator\Rule\Kit\Rule::regex_not([ '[a-z]' ]) ]);
+//     $validation->addRules('regex', [ \Gzhegow\Validator\Rule\Kit\Rule::regex([ '[a-z0-9]' ]) ]);
+//     $validation->addRules('starts', [ \Gzhegow\Validator\Rule\Kit\Rule::starts([ 'hello' ]) ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -402,12 +401,12 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'uuid'       => 'c511ee5f-2351-4b92-a544-769ce1eddfea',
 //     ]);
 //
-//     $validation->addRules('array', [ Rule::array() ]);
-//     $validation->addRules('dict', [ Rule::dict() ]);
-//     $validation->addRules('gettype', [ Rule::gettype([ 'double' ]) ]);
-//     $validation->addRules('list', [ Rule::list() ]);
-//     $validation->addRules('object', [ Rule::object() ]);
-//     $validation->addRules('uuid', [ Rule::uuid() ]);
+//     $validation->addRules('array', [ \Gzhegow\Validator\Rule\Kit\Rule::array() ]);
+//     $validation->addRules('dict', [ \Gzhegow\Validator\Rule\Kit\Rule::dict() ]);
+//     $validation->addRules('gettype', [ \Gzhegow\Validator\Rule\Kit\Rule::gettype([ 'double' ]) ]);
+//     $validation->addRules('list', [ \Gzhegow\Validator\Rule\Kit\Rule::list() ]);
+//     $validation->addRules('object', [ \Gzhegow\Validator\Rule\Kit\Rule::object() ]);
+//     $validation->addRules('uuid', [ \Gzhegow\Validator\Rule\Kit\Rule::uuid() ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -422,14 +421,14 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'timezone'        => 'EET',
 //     ]);
 //
-//     $validation->addRules('date', [ Rule::date([ 'Y-m-d' ]) ]);
-//     $validation->addRules('date_tz_named', [ Rule::date_tz_named([ 'Y-m-d T' ]) ]);
-//     $validation->addRules('date_tz_offset', [ Rule::date_tz_offset([ 'Y-m-d O' ]) ]);
-//     $validation->addRules('date_tz', [ Rule::date_tz([ 'Y-m-d T' ]) ]);
-//     $validation->addRules('interval', [ Rule::interval() ]);
-//     $validation->addRules('timezone_named', [ Rule::timezone_named() ]);
-//     $validation->addRules('timezone_offset', [ Rule::timezone_offset() ]);
-//     $validation->addRules('timezone', [ Rule::timezone() ]);
+//     $validation->addRules('date', [ \Gzhegow\Validator\Rule\Kit\Rule::date([ 'Y-m-d' ]) ]);
+//     $validation->addRules('date_tz_named', [ \Gzhegow\Validator\Rule\Kit\Rule::date_tz_named([ 'Y-m-d T' ]) ]);
+//     $validation->addRules('date_tz_offset', [ \Gzhegow\Validator\Rule\Kit\Rule::date_tz_offset([ 'Y-m-d O' ]) ]);
+//     $validation->addRules('date_tz', [ \Gzhegow\Validator\Rule\Kit\Rule::date_tz([ 'Y-m-d T' ]) ]);
+//     $validation->addRules('interval', [ \Gzhegow\Validator\Rule\Kit\Rule::interval() ]);
+//     $validation->addRules('timezone_named', [ \Gzhegow\Validator\Rule\Kit\Rule::timezone_named() ]);
+//     $validation->addRules('timezone_offset', [ \Gzhegow\Validator\Rule\Kit\Rule::timezone_offset() ]);
+//     $validation->addRules('timezone', [ \Gzhegow\Validator\Rule\Kit\Rule::timezone() ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -438,8 +437,8 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'image' => __ROOT__ . '/tests/var/file.jpg',
 //     ]);
 //
-//     $validation->addRules('file', [ Rule::file([ [ 'txt' ], [ 'text/' ] ]) ]);
-//     $validation->addRules('image', [ Rule::image([ [ 'jpg' ], [ 'image/' ] ]) ]);
+//     $validation->addRules('file', [ \Gzhegow\Validator\Rule\Kit\Rule::file([ [ 'txt' ], [ 'text/' ] ]) ]);
+//     $validation->addRules('image', [ \Gzhegow\Validator\Rule\Kit\Rule::image([ [ 'jpg' ], [ 'image/' ] ]) ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -453,13 +452,13 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'subnet_v6'     => '::1/128',
 //     ]);
 //
-//     $validation->addRules('address_ip', [ Rule::address_ip() ]);
-//     $validation->addRules('address_ip_v4', [ Rule::address_ip_v4() ]);
-//     $validation->addRules('address_ip_v6', [ Rule::address_ip_v6() ]);
-//     $validation->addRules('address_mac', [ Rule::address_mac() ]);
-//     $validation->addRules('subnet', [ Rule::subnet() ]);
-//     $validation->addRules('subnet_v4', [ Rule::subnet_v4() ]);
-//     $validation->addRules('subnet_v6', [ Rule::subnet_v6() ]);
+//     $validation->addRules('address_ip', [ \Gzhegow\Validator\Rule\Kit\Rule::address_ip() ]);
+//     $validation->addRules('address_ip_v4', [ \Gzhegow\Validator\Rule\Kit\Rule::address_ip_v4() ]);
+//     $validation->addRules('address_ip_v6', [ \Gzhegow\Validator\Rule\Kit\Rule::address_ip_v6() ]);
+//     $validation->addRules('address_mac', [ \Gzhegow\Validator\Rule\Kit\Rule::address_mac() ]);
+//     $validation->addRules('subnet', [ \Gzhegow\Validator\Rule\Kit\Rule::subnet() ]);
+//     $validation->addRules('subnet_v4', [ \Gzhegow\Validator\Rule\Kit\Rule::subnet_v4() ]);
+//     $validation->addRules('subnet_v6', [ \Gzhegow\Validator\Rule\Kit\Rule::subnet_v6() ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -471,11 +470,11 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'tel'   => '+375291234567',
 //     ]);
 //
-//     $validation->addRules('email', [ Rule::email() ]);
-//     // $validation->addRules('phone_real', [ Rule::phone_real() ]);
-//     $validation->addRules('phone', [ Rule::phone() ]);
-//     // $validation->addRules('tel_real', [ Rule::tel_real() ]);
-//     $validation->addRules('tel', [ Rule::tel() ]);
+//     $validation->addRules('email', [ \Gzhegow\Validator\Rule\Kit\Rule::email() ]);
+//     // $validation->addRules('phone_real', [ \Gzhegow\Validator\Rule\Kit\Rule::phone_real() ]);
+//     $validation->addRules('phone', [ \Gzhegow\Validator\Rule\Kit\Rule::phone() ]);
+//     // $validation->addRules('tel_real', [ \Gzhegow\Validator\Rule\Kit\Rule::tel_real() ]);
+//     $validation->addRules('tel', [ \Gzhegow\Validator\Rule\Kit\Rule::tel() ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -485,9 +484,9 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'url'  => 'https://google.com/my/url/link',
 //     ]);
 //
-//     $validation->addRules('host', [ Rule::host() ]);
-//     $validation->addRules('link', [ Rule::link() ]);
-//     $validation->addRules('url', [ Rule::url() ]);
+//     $validation->addRules('host', [ \Gzhegow\Validator\Rule\Kit\Rule::host() ]);
+//     $validation->addRules('link', [ \Gzhegow\Validator\Rule\Kit\Rule::link() ]);
+//     $validation->addRules('url', [ \Gzhegow\Validator\Rule\Kit\Rule::url() ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -512,23 +511,23 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'userbool_true'  => '1',
 //     ]);
 //
-//     $validation->addRules('bool', [ Rule::bool() ]);
-//     $validation->addRules('boolean', [ Rule::boolean() ]);
-//     $validation->addRules('decimal', [ Rule::decimal([ 2 ]) ]);
-//     $validation->addRules('double', [ Rule::double() ]);
-//     $validation->addRules('float', [ Rule::float() ]);
-//     $validation->addRules('int', [ Rule::int() ]);
-//     $validation->addRules('integer', [ Rule::integer() ]);
-//     $validation->addRules('num', [ Rule::num() ]);
-//     $validation->addRules('numeric', [ Rule::numeric() ]);
-//     $validation->addRules('numeric_float', [ Rule::numeric_float() ]);
-//     $validation->addRules('numeric_int', [ Rule::numeric_int() ]);
-//     $validation->addRules('string', [ Rule::string() ]);
-//     $validation->addRules('trim', [ Rule::trim() ]);
+//     $validation->addRules('bool', [ \Gzhegow\Validator\Rule\Kit\Rule::bool() ]);
+//     $validation->addRules('boolean', [ \Gzhegow\Validator\Rule\Kit\Rule::boolean() ]);
+//     $validation->addRules('decimal', [ \Gzhegow\Validator\Rule\Kit\Rule::decimal([ 2 ]) ]);
+//     $validation->addRules('double', [ \Gzhegow\Validator\Rule\Kit\Rule::double() ]);
+//     $validation->addRules('float', [ \Gzhegow\Validator\Rule\Kit\Rule::float() ]);
+//     $validation->addRules('int', [ \Gzhegow\Validator\Rule\Kit\Rule::int() ]);
+//     $validation->addRules('integer', [ \Gzhegow\Validator\Rule\Kit\Rule::integer() ]);
+//     $validation->addRules('num', [ \Gzhegow\Validator\Rule\Kit\Rule::num() ]);
+//     $validation->addRules('numeric', [ \Gzhegow\Validator\Rule\Kit\Rule::numeric() ]);
+//     $validation->addRules('numeric_float', [ \Gzhegow\Validator\Rule\Kit\Rule::numeric_float() ]);
+//     $validation->addRules('numeric_int', [ \Gzhegow\Validator\Rule\Kit\Rule::numeric_int() ]);
+//     $validation->addRules('string', [ \Gzhegow\Validator\Rule\Kit\Rule::string() ]);
+//     $validation->addRules('trim', [ \Gzhegow\Validator\Rule\Kit\Rule::trim() ]);
 //     //
-//     $validation->addRules('userbool', [ Rule::userbool() ]);
-//     $validation->addRules('userbool_false', [ Rule::userbool_false() ]);
-//     $validation->addRules('userbool_true', [ Rule::userbool_true() ]);
+//     $validation->addRules('userbool', [ \Gzhegow\Validator\Rule\Kit\Rule::userbool() ]);
+//     $validation->addRules('userbool_false', [ \Gzhegow\Validator\Rule\Kit\Rule::userbool_false() ]);
+//     $validation->addRules('userbool_true', [ \Gzhegow\Validator\Rule\Kit\Rule::userbool_true() ]);
 // })($validation);
 //
 // $validation->passes();
@@ -538,8 +537,8 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 
 // > TEST
 // > создаем валидатор и запускаем проверку
-$fn = function () {
-    _print('TEST 1');
+$fn = function () use ($ffn) {
+    $ffn->print('TEST 1');
     echo PHP_EOL;
 
 
@@ -567,9 +566,9 @@ $fn = function () {
     ;
 
     $messages = $validation->messages();
-    _print_array_multiline($messages, 2);
+    $ffn->print_array_multiline($messages, 2);
 };
-_assert_stdout($fn, [], '
+$ffn->assert_stdout($fn, [], '
 "TEST 1"
 
 ###
@@ -593,8 +592,8 @@ _assert_stdout($fn, [], '
 
 // > TEST
 // > проверяем вложенный массив
-$fn = function () {
-    _print('TEST 2');
+$fn = function () use ($ffn) {
+    $ffn->print('TEST 2');
     echo PHP_EOL;
 
 
@@ -656,12 +655,12 @@ $fn = function () {
     ;
 
     $messages = $validation->messages();
-    _print_array_multiline($messages, 2);
+    $ffn->print_array_multiline($messages, 2);
 
     $rules = $validation->rules();
-    _print_array_multiline($rules, 2);
+    $ffn->print_array_multiline($rules, 2);
 };
-_assert_stdout($fn, [], '
+$ffn->assert_stdout($fn, [], '
 "TEST 2"
 
 ###
@@ -725,8 +724,8 @@ _assert_stdout($fn, [], '
 // > проверка механизмов фильтрации
 // > как правило, после проверки данных, следует их приведение к нужным типам
 // > например, (string) '1' часто приводится к (int) 1
-$fn = function () {
-    _print('TEST 3');
+$fn = function () use ($ffn) {
+    $ffn->print('TEST 3');
     echo PHP_EOL;
 
 
@@ -760,9 +759,9 @@ $fn = function () {
     ;
 
     $messages = $validation->messages();
-    _print_array_multiline($messages, 2);
+    $ffn->print_array_multiline($messages, 2);
 };
-_assert_stdout($fn, [], '
+$ffn->assert_stdout($fn, [], '
 "TEST 3"
 
 ###
@@ -792,8 +791,8 @@ _assert_stdout($fn, [], '
 
 // > TEST
 // > проверка режимов API и WEB
-$fn = function () {
-    _print('TEST 4');
+$fn = function () use ($ffn) {
+    $ffn->print('TEST 4');
     echo PHP_EOL;
 
 
@@ -819,7 +818,7 @@ $fn = function () {
     ;
 
     $messages = $validation->messages();
-    _print_array_multiline($messages, 2);
+    $ffn->print_array_multiline($messages, 2);
     echo PHP_EOL;
 
 
@@ -829,7 +828,7 @@ $fn = function () {
     ;
 
     $messages = $validation->messages();
-    _print_array_multiline($messages, 2);
+    $ffn->print_array_multiline($messages, 2);
     echo PHP_EOL;
 
 
@@ -839,7 +838,7 @@ $fn = function () {
     ;
 
     $messages = $validation->messages();
-    _print_array_multiline($messages, 2);
+    $ffn->print_array_multiline($messages, 2);
     echo PHP_EOL;
 
 
@@ -849,10 +848,10 @@ $fn = function () {
     ;
 
     $messages = $validation->messages();
-    _print_array_multiline($messages, 2);
+    $ffn->print_array_multiline($messages, 2);
     echo PHP_EOL;
 };
-_assert_stdout($fn, [], '
+$ffn->assert_stdout($fn, [], '
 "TEST 4"
 
 ###
@@ -897,8 +896,8 @@ _assert_stdout($fn, [], '
 
 // > TEST
 // > проверка разных способов указания нескольких правил и режимов маппинга на массив и объект1
-$fn = function () {
-    _print('TEST 5');
+$fn = function () use ($ffn) {
+    $ffn->print('TEST 5');
     echo PHP_EOL;
 
 
@@ -934,21 +933,21 @@ $fn = function () {
         $rules = [
             'users.21.code' => [ 'present', 'string|size_min:1' ],
             'users.22.code' => [
-                Rule::present(),
-                Rule::string(),
-                Rule::size_min([ 1 ]),
+                \Gzhegow\Validator\Rule\Kit\Rule::present(),
+                \Gzhegow\Validator\Rule\Kit\Rule::string(),
+                \Gzhegow\Validator\Rule\Kit\Rule::size_min([ 1 ]),
             ],
         ]
     );
 
     $status = $validation->passes();
-    _print($status);
+    $ffn->print($status);
 
     $errors = $validation->errors();
-    _print_array_multiline($errors, 3);
+    $ffn->print_array_multiline($errors, 3);
 
     $messages = $validation->messages();
-    _print_array_multiline($messages, 2);
+    $ffn->print_array_multiline($messages, 2);
 
     echo PHP_EOL;
 
@@ -958,11 +957,11 @@ $fn = function () {
     $invalidAttributes = $validation->invalidAttributes();
     $touchedAttributes = $validation->touchedAttributes();
     $validatedAttributes = $validation->validatedAttributes();
-    _print_array_multiline($allAttributes, 2);
-    _print_array_multiline($validAttributes, 2);
-    _print_array_multiline($invalidAttributes, 2);
-    _print_array_multiline($touchedAttributes, 2);
-    _print_array_multiline($validatedAttributes, 2);
+    $ffn->print_array_multiline($allAttributes, 2);
+    $ffn->print_array_multiline($validAttributes, 2);
+    $ffn->print_array_multiline($invalidAttributes, 2);
+    $ffn->print_array_multiline($touchedAttributes, 2);
+    $ffn->print_array_multiline($validatedAttributes, 2);
 
     // $touched = $validation->touched();
     // $invalid = $validation->invalid();
@@ -975,13 +974,13 @@ $fn = function () {
 
     $bindArray = [];
     $validation->valid($bindArray);
-    _print_array_multiline($bindArray, 3);
+    $ffn->print_array_multiline($bindArray, 3);
 
     $bindObject = new \stdClass();
     $validation->valid($bindObject);
-    _print_array_multiline((array) $bindObject, 2);
+    $ffn->print_array_multiline((array) $bindObject, 2);
 };
-_assert_stdout($fn, [], '
+$ffn->assert_stdout($fn, [], '
 "TEST 5"
 
 FALSE
