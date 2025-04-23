@@ -508,8 +508,6 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 // die();
 
 
-// >>> Тесты
-
 // > TEST
 // > создаем валидатор и запускаем проверку
 $fn = function () use ($ffn) {
@@ -601,6 +599,7 @@ $fn = function () use ($ffn) {
     $validation = $validation
         ->addData($data)
         ->addRulesMap([
+            // > можно перечислять ключи вручную
             'uuid_missing'      => 'present|uuid',
             'uuid_null'         => 'present|uuid',
             'uuid_empty_string' => 'present|uuid',
@@ -608,18 +607,13 @@ $fn = function () use ($ffn) {
             'uuid'              => 'present|uuid',
         ])
         ->addRulesMap([
-            // > можно перечислять ключи вручную
+            // > ещё можно перечислять вложенные ключи вручную
             'my_nested_array'                   => 'array',
             'my_nested_array.uuid_missing'      => 'present|uuid',
             'my_nested_array.uuid_null'         => 'present|uuid',
             'my_nested_array.uuid_empty_string' => 'present|uuid',
             'my_nested_array.uuid_wrong'        => 'present|uuid',
             'my_nested_array.uuid'              => 'present|uuid',
-            //
-            // > или можно использовать символ `*`, чтобы указать "все"
-            // > но, надо понимать, что все означает "все имеющиеся", то есть если ключ нужен, а его нет, то проверки не будет
-            'my_nested_array.my_nested_array'   => 'array',
-            'my_nested_array.my_nested_array.*' => 'present|uuid',
         ])
         ->addRulesMap([
             // > или можно использовать символ `*`, чтобы указать "все"
@@ -629,15 +623,32 @@ $fn = function () use ($ffn) {
         ])
     ;
 
-    $messages = $validation->messages();
-    $ffn->print_array_multiline($messages, 2);
-
     $rules = $validation->rules();
     $ffn->print_array_multiline($rules, 2);
+
+    $messages = $validation->messages();
+    $ffn->print_array_multiline($messages, 2);
 };
 $ffn->assert_stdout($fn, [], '
 "TEST 2"
 
+###
+[
+  "uuid_missing" => "present|uuid",
+  "uuid_null" => "present|uuid",
+  "uuid_empty_string" => "present|uuid",
+  "uuid_wrong" => "present|uuid",
+  "uuid" => "present|uuid",
+  "my_nested_array" => "array",
+  "my_nested_array.uuid_missing" => "present|uuid",
+  "my_nested_array.uuid_null" => "present|uuid",
+  "my_nested_array.uuid_empty_string" => "present|uuid",
+  "my_nested_array.uuid_wrong" => "present|uuid",
+  "my_nested_array.uuid" => "present|uuid",
+  "my_nested_array.my_nested_array" => "array",
+  "my_nested_array.my_nested_array.*" => "present|uuid"
+]
+###
 ###
 [
   "uuid_missing" => [
@@ -675,30 +686,13 @@ $ffn->assert_stdout($fn, [], '
   ]
 ]
 ###
-###
-[
-  "uuid_missing" => "present|uuid",
-  "uuid_null" => "present|uuid",
-  "uuid_empty_string" => "present|uuid",
-  "uuid_wrong" => "present|uuid",
-  "uuid" => "present|uuid",
-  "my_nested_array" => "array",
-  "my_nested_array.uuid_missing" => "present|uuid",
-  "my_nested_array.uuid_null" => "present|uuid",
-  "my_nested_array.uuid_empty_string" => "present|uuid",
-  "my_nested_array.uuid_wrong" => "present|uuid",
-  "my_nested_array.uuid" => "present|uuid",
-  "my_nested_array.my_nested_array" => "array",
-  "my_nested_array.my_nested_array.*" => "present|uuid"
-]
-###
 ');
 
 
 // > TEST
-// > проверка механизмов фильтрации
-// > как правило, после проверки данных, следует их приведение к нужным типам
-// > например, (string) '1' часто приводится к (int) 1
+// > проверка механизмов фильтрации и умолчаний
+// > например, (string) '1' часто приводится к (int) 1, перед тем как его проверить
+// > так же в валидаторе есть возможность указать "значение по-умолчанию", и перед проверкой сравнение ===, чтобы не проверять
 $fn = function () use ($ffn) {
     $ffn->print('TEST 3');
     echo PHP_EOL;
@@ -707,33 +701,76 @@ $fn = function () use ($ffn) {
     $validation = \Gzhegow\Validator\Validator::new();
 
     $data = [
-        'my_key_int_0'  => '0',
-        'my_key_int_1'  => '1',
+        0      => '0',
+        1      => '1',
+        2      => '2',
         //
-        'my_nested_key' => [
-            0                        => '0',
-            1                        => '1',
-            'my_nested_key_subkey_0' => '0',
-            'my_nested_key_subkey_1' => '1',
+        'key0' => '0',
+        'key1' => '1',
+        'key2' => '2',
+        //
+        'key3' => [
+            0      => '0',
+            1      => '1',
+            2      => '2',
             //
-            'my_nested_key_subkey'   => [
-                0                               => '0',
-                1                               => '1',
-                'my_nested_key_subkey_subkey_0' => '0',
-                'my_nested_key_subkey_subkey_1' => '1',
+            'key0' => '0',
+            'key1' => '1',
+            'key2' => '2',
+            //
+            'key3' => [
+                0      => '0',
+                1      => '1',
+                2      => '2',
+                //
+                'key0' => '0',
+                'key1' => '1',
+                'key2' => '2',
             ],
         ],
     ];
 
     $validation = $validation
         ->addData($data)
-        ->addRules('my_key_int_0', 'present|int|gte:1', 'intval')
-        ->addRules('my_key_int_1', 'present|int|gte:1', 'intval')
-        ->addRules('my_nested_key.*', 'present|int|gte:1', 'intval')
-        ->addRules('my_nested_key.*.*', 'present|int|gte:1', 'intval')
+        //
+        // > обратите внимание, что правила предполагают, что значение больше нуля, но "по-умолчанию" - 0
+        // > если в поле окажется 0 или значение, которое с помощью фильтра станет 0, правила не применяются и значение валидно
+        ->addRules('0', 'present|int|gt:0')
+        ->addFilters('0', 'intval')
+        ->addDefault('0', [ 0 ])
+        ->addRules('1', 'present|string|gt:1', $filter = 'strval', $default = [ '1' ])
+        ->addRules('2', 'present|string|gt:2')
+        //
+        ->addRules('key0', 'present|int|gt:0')
+        ->addFilters('key0', 'intval')
+        ->addDefault('key0', [ 0 ])
+        ->addRules('key1', 'present|string|gt:1', $filter = 'strval', $default = [ '1' ])
+        ->addRules('key2', 'present|string|gt:2')
+        //
+        // > фильтры тоже работают при указании со звездочкой
+        ->addRules('key3.*', 'present|int|gt:1', 'intval')
+        //
+        // > одна звездочка означает один уровень, указывать "все уровни" избыточно и валидатором не предусматривается
+        ->addRules('key3.*.*', 'present|int|gt:1')
     ;
 
-    $messages = $validation->messages();
+    // $data = $validation->data();                    // > получить все исходные данные
+    // $dataValidated = $validation->dataValidated();  // > получить исходные данные, к которым применились правила
+
+    // $all = $validation->all();              // > получить все итоговые данные (валидные и не валидные)
+    $valid = $validation->valid();             // > получить итоговые данные у которых нет сообщений об ошибках (в т.ч. дефолты)
+    $invalid = $validation->invalid();         // > получить итоговые данные у которых есть сообщения об ошибках (на дефолты не применяются)
+    // $validated = $validation->validated();  // > получить итоговые данные к которым применились правила (кроме дефолтов)
+
+    // $errors = $validation->errors();        // > получить все ошибки в виде двумерного массива
+    $messages = $validation->messages();       // > получить все ошибки в виде массива строк
+
+    $ffn->print_array_multiline($valid, 3);
+    echo PHP_EOL;
+
+    $ffn->print_array_multiline($invalid, 3);
+    echo PHP_EOL;
+
     $ffn->print_array_multiline($messages, 2);
 };
 $ffn->assert_stdout($fn, [], '
@@ -741,23 +778,71 @@ $ffn->assert_stdout($fn, [], '
 
 ###
 [
-  "my_key_int_0" => [
-    "validation.gte"
+  0 => 0,
+  1 => "1",
+  "key0" => 0,
+  "key1" => "1",
+  "key3" => [
+    2 => 2,
+    "key2" => 2,
+    "key3" => [
+      2 => "2",
+      "key2" => "2"
+    ]
+  ]
+]
+###
+
+###
+[
+  2 => "2",
+  "key2" => "2",
+  "key3" => [
+    0 => 0,
+    1 => 1,
+    "key0" => 0,
+    "key1" => 1,
+    "key3" => [
+      0 => "0",
+      1 => "1",
+      "key0" => "0",
+      "key1" => "1"
+    ]
+  ]
+]
+###
+
+###
+[
+  2 => [
+    "validation.gt"
   ],
-  "my_nested_key.0" => [
-    "validation.gte"
+  "key2" => [
+    "validation.gt"
   ],
-  "my_nested_key.my_nested_key_subkey_0" => [
-    "validation.gte"
+  "key3.0" => [
+    "validation.gt"
   ],
-  "my_nested_key.my_nested_key_subkey" => [
-    "validation.int"
+  "key3.1" => [
+    "validation.gt"
   ],
-  "my_nested_key.my_nested_key_subkey.0" => [
-    "validation.gte"
+  "key3.key0" => [
+    "validation.gt"
   ],
-  "my_nested_key.my_nested_key_subkey.my_nested_key_subkey_subkey_0" => [
-    "validation.gte"
+  "key3.key1" => [
+    "validation.gt"
+  ],
+  "key3.key3.0" => [
+    "validation.gt"
+  ],
+  "key3.key3.1" => [
+    "validation.gt"
+  ],
+  "key3.key3.key0" => [
+    "validation.gt"
+  ],
+  "key3.key3.key1" => [
+    "validation.gt"
   ]
 ]
 ###
@@ -766,6 +851,7 @@ $ffn->assert_stdout($fn, [], '
 
 // > TEST
 // > проверка режимов API и WEB
+// > в режиме API из запроса выбрасываются NULL, а в режиме WEB - пустые строки
 $fn = function () use ($ffn) {
     $ffn->print('TEST 4');
     echo PHP_EOL;
@@ -916,43 +1002,28 @@ $fn = function () use ($ffn) {
     );
 
     $status = $validation->passes();
-    $ffn->print($status);
-
-    $errors = $validation->errors();
-    $ffn->print_array_multiline($errors, 3);
-
     $messages = $validation->messages();
+    $ffn->print($status);
     $ffn->print_array_multiline($messages, 2);
 
     echo PHP_EOL;
 
 
-    $allAttributes = $validation->allAttributes();
     $validAttributes = $validation->validAttributes();
     $invalidAttributes = $validation->invalidAttributes();
-    $touchedAttributes = $validation->touchedAttributes();
-    $validatedAttributes = $validation->validatedAttributes();
-    $ffn->print_array_multiline($allAttributes, 2);
     $ffn->print_array_multiline($validAttributes, 2);
     $ffn->print_array_multiline($invalidAttributes, 2);
-    $ffn->print_array_multiline($touchedAttributes, 2);
-    $ffn->print_array_multiline($validatedAttributes, 2);
-
-    // $touched = $validation->touched();
-    // $invalid = $validation->invalid();
-    // $valid = $validation->valid();
-    // $validated = $validation->validated();
-    // $all = $validation->all();
 
     echo PHP_EOL;
 
 
     $bindArray = [];
     $validation->valid($bindArray);
-    $ffn->print_array_multiline($bindArray, 3);
 
     $bindObject = new \stdClass();
     $validation->valid($bindObject);
+
+    $ffn->print_array_multiline($bindArray, 3);
     $ffn->print_array_multiline((array) $bindObject, 2);
 };
 $ffn->assert_stdout($fn, [], '
@@ -961,60 +1032,6 @@ $ffn->assert_stdout($fn, [], '
 FALSE
 ###
 [
-  "users.21.name" => [
-    [
-      "message" => "validation.size_min",
-      "throwable" => NULL,
-      "value" => "{ array(1) }",
-      "key" => "name",
-      "path" => "{ array(3) }",
-      "rule" => "{ object # Gzhegow\Validator\Rule\Kit\Main\Cmp\Size\SizeMinRule }",
-      "parameters" => "{ array(1) }"
-    ]
-  ],
-  "users.22.name" => [
-    [
-      "message" => "validation.size_min",
-      "throwable" => NULL,
-      "value" => "{ array(1) }",
-      "key" => "name",
-      "path" => "{ array(3) }",
-      "rule" => "{ object # Gzhegow\Validator\Rule\Kit\Main\Cmp\Size\SizeMinRule }",
-      "parameters" => "{ array(1) }"
-    ]
-  ],
-  "users.21.code" => [
-    [
-      "message" => "validation.string",
-      "throwable" => NULL,
-      "value" => "{ array(1) }",
-      "key" => "code",
-      "path" => "{ array(3) }",
-      "rule" => "{ object # Gzhegow\Validator\Rule\Kit\Type\StringRule }",
-      "parameters" => []
-    ]
-  ],
-  "users.22.code" => [
-    [
-      "message" => "validation.string",
-      "throwable" => NULL,
-      "value" => "{ array(1) }",
-      "key" => "code",
-      "path" => "{ array(3) }",
-      "rule" => "{ object # Gzhegow\Validator\Rule\Kit\Type\StringRule }",
-      "parameters" => []
-    ]
-  ]
-]
-###
-###
-[
-  "users.21.name" => [
-    "validation.size_min"
-  ],
-  "users.22.name" => [
-    "validation.size_min"
-  ],
   "users.21.code" => [
     "validation.string"
   ],
@@ -1026,42 +1043,16 @@ FALSE
 
 ###
 [
-  "users.21.id" => 0,
-  "users.22.id" => 0,
-  "users.21.name" => NULL,
-  "users.22.name" => NULL,
+  "users.21.id" => "0",
+  "users.21.name" => "User",
+  "users.22.id" => "0",
+  "users.22.name" => "User"
+]
+###
+###
+[
   "users.21.code" => NULL,
   "users.22.code" => NULL
-]
-###
-###
-[
-  "users.21.id" => 0,
-  "users.22.id" => 0
-]
-###
-###
-[
-  "users.21.name" => NULL,
-  "users.22.name" => NULL,
-  "users.21.code" => NULL,
-  "users.22.code" => NULL
-]
-###
-###
-[
-  "users.21.id" => NULL,
-  "users.22.id" => NULL,
-  "users.21.name" => NULL,
-  "users.22.name" => NULL,
-  "users.21.code" => NULL,
-  "users.22.code" => NULL
-]
-###
-###
-[
-  "users.21.id" => 0,
-  "users.22.id" => 0
 ]
 ###
 
@@ -1069,10 +1060,12 @@ FALSE
 [
   "users" => [
     21 => [
-      "id" => 0
+      "id" => "0",
+      "name" => "User"
     ],
     22 => [
-      "id" => 0
+      "id" => "0",
+      "name" => "User"
     ]
   ]
 ]
@@ -1081,10 +1074,12 @@ FALSE
 [
   "users" => (object) [
     21 => (object) [
-      "id" => 0
+      "id" => "0",
+      "name" => "User"
     ],
     22 => (object) [
-      "id" => 0
+      "id" => "0",
+      "name" => "User"
     ]
   ]
 ]

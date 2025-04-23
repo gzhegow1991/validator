@@ -40,7 +40,7 @@ class DateEqFieldRule extends AbstractRule
             return static::message();
         }
 
-        $fieldPath = $validation->fieldPathOrAbsolute($parameter0, $path);
+        $fieldPath = $validation->fieldpathOrAbsolute($parameter0, $path);
         $fieldValue = $validation->get($fieldPath, [ $this ]);
         if ($this === $fieldValue) {
             return static::message();

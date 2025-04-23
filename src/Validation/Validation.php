@@ -31,9 +31,15 @@ class Validation implements ValidationInterface
      */
 
     /**
+     * > правила для быстрого поиска хранятся в индексированном массиве, где путь разделен NUL-байтами
+     */
+    const SYMBOL_NUL = "\0";
+
+    /**
      * > если задавать правила в строке, то несколько правил можно разделять символом `|`
      */
-    const SYMBOL_RULE_SEPARATOR = '|';
+    const SYMBOL_RULELIST_SEPARATOR = '|';
+
     /**
      * > символ `:` используется для указания аргументов правил, например, `unique:true` - первый аргумент $isStrict = true
      */
@@ -44,24 +50,29 @@ class Validation implements ValidationInterface
     const SYMBOL_RULEARGS_DELIMITER = ';';
 
     /**
-     * > правила для быстрого поиска хранятся в индексированном массиве, где путь разделен NUL-байтами
-     */
-    const SYMBOL_DOTPATH_SEPARATOR = "\0";
-
-    /**
      * > вы можете задавать правила для вложенных ключей например `path.to.key`
      */
-    const SYMBOL_RULEPATH_SEPARATOR = '.';
+    const SYMBOL_DOTPATH_SEPARATOR = '.';
+    /**
+     * > в регистрации правил на ключи можно использовать символ `*`, чтобы обработать все значения массива одинаково
+     */
+    const SYMBOL_DOTPATH_WILDCARD_SEQUENCE = '*';
+
+    /**
+     * > некоторые правила зависят от других ключей, к ним можно обращаться через `path/to/key`
+     */
+    const SYMBOL_FIELDPATH_PARENT = '.';
     /**
      * > некоторые правила зависят от других ключей, к ним можно обращаться через `../../path/to/key`
      */
     const SYMBOL_FIELDPATH_SEPARATOR = '/';
-    const SYMBOL_FIELDPATH_PARENT    = '.';
 
     /**
-     * > в регистрации правил на ключи можно использовать символ `*`, чтобы обработать все значения массива одинаково
+     * > во время процессинга значение в dataTypes[] меняет свой тип
      */
-    const SYMBOL_WILDCARD_SEQUENCE = '*';
+    const VALUE_TYPE_ORIGINAL = 1;
+    const VALUE_TYPE_FILTERED = 2;
+    const VALUE_TYPE_DEFAULT  = 3;
 
 
     /**
@@ -85,11 +96,11 @@ class Validation implements ValidationInterface
     /**
      * @var bool
      */
-    protected $modeApi;
+    protected $modeApi = false;
     /**
      * @var bool
      */
-    protected $modeWeb;
+    protected $modeWeb = false;
 
     /**
      * @var bool
@@ -110,15 +121,15 @@ class Validation implements ValidationInterface
      */
     protected $dataQueue = [];
     /**
-     * @var array<int, array<string, callable>>
+     * @var array<int, array<string, GenericFilter>>
      */
     protected $filtersQueue = [];
     /**
-     * @var array<int, array<string, string|RuleInterface>
+     * @var array<int, array<string, GenericRule>
      */
     protected $rulesQueue = [];
     /**
-     * @var array<int, array<string, mixed>>
+     * @var array<int, array<string, array{ 0?: mixed }>>
      */
     protected $defaultsQueue = [];
 
@@ -142,43 +153,42 @@ class Validation implements ValidationInterface
     /**
      * @var array
      */
-    protected $dataFiltered;
+    protected $data;
     /**
      * @var array<string, string[]>
      */
-    protected $dataFilteredIndex;
+    protected $dataPathes;
+    /**
+     * @var array<string, int>
+     */
+    protected $dataTypes;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $dataDefaults;
+    protected $dataIndex;
     /**
-     * @var array<string, string[]>
+     * @var array<string, mixed>
      */
-    protected $dataDefaultsIndex;
-
-    /**
-     * @var array
-     */
-    protected $dataValid;
-
-    /**
-     * @var array<string, array<string, bool>>
-     */
-    protected $cacheMatchDotKeypathesByDotRulepath;
+    protected $dataMergedIndex;
 
     /**
      * @var array<string, RuleInterface[]>
      */
-    protected $rulesByDotKeypath;
+    protected $rulesByKeyNulpath;
     /**
      * @var array<string, array[]>
      */
-    protected $errorsByDotKeypath;
+    protected $errorsByKeyNulpath;
     /**
      * @var array<string, string[]>
      */
-    protected $messagesByDotKeypath;
+    protected $messagesByKeyNulpath;
+
+    /**
+     * @var array<string, array<string, bool>>
+     */
+    protected $cacheMatchKeyDotpathesByWildcardDotpath;
 
 
     public function __construct(
@@ -231,29 +241,22 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        $theArr = Lib::arr();
+        $keyPath = ArrPath::from($path)->getPath();
+        $keyNulpath = static::SYMBOL_NUL . implode(static::SYMBOL_NUL, $keyPath);
 
-        $status = false
-            || $theArr->has_path($this->dataFiltered, $path, [ &$val ])
-            || $theArr->has_path($this->dataDefaults, $path, [ &$val ]);
-
-        if ($status) {
-            $value = $val;
-        }
+        $status = $this->hasByIndex($keyNulpath, $value);
 
         return $status;
     }
 
+    /**
+     * @return mixed
+     */
     public function get($path, array $fallback = []) // : mixed
     {
-        $theArr = Lib::arr();
+        $status = $this->has($path, $value);
 
-        $value = null
-            ?? $theArr->get_path($this->dataFiltered, $path, [ null ])
-            ?? $theArr->get_path($this->dataDefaults, $path, [ null ])
-            ?? $this;
-
-        if ($this === $value) {
+        if (! $status) {
             if ($fallback) {
                 [ $fallback ] = $fallback;
 
@@ -271,25 +274,40 @@ class Validation implements ValidationInterface
         return $value;
     }
 
-
-    public function hasOriginal($path, &$value = null) : bool
+    private function hasByIndex(string $nulpath, &$value = null) : bool
     {
         $value = null;
 
-        $status = Lib::arr()->has_path($this->dataMerged, $path, [ &$val ]);
+        if (isset($this->dataTypes[ $nulpath ])) {
+            $value = $this->dataIndex[ $nulpath ];
 
-        if ($status) {
-            $value = $val;
+            return true;
         }
+
+        return false;
+    }
+
+
+    public function hasFiltered($path, &$value = null) : bool
+    {
+        $value = null;
+
+        $keyPath = ArrPath::from($path)->getPath();
+        $keyNulpath = static::SYMBOL_NUL . implode(static::SYMBOL_NUL, $keyPath);
+
+        $status = $this->hasFilteredByIndex($keyNulpath, $value);
 
         return $status;
     }
 
-    public function getOriginal($path, array $fallback = []) // : mixed
+    /**
+     * @return mixed
+     */
+    public function getFiltered($path, array $fallback = []) // : mixed
     {
-        $value = Lib::arr()->get_path($this->dataMerged, $path, [ $this ]);
+        $status = $this->hasFiltered($path, $value);
 
-        if ($this === $value) {
+        if (! $status) {
             if ($fallback) {
                 [ $fallback ] = $fallback;
 
@@ -298,13 +316,134 @@ class Validation implements ValidationInterface
 
             throw new RuntimeException(
                 [
-                    'Missing path in original data',
+                    'Missing path in filtered data and defaults',
                     $path,
                 ]
             );
         }
 
         return $value;
+    }
+
+    private function hasFilteredByIndex(string $nulpath, &$value = null) : bool
+    {
+        $value = null;
+
+        $valueType = $this->dataTypes[ $nulpath ] ?? 0;
+
+        if (static::VALUE_TYPE_FILTERED === $valueType) {
+            $value = $this->dataIndex[ $nulpath ];
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public function hasDefault($path, &$value = null) : bool
+    {
+        $value = null;
+
+        $keyPath = ArrPath::from($path)->getPath();
+        $keyNulpath = static::SYMBOL_NUL . implode(static::SYMBOL_NUL, $keyPath);
+
+        $status = $this->hasDefaultByIndex($keyNulpath, $value);
+
+        return $status;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefault($path, array $fallback = []) // : mixed
+    {
+        $status = $this->hasDefault($path, $value);
+
+        if (! $status) {
+            if ($fallback) {
+                [ $fallback ] = $fallback;
+
+                return $fallback;
+            }
+
+            throw new RuntimeException(
+                [
+                    'Missing path in filtered data and defaults',
+                    $path,
+                ]
+            );
+        }
+
+        return $value;
+    }
+
+    private function hasDefaultByIndex(string $nulpath, &$value = null) : bool
+    {
+        $value = null;
+
+        $valueType = $this->dataTypes[ $nulpath ] ?? 0;
+
+        if (static::VALUE_TYPE_DEFAULT === $valueType) {
+            $value = $this->dataIndex[ $nulpath ];
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public function hasOriginal($path, &$value = null) : bool
+    {
+        $value = null;
+
+        $keyPath = ArrPath::from($path)->getPath();
+        $keyNulpath = static::SYMBOL_NUL . implode(static::SYMBOL_NUL, $keyPath);
+
+        $status = $this->hasOriginalByIndex($keyNulpath, $value);
+
+        return $status;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOriginal($path, array $fallback = []) // : mixed
+    {
+        $status = $this->hasOriginal($path, $value);
+
+        if (! $status) {
+            if ($fallback) {
+                [ $fallback ] = $fallback;
+
+                return $fallback;
+            }
+
+            throw new RuntimeException(
+                [
+                    'Missing path in filtered data and defaults',
+                    $path,
+                ]
+            );
+        }
+
+        return $value;
+    }
+
+    private function hasOriginalByIndex(string $nulpath, &$value = null) : bool
+    {
+        $value = null;
+
+        $valueType = $this->dataTypes[ $nulpath ] ?? 0;
+
+        if (static::VALUE_TYPE_ORIGINAL === $valueType) {
+            $value = $this->dataIndex[ $nulpath ];
+
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -319,13 +458,13 @@ class Validation implements ValidationInterface
             throw new ValidationException($this, 'Validation failed');
         }
 
-        if (null !== $bind) {
-            $dotArray = Lib::arr()->dot($this->dataValid);
+        $valid = $this->valid();
 
-            $this->applyBind($bind, $dotArray);
+        if (null !== $bind) {
+            $this->applyBind($bind, $valid);
         }
 
-        return $this->dataValid;
+        return $valid;
     }
 
     /**
@@ -339,13 +478,13 @@ class Validation implements ValidationInterface
             throw new InspectionException($this, 'Inspection failed');
         }
 
-        if (null !== $bind) {
-            $dotArray = Lib::arr()->dot($this->dataValid);
+        $valid = $this->valid();
 
-            $this->applyBind($bind, $dotArray);
+        if (null !== $bind) {
+            $this->applyBind($bind, $valid);
         }
 
-        return $this->dataValid;
+        return $valid;
     }
 
 
@@ -363,7 +502,7 @@ class Validation implements ValidationInterface
             $this->isProcessed = true;
         }
 
-        $status = ([] === $this->errorsByDotKeypath);
+        $status = ([] === $this->errorsByKeyNulpath);
 
         return $status;
     }
@@ -383,16 +522,20 @@ class Validation implements ValidationInterface
         }
 
         $errors = [];
-        foreach ( $this->errorsByDotKeypath as $dotpath => $array ) {
-            $key = implode('.',
-                explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotpath)
+        foreach ( $this->errorsByKeyNulpath as $keyNulpath => $array ) {
+            $keyPath = explode(
+                static::SYMBOL_NUL,
+                ltrim($keyNulpath, static::SYMBOL_NUL)
             );
 
-            $errors[ $key ] = $array;
+            $keyDotpath = implode('.', $keyPath);
+
+            $errors[ $keyDotpath ] = $array;
         }
 
         return $errors;
     }
+
 
     public function messages() : array
     {
@@ -408,16 +551,39 @@ class Validation implements ValidationInterface
             $this->isProcessed = true;
         }
 
-        $messages = [];
-        foreach ( $this->messagesByDotKeypath as $dotpath => $array ) {
-            $key = implode('.',
-                explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotpath)
-            );
+        $this->messagesTranslate();
 
-            $messages[ $key ] = $array;
+        return $this->messagesByKeyNulpath;
+    }
+
+    protected function messagesTranslate() : void
+    {
+        if (null !== $this->messagesByKeyNulpath) {
+            return;
         }
 
-        return $messages;
+        $messagesByKeyNulpath = [];
+
+        foreach ( $this->errorsByKeyNulpath as $keyNulpath => $array ) {
+            $keyPath = explode(
+                static::SYMBOL_NUL,
+                ltrim($keyNulpath, static::SYMBOL_NUL)
+            );
+
+            $keyDotpath = implode('.', $keyPath);
+
+            foreach ( $array as $error ) {
+                $message = $this->translator->translate(
+                    $error[ 'message' ], $error[ 'throwable' ],
+                    $error[ 'value' ], $error[ 'key' ], $error[ 'path' ],
+                    $error[ 'rule' ], $error[ 'parameters' ]
+                );
+
+                $messagesByKeyNulpath[ $keyDotpath ][] = $message;
+            }
+        }
+
+        $this->messagesByKeyNulpath = $messagesByKeyNulpath;
     }
 
 
@@ -431,12 +597,15 @@ class Validation implements ValidationInterface
 
         $result = [];
 
-        foreach ( $this->rulesMerged as $dotKeypath => $list ) {
-            $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
+        foreach ( $this->rulesMerged as $keyNulpath => $list ) {
+            $keyPath = explode(
+                static::SYMBOL_NUL,
+                ltrim($keyNulpath, static::SYMBOL_NUL)
+            );
 
-            $dotPath = implode('.', $thePath);
+            $keyDotpath = implode('.', $keyPath);
 
-            $result[ $dotPath ] = $list;
+            $result[ $keyDotpath ] = $list;
         }
 
         return $result;
@@ -455,25 +624,161 @@ class Validation implements ValidationInterface
         $result = [];
 
         if ($hasValue) {
-            foreach ( array_keys($this->rulesMerged) as $dotKeypath ) {
-                $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
+            foreach ( array_keys($this->rulesMerged) as $keyNulpath ) {
+                $keyPath = explode(
+                    static::SYMBOL_NUL,
+                    ltrim($keyNulpath, static::SYMBOL_NUL)
+                );
 
-                $dotPath = implode('.', $thePath);
+                $keyDotpath = implode('.', $keyPath);
 
-                $result[ $dotPath ] = $fillKeys[ 0 ];
+                $result[ $keyDotpath ] = $fillKeys[ 0 ];
             }
 
         } else {
-            foreach ( $this->rulesMerged as $dotKeypath => $list ) {
-                $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
+            foreach ( $this->rulesMerged as $keyNulpath => $list ) {
+                $keyPath = explode(
+                    static::SYMBOL_NUL,
+                    ltrim($keyNulpath, static::SYMBOL_NUL)
+                );
 
-                $dotPath = implode('.', $thePath);
+                $keyDotpath = implode('.', $keyPath);
 
                 $list = array_map('strval', $list);
                 $list = implode('|', $list);
 
-                $result[ $dotPath ] = $list;
+                $result[ $keyDotpath ] = $list;
             }
+        }
+
+        return $result;
+    }
+
+
+    public function data(&$bind = null) : array
+    {
+        if (! $this->isBuilt) {
+            $this->build();
+
+            $this->isBuilt = true;
+        }
+
+        $theArr = Lib::arr();
+
+        $result = [];
+
+        $gen = $theArr->walk_it(
+            $this->dataMerged,
+            _ARR_WALK_WITH_EMPTY_ARRAYS
+        );
+
+        foreach ( $gen as $keyPath => $value ) {
+            $theArr->set_path(
+                $result, $keyPath, $value
+            );
+        }
+
+        if (null !== $bind) {
+            $this->applyBind($bind, $result);
+        }
+
+        return $result;
+    }
+
+    public function dataAttributes(array $fillKeys = []) : array
+    {
+        if (! $this->isBuilt) {
+            $this->build();
+
+            $this->isBuilt = true;
+        }
+
+        $result = Lib::arr()->dot(
+            $this->dataMerged, '.', $fillKeys,
+            _ARR_WALK_WITH_EMPTY_ARRAYS | _ARR_WALK_WITH_LISTS
+        );
+
+        return $result;
+    }
+
+
+    public function dataValidated(&$bind = null) : array
+    {
+        if (! $this->isBuilt) {
+            $this->build();
+
+            $this->isBuilt = true;
+        }
+
+        if (! $this->isProcessed) {
+            $this->process();
+
+            $this->isProcessed = true;
+        }
+
+        $theArr = Lib::arr();
+
+        $result = [];
+
+        foreach ( $this->dataMergedIndex as $keyNulpath => $value ) {
+            $hasRules = isset($this->rulesByKeyNulpath[ $keyNulpath ]);
+
+            if (! $hasRules) {
+                continue;
+            }
+
+            if (is_array($value) && ([] !== $value)) {
+                continue;
+            }
+
+            $keyPath = $this->dataPathes[ $keyNulpath ];
+
+            $theArr->set_path($result, $keyPath, $value);
+        }
+
+        if (null !== $bind) {
+            $this->applyBind($bind, $result);
+        }
+
+        return $result;
+    }
+
+    public function dataValidatedAttributes(array $fillKeys = []) : array
+    {
+        if (! $this->isBuilt) {
+            $this->build();
+
+            $this->isBuilt = true;
+        }
+
+        if (! $this->isProcessed) {
+            $this->process();
+
+            $this->isProcessed = true;
+        }
+
+        $hasValue = ([] !== $fillKeys);
+
+        $result = [];
+
+        foreach ( $this->dataMergedIndex as $keyNulpath => $value ) {
+            $hasRules = isset($this->rulesByKeyNulpath[ $keyNulpath ]);
+
+            if (! $hasRules) {
+                continue;
+            }
+
+            if (is_array($value) && ([] !== $value)) {
+                continue;
+            }
+
+            $keyPath = $this->dataPathes[ $keyNulpath ];
+
+            $keyDotpath = implode('.', $keyPath);
+
+            $result[ $keyDotpath ] = $hasValue
+                ? $fillKeys[ 0 ]
+                : $value;
         }
 
         return $result;
@@ -494,19 +799,19 @@ class Validation implements ValidationInterface
             $this->isProcessed = true;
         }
 
-        $result = $this->dataValid;
+        $theArr = Lib::arr();
 
-        if ([] !== $this->errorsByDotKeypath) {
-            $theArr = Lib::arr();
+        $result = [];
 
-            foreach ( array_keys($this->errorsByDotKeypath) as $dotKeypath ) {
-                $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
-                $thePathObject = ArrPath::fromValid($thePath);
+        $gen = $theArr->walk_it(
+            $this->data,
+            _ARR_WALK_WITH_EMPTY_ARRAYS
+        );
 
-                if ($theArr->has_path($this->dataMerged, $thePathObject, [ &$theValue ])) {
-                    $theArr->set_path($result, $thePathObject, $theValue);
-                }
-            }
+        foreach ( $gen as $keyPath => $value ) {
+            $theArr->set_path(
+                $result, $keyPath, $value
+            );
         }
 
         if (null !== $bind) {
@@ -530,31 +835,10 @@ class Validation implements ValidationInterface
             $this->isProcessed = true;
         }
 
-        $hasValue = ([] !== $fillKeys);
-
-        $theArr = Lib::arr();
-
-        $result = $theArr->dot(
-            $this->dataValid, '.',
+        $result = Lib::arr()->dot(
+            $this->data, '.', $fillKeys,
             _ARR_WALK_WITH_EMPTY_ARRAYS | _ARR_WALK_WITH_LISTS
         );
-
-        foreach ( array_keys($this->errorsByDotKeypath) as $dotKeypath ) {
-            $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
-
-            $dotPath = implode('.', $thePath);
-
-            if ($hasValue) {
-                $result[ $dotPath ] = $fillKeys[ 0 ];
-
-            } else {
-                $thePathObject = ArrPath::fromValid($thePath);
-
-                $theArr->has_path($this->dataMerged, $thePathObject, [ &$theValue ]);
-
-                $result[ $dotPath ] = $theValue;
-            }
-        }
 
         return $result;
     }
@@ -574,7 +858,25 @@ class Validation implements ValidationInterface
             $this->isProcessed = true;
         }
 
-        $result = $this->dataValid;
+        $theArr = Lib::arr();
+
+        $result = [];
+
+        foreach ( $this->dataIndex as $keyNulpath => $value ) {
+            $hasErrors = isset($this->errorsByKeyNulpath[ $keyNulpath ]);
+
+            if ($hasErrors) {
+                continue;
+            }
+
+            if (is_array($value) && ([] !== $value)) {
+                continue;
+            }
+
+            $keyPath = $this->dataPathes[ $keyNulpath ];
+
+            $theArr->set_path($result, $keyPath, $value);
+        }
 
         if (null !== $bind) {
             $this->applyBind($bind, $result);
@@ -599,16 +901,26 @@ class Validation implements ValidationInterface
 
         $hasValue = ([] !== $fillKeys);
 
-        $result = Lib::arr()->dot(
-            $this->dataValid, '.',
-            _ARR_WALK_WITH_EMPTY_ARRAYS | _ARR_WALK_WITH_LISTS
-        );
+        $result = [];
 
-        if ($hasValue) {
-            $result = array_fill_keys(
-                array_keys($result),
-                $fillKeys[ 0 ]
-            );
+        foreach ( $this->dataIndex as $keyNulpath => $value ) {
+            $hasErrors = isset($this->errorsByKeyNulpath[ $keyNulpath ]);
+
+            if ($hasErrors) {
+                continue;
+            }
+
+            if (is_array($value) && ([] !== $value)) {
+                continue;
+            }
+
+            $keyPath = $this->dataPathes[ $keyNulpath ];
+
+            $keyDotpath = implode('.', $keyPath);
+
+            $result[ $keyDotpath ] = $hasValue
+                ? $fillKeys[ 0 ]
+                : $value;
         }
 
         return $result;
@@ -629,17 +941,24 @@ class Validation implements ValidationInterface
             $this->isProcessed = true;
         }
 
-        $result = [];
-
         $theArr = Lib::arr();
 
-        foreach ( array_keys($this->errorsByDotKeypath) as $dotKeypath ) {
-            $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
-            $thePathObject = ArrPath::fromValid($thePath);
+        $result = [];
 
-            if ($theArr->has_path($this->dataMerged, $thePathObject, [ &$theValue ])) {
-                $theArr->set_path($result, $thePathObject, $theValue);
+        foreach ( $this->dataIndex as $keyNulpath => $value ) {
+            $hasErrors = isset($this->errorsByKeyNulpath[ $keyNulpath ]);
+
+            if (! $hasErrors) {
+                continue;
             }
+
+            if (is_array($value) && ([] !== $value)) {
+                continue;
+            }
+
+            $keyPath = $this->dataPathes[ $keyNulpath ];
+
+            $theArr->set_path($result, $keyPath, $value);
         }
 
         if (null !== $bind) {
@@ -667,98 +986,24 @@ class Validation implements ValidationInterface
 
         $result = [];
 
-        $theArr = Lib::arr();
+        foreach ( $this->dataIndex as $keyNulpath => $value ) {
+            $hasErrors = isset($this->errorsByKeyNulpath[ $keyNulpath ]);
 
-        foreach ( array_keys($this->errorsByDotKeypath) as $dotKeypath ) {
-            $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
-
-            $dotPath = implode('.', $thePath);
-
-            if ($hasValue) {
-                $result[ $dotPath ] = $fillKeys[ 0 ];
-
-            } else {
-                $thePathObject = ArrPath::fromValid($thePath);
-
-                $theArr->has_path($this->dataMerged, $thePathObject, [ &$theValue ]);
-
-                $result[ $dotPath ] = $theValue;
+            if (! $hasErrors) {
+                continue;
             }
-        }
 
-        return $result;
-    }
-
-
-    public function touched(&$bind = null) : array
-    {
-        if (! $this->isBuilt) {
-            $this->build();
-
-            $this->isBuilt = true;
-        }
-
-        if (! $this->isProcessed) {
-            $this->process();
-
-            $this->isProcessed = true;
-        }
-
-        $result = [];
-
-        $theArr = Lib::arr();
-
-        foreach ( array_keys($this->rulesByDotKeypath) as $dotKeypath ) {
-            $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
-            $thePathObject = ArrPath::fromValid($thePath);
-
-            if ($theArr->has_path($this->dataMerged, $thePathObject, [ &$theValue ])) {
-                $theArr->set_path($result, $thePathObject, $theValue);
+            if (is_array($value) && ([] !== $value)) {
+                continue;
             }
-        }
 
-        if (null !== $bind) {
-            $this->applyBind($bind, $result);
-        }
+            $keyPath = $this->dataPathes[ $keyNulpath ];
 
-        return $result;
-    }
+            $keyDotpath = implode('.', $keyPath);
 
-    public function touchedAttributes(array $fillKeys = []) : array
-    {
-        if (! $this->isBuilt) {
-            $this->build();
-
-            $this->isBuilt = true;
-        }
-
-        if (! $this->isProcessed) {
-            $this->process();
-
-            $this->isProcessed = true;
-        }
-
-        $hasValue = ([] !== $fillKeys);
-
-        $result = [];
-
-        $theArr = Lib::arr();
-
-        foreach ( array_keys($this->rulesByDotKeypath) as $dotKeypath ) {
-            $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
-
-            $dotPath = implode('.', $thePath);
-
-            if ($hasValue) {
-                $result[ $dotPath ] = $fillKeys[ 0 ];
-
-            } else {
-                $thePathObject = ArrPath::fromValid($thePath);
-
-                $theArr->has_path($this->dataMerged, $thePathObject, [ &$theValue ]);
-
-                $result[ $dotPath ] = $theValue;
-            }
+            $result[ $keyDotpath ] = $hasValue
+                ? $fillKeys[ 0 ]
+                : $value;
         }
 
         return $result;
@@ -779,21 +1024,24 @@ class Validation implements ValidationInterface
             $this->isProcessed = true;
         }
 
-        $result = [];
-
         $theArr = Lib::arr();
 
-        foreach ( array_keys($this->rulesByDotKeypath) as $dotKeypath ) {
-            if (isset($this->errorsByDotKeypath[ $dotKeypath ])) {
+        $result = [];
+
+        foreach ( $this->dataIndex as $keyNulpath => $value ) {
+            $hasRules = isset($this->rulesByKeyNulpath[ $keyNulpath ]);
+
+            if (! $hasRules) {
                 continue;
             }
 
-            $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
-            $thePathObject = ArrPath::fromValid($thePath);
-
-            if ($theArr->has_path($this->dataFiltered, $thePathObject, [ &$theValue ])) {
-                $theArr->set_path($result, $thePathObject, $theValue);
+            if (is_array($value) && ([] !== $value)) {
+                continue;
             }
+
+            $keyPath = $this->dataPathes[ $keyNulpath ];
+
+            $theArr->set_path($result, $keyPath, $value);
         }
 
         if (null !== $bind) {
@@ -821,27 +1069,24 @@ class Validation implements ValidationInterface
 
         $result = [];
 
-        $theArr = Lib::arr();
+        foreach ( $this->dataIndex as $keyNulpath => $value ) {
+            $hasRules = isset($this->rulesByKeyNulpath[ $keyNulpath ]);
 
-        foreach ( array_keys($this->rulesByDotKeypath) as $dotKeypath ) {
-            if (isset($this->errorsByDotKeypath[ $dotKeypath ])) {
+            if (! $hasRules) {
                 continue;
             }
 
-            $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
-
-            $dotPath = implode('.', $thePath);
-
-            if ($hasValue) {
-                $result[ $dotPath ] = $fillKeys[ 0 ];
-
-            } else {
-                $thePathObject = ArrPath::fromValid($thePath);
-
-                $theArr->has_path($this->dataFiltered, $thePathObject, [ &$theValue ]);
-
-                $result[ $dotPath ] = $theValue;
+            if (is_array($value) && ([] !== $value)) {
+                continue;
             }
+
+            $keyPath = $this->dataPathes[ $keyNulpath ];
+
+            $keyDotpath = implode('.', $keyPath);
+
+            $result[ $keyDotpath ] = $hasValue
+                ? $fillKeys[ 0 ]
+                : $value;
         }
 
         return $result;
@@ -856,16 +1101,14 @@ class Validation implements ValidationInterface
         // > режим подразумевает, что запрос получен из API
         // > все NULL, оказавшиеся в данных, будут удалены, будто их не передавали
 
-        $modeApi = $modeApi ?? true;
-
         $last = $this->modeApi;
 
-        if ($last !== $modeApi) {
+        $this->modeApi = $modeApi ?? false;
+
+        if ($last !== $this->modeApi) {
             $this->isBuilt = false;
             $this->isProcessed = false;
         }
-
-        $this->modeApi = $modeApi;
 
         return $this;
     }
@@ -878,16 +1121,14 @@ class Validation implements ValidationInterface
         // > режим подразумевает, что запрос получен из HTML-формы
         // > все пустые строки, оказавшиеся в данных, будут удалены, будто их не передавали
 
-        $modeWeb = $modeWeb ?? true;
-
         $last = $this->modeWeb;
 
-        if ($last !== $modeWeb) {
+        $this->modeWeb = $modeWeb ?? false;
+
+        if ($last !== $this->modeWeb) {
             $this->isBuilt = false;
             $this->isProcessed = false;
         }
-
-        $this->modeWeb = $modeWeb;
 
         return $this;
     }
@@ -923,12 +1164,12 @@ class Validation implements ValidationInterface
         array $defaults = []
     )
     {
-        if ([] !== $filters) {
-            $this->pushFilters($filters);
-        }
-
         if ([] !== $rules) {
             $this->pushRules($rules);
+        }
+
+        if ([] !== $filters) {
+            $this->pushFilters($filters);
         }
 
         if ([] !== $defaults) {
@@ -1019,34 +1260,27 @@ class Validation implements ValidationInterface
     }
 
 
-    public function rulePath($path, ...$pathes) : array
+    public function fieldpath($path, ...$pathes) : array
     {
-        return Lib::arr()->arrpath_dot(
-            static::SYMBOL_RULEPATH_SEPARATOR,
-            $path, ...$pathes
-        );
-    }
-
-
-    public function fieldPath($path, ...$pathes) : array
-    {
-        return Lib::arr()->arrpath_dot(
+        $fieldpathArray = Lib::arr()->arrpath_dot(
             static::SYMBOL_FIELDPATH_SEPARATOR,
             $path, ...$pathes
         );
+
+        $this->validateFieldpathArray($fieldpathArray);
+
+        return $fieldpathArray;
     }
 
-    public function fieldPathOrAbsolute($path, $pathCurrent) : array
+    public function fieldpathOrAbsolute($path, $pathCurrent) : array
     {
-        $thePhp = Lib::php();
-
-        $keyPath = $this->fieldPath($path);
-        $keyPathCurrent = $this->fieldPath($pathCurrent);
+        $keyPath = $this->fieldpath($path);
+        $keyPathCurrent = $this->fieldpath($pathCurrent);
 
         $keyString = implode(static::SYMBOL_FIELDPATH_SEPARATOR, $keyPath);
         $keyStringCurrent = implode(static::SYMBOL_FIELDPATH_SEPARATOR, $keyPathCurrent);
 
-        $keyStringAbsolute = $thePhp->path_or_absolute(
+        $keyStringAbsolute = Lib::php()->path_or_absolute(
             $keyString, $keyStringCurrent,
             static::SYMBOL_FIELDPATH_SEPARATOR, static::SYMBOL_FIELDPATH_PARENT
         );
@@ -1069,32 +1303,53 @@ class Validation implements ValidationInterface
         return $keyPath;
     }
 
+    protected function validateFieldpathArray(array $dotRulepathArray) : void
+    {
+        $list = [
+            static::SYMBOL_NUL                 => true,
+            static::SYMBOL_FIELDPATH_SEPARATOR => true,
+        ];
+
+        $regex = '/[\x{0}\x{2F}]/iu';
+
+        foreach ( $dotRulepathArray as $i => $p ) {
+            if (preg_match($regex, $p)) {
+                throw new LogicException(
+                    [
+                        ''
+                        . 'The `key` should not contain symbols: '
+                        . '[ ' . implode(' ][ ', array_keys($list)) . ' ]',
+                        //
+                        $p,
+                        $i,
+                    ]
+                );
+            }
+        }
+    }
+
 
     protected function build() : void
     {
-        $this->dataMerged = [];
-        $this->filtersMerged = [];
-        $this->defaultsMerged = [];
-        $this->rulesMerged = [];
+        $this->filtersMerged = null;
+        $this->defaultsMerged = null;
+        $this->rulesMerged = null;
 
-        $this->buildData();
+        $this->data = null;
+        $this->dataMerged = null;
+
+        $this->dataIndex = null;
+        $this->dataPathes = null;
+        $this->dataTypes = null;
+
+        $this->dataMergedIndex = null;
+
         $this->buildFilters();
         $this->buildDefaults();
         $this->buildRules();
-    }
 
-    protected function buildData() : void
-    {
-        $dataMerged = [];
-
-        foreach ( $this->dataQueue as $dataItem ) {
-            $dataMerged = array_replace(
-                $dataMerged,
-                $dataItem
-            );
-        }
-
-        $this->dataMerged = $dataMerged;
+        $this->buildData();
+        $this->buildDataIndex();
     }
 
     protected function buildFilters() : void
@@ -1102,11 +1357,12 @@ class Validation implements ValidationInterface
         $filtersMerged = [];
 
         foreach ( $this->filtersQueue as $filtersQueueItem ) {
-            foreach ( $filtersQueueItem as $rulepathString => $filtersList ) {
-                $dotRulepathString = $this->dotRulepathString($rulepathString);
+            foreach ( $filtersQueueItem as $rulepathWildcardString => $filtersList ) {
+                $dotpathWildcardString = $this->nulpathFromDotpath($rulepathWildcardString);
 
-                $filtersMerged[ $dotRulepathString ] = array_merge(
-                    $filtersMerged[ $rulepathString ] ?? [],
+                $filtersMerged[ $dotpathWildcardString ] = $filtersMerged[ $dotpathWildcardString ] ?? [];
+                $filtersMerged[ $dotpathWildcardString ] = array_merge(
+                    $filtersMerged[ $dotpathWildcardString ],
                     $filtersList
                 );
             }
@@ -1120,10 +1376,15 @@ class Validation implements ValidationInterface
         $defaultsMerged = [];
 
         foreach ( $this->defaultsQueue as $defaultsQueueItem ) {
-            foreach ( $defaultsQueueItem as $rulepathString => $default ) {
-                $dotRulepathString = $this->dotRulepathString($rulepathString);
+            foreach ( $defaultsQueueItem as $rulepathWildcardString => $default ) {
+                $dotpathWildcardString = $this->nulpathFromDotpath($rulepathWildcardString);
 
-                $defaultsMerged[ $dotRulepathString ] = $default;
+                if ([] === $default) {
+                    unset($defaultsMerged[ $dotpathWildcardString ]);
+
+                } else {
+                    $defaultsMerged[ $dotpathWildcardString ] = $default[ 0 ];
+                }
             }
         }
 
@@ -1135,17 +1396,83 @@ class Validation implements ValidationInterface
         $rulesMerged = [];
 
         foreach ( $this->rulesQueue as $rulesQueueItem ) {
-            foreach ( $rulesQueueItem as $rulepathString => $rulesList ) {
-                $dotRulepathString = $this->dotRulepathString($rulepathString);
+            foreach ( $rulesQueueItem as $rulepathWildcardString => $rulesList ) {
+                $wildcardDotpathString = $this->nulpathFromDotpath($rulepathWildcardString);
 
-                $rulesMerged[ $dotRulepathString ] = array_merge(
-                    $rulesMerged[ $rulepathString ] ?? [],
+                $rulesMerged[ $wildcardDotpathString ] = $rulesMerged[ $wildcardDotpathString ] ?? [];
+                $rulesMerged[ $wildcardDotpathString ] = array_merge(
+                    $rulesMerged[ $wildcardDotpathString ],
                     $rulesList
                 );
             }
         }
 
         $this->rulesMerged = $rulesMerged;
+    }
+
+    protected function buildData() : void
+    {
+        $data = [];
+
+        foreach ( $this->dataQueue as $dataItem ) {
+            $data = array_replace_recursive(
+                $data,
+                $dataItem
+            );
+        }
+
+        $dataMerged = $data;
+
+        $this->data = $data;
+        $this->dataMerged = $dataMerged;
+    }
+
+    protected function buildDataIndex() : void
+    {
+        $theArr = Lib::arr();
+
+        $data = $this->data;
+        $dataMerged = $this->dataMerged;
+
+        $dataMergedIndex = [];
+
+        $gen = $theArr->walk_it(
+            $dataMerged,
+            _ARR_WALK_WITH_PARENTS | _ARR_WALK_WITH_EMPTY_ARRAYS
+        );
+
+        foreach ( $gen as $keyPath => &$value ) {
+            $keyNulpath = ''
+                . static::SYMBOL_NUL
+                . implode(static::SYMBOL_NUL, $keyPath);
+
+            $dataMergedIndex[ $keyNulpath ] =& $value;
+        }
+
+        $this->dataMergedIndex = $dataMergedIndex;
+
+        $dataIndex = [];
+        $dataPathes = [];
+        $dataTypes = [];
+
+        $gen = $theArr->walk_it(
+            $data,
+            _ARR_WALK_WITH_PARENTS | _ARR_WALK_WITH_EMPTY_ARRAYS
+        );
+
+        foreach ( $gen as $keyPath => &$value ) {
+            $keyNulpath = ''
+                . static::SYMBOL_NUL
+                . implode(static::SYMBOL_NUL, $keyPath);
+
+            $dataIndex[ $keyNulpath ] =& $value;
+            $dataPathes[ $keyNulpath ] = $keyPath;
+            $dataTypes[ $keyNulpath ] = static::VALUE_TYPE_ORIGINAL;
+        }
+
+        $this->dataIndex = $dataIndex;
+        $this->dataPathes = $dataPathes;
+        $this->dataTypes = $dataTypes;
     }
 
 
@@ -1157,105 +1484,87 @@ class Validation implements ValidationInterface
             );
         }
 
-        $this->dataFiltered = [];
-        $this->dataFilteredIndex = [];
-        $this->dataDefaults = [];
-        $this->dataDefaultsIndex = [];
-        $this->rulesByDotKeypath = [];
-        $this->errorsByDotKeypath = [];
-        $this->messagesByDotKeypath = [];
-        $this->dataValid = [];
+        $this->rulesByKeyNulpath = null;
+        $this->errorsByKeyNulpath = null;
+        $this->messagesByKeyNulpath = null;
 
-        $this->processDataFiltered();
+        $this->processData();
         $this->processFilters();
         $this->processDefaults();
         $this->processRules();
+
         $this->processValidation();
-        $this->processDataValid();
     }
 
-    protected function processDataFiltered() : void
+    protected function processData() : void
     {
         $theArr = Lib::arr();
 
+        $isModeApi = $this->modeApi;
+        $isModeWeb = $this->modeWeb;
+
         $gen = $theArr->walk_it(
-            $this->dataMerged,
+            $this->data,
             _ARR_WALK_WITH_PARENTS | _ARR_WALK_WITH_EMPTY_ARRAYS
         );
 
-        $dataFiltered = $this->dataMerged;
-        $dataFilteredIndex = [];
-        foreach ( $gen as $keypathArray => $value ) {
+        foreach ( $gen as $keyPath => $value ) {
+            $keyNulpath = ''
+                . static::SYMBOL_NUL
+                . implode(static::SYMBOL_NUL, $keyPath);
+
             if (false
-                || ($this->modeApi && (null === $value))
-                || ($this->modeWeb && ('' === $value))
+                || ($isModeApi && (null === $value))
+                || ($isModeWeb && ('' === $value))
             ) {
-                $keypathObject = ArrPath::fromValid($keypathArray);
+                unset($this->dataIndex[ $keyNulpath ]);
+                unset($this->dataPathes[ $keyNulpath ]);
+                unset($this->dataTypes[ $keyNulpath ]);
+
+                $keyPathObject = ArrPath::fromValid($keyPath);
 
                 $theArr->unset_path(
-                    $dataFiltered,
-                    $keypathObject
+                    $this->data,
+                    $keyPathObject
                 );
 
-                continue;
+            } else {
+                $this->dataTypes[ $keyNulpath ] = static::VALUE_TYPE_FILTERED;
             }
-
-            $dotKeypathString = implode(static::SYMBOL_DOTPATH_SEPARATOR, $keypathArray);
-
-            $dataFilteredIndex[ $dotKeypathString ] = $keypathArray;
         }
-
-        $this->dataFiltered = $dataFiltered;
-        $this->dataFilteredIndex = $dataFilteredIndex;
     }
 
     protected function processFilters() : void
     {
         $theArr = Lib::arr();
 
-        $symbolSequence = static::SYMBOL_WILDCARD_SEQUENCE;
+        $symbolSequence = static::SYMBOL_DOTPATH_WILDCARD_SEQUENCE;
 
-        foreach ( $this->filtersMerged as $dotRulepathString => $filters ) {
-            $hasWildcard = (false !== strpos($dotRulepathString, $symbolSequence));
+        foreach ( $this->filtersMerged as $wildcardDotpath => $filters ) {
+            $hasWildcard = (false !== strpos($wildcardDotpath, $symbolSequence));
 
-            $isLastWildcard = false;
             if ($hasWildcard) {
-                $isLastWildcard = ($symbolSequence === substr($dotRulepathString, -1));
-
-                $dotKeypathesOfFilters = $this->matchDotKeypathesByDotRulepath($dotRulepathString);
+                $keyNulpathesOfFilters = $this->matchKeyNulpathesByWildcardDotpath($wildcardDotpath);
 
             } else {
-                $dotKeypathesOfFilters = [ $dotRulepathString ];
+                $keyNulpathesOfFilters = [ $wildcardDotpath ];
             }
 
-            foreach ( $dotKeypathesOfFilters as $dotKeypathString ) {
-                $hasValue = isset($this->dataFilteredIndex[ $dotKeypathString ]);
+            foreach ( $keyNulpathesOfFilters as $keyNulpath ) {
+                $hasValue = $this->hasFilteredByIndex($keyNulpath, $value);
 
-                $isValueArray = false;
                 if ($hasValue) {
-                    $thePath = $this->dataFilteredIndex[ $dotKeypathString ];
+                    $thePath = $this->dataPathes[ $keyNulpath ];
                     $thePathObject = ArrPath::fromValid($thePath);
-
-                    $theValue = $theArr->get_path($this->dataFiltered, $thePathObject);
-
-                    if (is_array($theValue)) {
-                        $isValueArray = true;
-                    }
-
-                    $theValue = [ $theValue ];
+                    $theValue = [ $value ];
 
                 } else {
-                    $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypathString);
+                    $thePath = explode(
+                        static::SYMBOL_NUL,
+                        ltrim($keyNulpath, static::SYMBOL_NUL)
+                    );
                     $thePathObject = ArrPath::fromValid($thePath);
-
                     $theValue = [];
-                }
-
-                if ($isLastWildcard && $isValueArray) {
-                    // > фильтры, которые заканчиваются на звездочку, например, `users.*`
-                    // > не применяются, если значение содержит потомков или является пустым родителем
-                    // > иначе какой-нибудь `intval` фильтр посечёт значения-списки
-                    continue;
                 }
 
                 $theKey = end($thePath);
@@ -1270,21 +1579,51 @@ class Validation implements ValidationInterface
                 }
 
                 if ([] !== $current) {
-                    $theArr->set_path(
-                        $this->dataFiltered,
+                    $valueNew = $current[ 0 ];
+
+                    $ref =& $theArr->put_path(
+                        $this->data,
                         $thePathObject,
-                        $current[ 0 ]
+                        $valueNew
                     );
+
+                    $this->dataIndex[ $keyNulpath ] =& $ref;
+                    $this->dataPathes[ $keyNulpath ] = $thePath;
+                    $this->dataTypes[ $keyNulpath ] = static::VALUE_TYPE_FILTERED;
+
+                    if (is_array($valueNew)) {
+                        $gen = $theArr->walk_it(
+                            $valueNew,
+                            _ARR_WALK_WITH_PARENTS | _ARR_WALK_WITH_EMPTY_ARRAYS
+                        );
+
+                        foreach ( $gen as $subkeyPath => $subkeyValue ) {
+                            $subkeyPath = array_merge($thePath, $subkeyPath);
+                            $subkeyNulpath = ''
+                                . static::SYMBOL_NUL
+                                . implode(static::SYMBOL_NUL, $subkeyPath);
+
+                            $ref =& $theArr->fetch_path($this->data, $subkeyPath);
+
+                            $this->dataIndex[ $subkeyNulpath ] =& $ref;
+                            $this->dataPathes[ $subkeyNulpath ] = $subkeyPath;
+                            $this->dataTypes[ $subkeyNulpath ] = static::VALUE_TYPE_FILTERED;
+                        }
+                    }
 
                 } else {
                     $theArr->unset_path(
-                        $this->dataFiltered,
+                        $this->data,
                         $thePathObject
                     );
 
-                    unset($this->dataFilteredIndex[ $dotKeypathString ]);
+                    unset($this->dataIndex[ $keyNulpath ]);
+                    unset($this->dataPathes[ $keyNulpath ]);
+                    unset($this->dataTypes[ $keyNulpath ]);
+                }
 
-                    unset($this->cacheMatchDotKeypathesByDotRulepath[ $dotRulepathString ][ $dotKeypathString ]);
+                if ($hasWildcard) {
+                    unset($this->cacheMatchKeyDotpathesByWildcardDotpath[ $wildcardDotpath ]);
                 }
             }
         }
@@ -1294,113 +1633,125 @@ class Validation implements ValidationInterface
     {
         $theArr = Lib::arr();
 
-        $dataDefaults = [];
-        $dataDefaultsIndex = [];
-
-        foreach ( $this->defaultsMerged as $dotRulepathString => $theValueDefault ) {
+        foreach ( $this->defaultsMerged as $wildcardDotpath => $valueDefault ) {
             $hasWildcard = strpos(
-                $dotRulepathString,
-                static::SYMBOL_WILDCARD_SEQUENCE
+                $wildcardDotpath,
+                static::SYMBOL_DOTPATH_WILDCARD_SEQUENCE
             );
             $hasWildcard = (false !== $hasWildcard);
 
             if ($hasWildcard) {
-                $dotKeypathesOfDefaults = $this->matchDotKeypathesByDotRulepath($dotRulepathString);
+                $keyNulpathesOfDefaults = $this->matchKeyNulpathesByWildcardDotpath($wildcardDotpath);
 
             } else {
-                $dotKeypathesOfDefaults = [ $dotRulepathString ];
+                $keyNulpathesOfDefaults = [ $wildcardDotpath ];
             }
 
-            foreach ( $dotKeypathesOfDefaults as $dotKeypathString ) {
-                $hasValue = isset($this->dataFilteredIndex[ $dotKeypathString ]);
+            foreach ( $keyNulpathesOfDefaults as $keyNulpath ) {
+                $hasValue = $this->hasDefaultByIndex($keyNulpath, $value);
 
                 $isNoValue = false;
                 $isValueEqualsDefault = false;
 
                 if ($hasValue) {
-                    $thePath = $this->dataFilteredIndex[ $dotKeypathString ];
+                    $thePath = $this->dataPathes[ $keyNulpath ];
                     $thePathObject = ArrPath::fromValid($thePath);
 
-                    $theValue = $theArr->get_path($this->dataFiltered, $thePathObject);
-
-                    $isValueEqualsDefault = ($theValueDefault === $theValue);
+                    $isValueEqualsDefault = ($value === $valueDefault);
 
                 } else {
-                    $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypathString);
+                    $thePath = explode(
+                        static::SYMBOL_NUL,
+                        ltrim($keyNulpath, static::SYMBOL_NUL)
+                    );
                     $thePathObject = ArrPath::fromValid($thePath);
 
                     $isNoValue = true;
                 }
 
-                if (false
-                    || $isNoValue
-                    || $isValueEqualsDefault
-                ) {
-                    if ($isValueEqualsDefault) {
-                        $theArr->unset_path(
-                            $this->dataFiltered,
-                            $thePathObject
+                if ($isValueEqualsDefault) {
+                    $this->dataTypes[ $keyNulpath ] = static::VALUE_TYPE_DEFAULT;
+
+                } elseif ($isNoValue) {
+                    $ref =& $theArr->put_path(
+                        $this->data,
+                        $thePathObject,
+                        $valueDefault
+                    );
+
+                    $this->dataPathes[ $keyNulpath ] = $thePath;
+                    $this->dataIndex[ $keyNulpath ] =& $ref;
+                    $this->dataTypes[ $keyNulpath ] = static::VALUE_TYPE_DEFAULT;
+
+                    if (is_array($valueDefault) && ([] !== $valueDefault)) {
+                        $gen = $theArr->walk_it(
+                            $valueDefault,
+                            _ARR_WALK_WITH_PARENTS | _ARR_WALK_WITH_EMPTY_ARRAYS
                         );
 
-                        $dataDefaultsIndex[ $dotKeypathString ] = $thePath;
+                        foreach ( $gen as $subkeyPath => $subkeyValue ) {
+                            $subkeyPath = array_merge($thePath, $subkeyPath);
+                            $subkeyNulpath = ''
+                                . static::SYMBOL_NUL
+                                . implode(static::SYMBOL_NUL, $subkeyPath);
 
-                        unset($this->dataFilteredIndex[ $dotKeypathString ]);
+                            $ref =& $theArr->fetch_path($this->data, $subkeyPath);
 
-                        unset($this->cacheMatchDotKeypathesByDotRulepath[ $dotRulepathString ][ $dotKeypathString ]);
+                            $this->dataIndex[ $subkeyNulpath ] =& $ref;
+                            $this->dataPathes[ $subkeyNulpath ] = $subkeyPath;
+                            $this->dataTypes[ $subkeyNulpath ] = static::VALUE_TYPE_DEFAULT;
+                        }
                     }
+                }
 
-                    $theArr->set_path(
-                        $dataDefaults,
-                        $thePathObject,
-                        $theValueDefault
-                    );
+                if ($hasWildcard) {
+                    unset($this->cacheMatchKeyDotpathesByWildcardDotpath[ $wildcardDotpath ]);
                 }
             }
         }
-
-        $this->dataDefaults = $dataDefaults;
-        $this->dataDefaultsIndex = $dataDefaultsIndex;
     }
 
     protected function processRules() : void
     {
-        /**
-         * @var array<string, GenericRule[]> $rulesByDotKeypath
-         */
+        $rulesByKeyNulpath = [];
 
-        $rulesByDotKeypath = [];
-
-        foreach ( $this->rulesMerged as $dotRulepathString => $rules ) {
+        foreach ( $this->rulesMerged as $wildcardDotpathString => $rules ) {
             $hasWildcard = strpos(
-                $dotRulepathString,
-                static::SYMBOL_WILDCARD_SEQUENCE
+                $wildcardDotpathString,
+                static::SYMBOL_DOTPATH_WILDCARD_SEQUENCE
             );
             $hasWildcard = (false !== $hasWildcard);
 
             if ($hasWildcard) {
-                $dotKeypathesOfRules = $this->matchDotKeypathesByDotRulepath($dotRulepathString);
+                $keyNulpathesOfRules = $this->matchKeyNulpathesByWildcardDotpath($wildcardDotpathString);
 
             } else {
-                $dotKeypathesOfRules = [ $dotRulepathString ];
+                $keyNulpathesOfRules = [ $wildcardDotpathString ];
             }
 
-            foreach ( $dotKeypathesOfRules as $dotKeypathString ) {
-                $rulesByDotKeypath[ $dotKeypathString ] = $rulesByDotKeypath[ $dotKeypathString ] ?? [];
-                $rulesByDotKeypath[ $dotKeypathString ] = array_merge(
-                    $rulesByDotKeypath[ $dotKeypathString ],
+            foreach ( $keyNulpathesOfRules as $keyNulpath ) {
+                $rulesByKeyNulpath[ $keyNulpath ] = $rulesByKeyNulpath[ $keyNulpath ] ?? [];
+                $rulesByKeyNulpath[ $keyNulpath ] = array_merge(
+                    $rulesByKeyNulpath[ $keyNulpath ],
                     $rules
                 );
             }
         }
 
-        foreach ( $rulesByDotKeypath as $dotKeypathString => $rules ) {
-            $hasValue = isset($this->dataFilteredIndex[ $dotKeypathString ]);
+        foreach ( $rulesByKeyNulpath as $keyNulpath => $rules ) {
+            $dataType = $this->dataTypes[ $keyNulpath ] ?? 0;
 
-            $ruleInstances = [];
-            $ruleClasses = [];
+            if (static::VALUE_TYPE_DEFAULT === $dataType) {
+                unset($rulesByKeyNulpath[ $keyNulpath ]);
+            }
+        }
 
+        foreach ( $rulesByKeyNulpath as $keyNulpath => $rules ) {
+            $hasValue = $this->hasFilteredByIndex($keyNulpath);
             $hasImplicitRule = false;
 
+            $ruleClasses = [];
+            $ruleInstances = [];
             foreach ( $rules as $i => $rule ) {
                 $ruleInstances[ $i ] = null;
 
@@ -1438,7 +1789,7 @@ class Validation implements ValidationInterface
             // > то ключ пропускается и проверки не выполняются
             // > из соображений скорости работы
             if (! ($hasImplicitRule || $hasValue)) {
-                unset($rulesByDotKeypath[ $dotKeypathString ]);
+                unset($rulesByKeyNulpath[ $keyNulpath ]);
 
                 continue;
             }
@@ -1452,38 +1803,26 @@ class Validation implements ValidationInterface
             }
 
             foreach ( $ruleInstances as $i => $ruleInstance ) {
-                $rulesByDotKeypath[ $dotKeypathString ][ $i ] = $ruleInstances[ $i ];
+                $rulesByKeyNulpath[ $keyNulpath ][ $i ] = $ruleInstances[ $i ];
             }
         }
 
-        $this->rulesByDotKeypath = $rulesByDotKeypath;
+        $this->rulesByKeyNulpath = $rulesByKeyNulpath;
     }
 
     protected function processValidation() : void
     {
-        /**
-         * @var array<string, array[]>  $errorsByDotKeypath
-         * @var array<string, string[]> $messagesByDotKeypath
-         */
+        $errorsByKeyNulpath = [];
 
-        $theArr = Lib::arr();
-
-        $errorsByDotKeypath = [];
-        $messagesByDotKeypath = [];
-
-        foreach ( $this->rulesByDotKeypath as $dotKeypath => $rules ) {
-            $hasValue = isset($this->dataFilteredIndex[ $dotKeypath ]);
+        foreach ( $this->rulesByKeyNulpath as $keyNulpath => $rules ) {
+            $hasValue = $this->hasFilteredByIndex($keyNulpath, $value);
 
             if ($hasValue) {
-                $thePath = $this->dataFilteredIndex[ $dotKeypath ];
-                $thePathObject = ArrPath::fromValid($thePath);
-
-                $theValue = $theArr->get_path($this->dataFiltered, $thePathObject);
-                $theValue = [ $theValue ];
+                $thePath = $this->dataPathes[ $keyNulpath ];
+                $theValue = [ $value ];
 
             } else {
-                $thePath = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
-
+                $thePath = explode(static::SYMBOL_NUL, $keyNulpath);
                 $theValue = [];
             }
 
@@ -1519,14 +1858,7 @@ class Validation implements ValidationInterface
                         'parameters' => $ruleParameters,
                     ];
 
-                    $message = $this->translator->translate(
-                        $message, $throwable,
-                        $theValue, $theKey, $thePath,
-                        $rule, $ruleParameters
-                    );
-
-                    $errorsByDotKeypath[ $dotKeypath ][] = $error;
-                    $messagesByDotKeypath[ $dotKeypath ][] = $message;
+                    $errorsByKeyNulpath[ $keyNulpath ][] = $error;
 
                     // > если предыдущее правило закончилось провалом
                     // > валидатор перестает выполнять проверку следующих правил
@@ -1536,48 +1868,7 @@ class Validation implements ValidationInterface
             }
         }
 
-        $this->errorsByDotKeypath = $errorsByDotKeypath;
-        $this->messagesByDotKeypath = $messagesByDotKeypath;
-    }
-
-    protected function processDataValid() : void
-    {
-        $theArr = Lib::arr();
-
-        $dataValid = $this->dataFiltered;
-
-        if ([] !== $this->dataDefaults) {
-            $gen = $theArr->walk_it($this->dataDefaults, _ARR_WALK_WITH_EMPTY_ARRAYS);
-
-            foreach ( $gen as $keypathArray => $value ) {
-                $keypathObject = ArrPath::fromValid($keypathArray);
-
-                $theArr->set_path($dataValid, $keypathObject, $value);
-            }
-        }
-
-        foreach ( array_keys($this->errorsByDotKeypath) as $dotKeypath ) {
-            $keypathArray = explode(static::SYMBOL_DOTPATH_SEPARATOR, $dotKeypath);
-
-            if ($theArr->has_path($dataValid, $keypathArray)) {
-                $theArr->unset_path($dataValid, $keypathArray);
-
-                array_pop($keypathArray);
-
-                while ( [] !== $keypathArray ) {
-                    if ([] === $theArr->get_path($dataValid, $keypathArray)) {
-                        $theArr->unset_path($dataValid, $keypathArray);
-
-                    } else {
-                        break;
-                    }
-
-                    array_pop($keypathArray);
-                }
-            }
-        }
-
-        $this->dataValid = $dataValid;
+        $this->errorsByKeyNulpath = $errorsByKeyNulpath;
     }
 
 
@@ -1595,20 +1886,18 @@ class Validation implements ValidationInterface
 
     protected function pushFilters(array $filters) : void
     {
-        [ , $filtersDict ] = Lib::arr()->kwargs($filters);
-
-        if ([] === $filtersDict) {
+        if ([] === $filters) {
             return;
         }
 
         $thePhp = Lib::php();
 
         $filtersQueueItem = [];
-        foreach ( $filtersDict as $keyWildcard => $filterOrFilters ) {
+        foreach ( $filters as $wildcardDotpath => $filterOrFilters ) {
             $filtersList = $thePhp->to_list($filterOrFilters, [], 'is_callable');
 
             foreach ( $filtersList as $filter ) {
-                $filtersQueueItem[ $keyWildcard ][] = GenericFilter::from($filter);
+                $filtersQueueItem[ static::SYMBOL_NUL . $wildcardDotpath ][] = GenericFilter::from($filter);
             }
         }
 
@@ -1620,27 +1909,25 @@ class Validation implements ValidationInterface
 
     protected function pushRules(array $rules) : void
     {
-        [ , $rulesDict ] = Lib::arr()->kwargs($rules);
-
-        if ([] === $rulesDict) {
+        if ([] === $rules) {
             return;
         }
 
         $thePhp = Lib::php();
 
         $rulesQueueItem = [];
-        foreach ( $rulesDict as $keyWildcard => $ruleOrRules ) {
-            $rulesList = $thePhp->to_list($ruleOrRules);
+        foreach ( $rules as $wildcardDotpath => $rulesList ) {
+            $rulesList = $thePhp->to_list($rulesList);
 
-            foreach ( $rulesList as $ruleListItem ) {
-                if (is_string($ruleListItem)) {
+            foreach ( $rulesList as $rulesListItem ) {
+                if (is_string($rulesListItem)) {
                     $rulesArray = explode(
-                        static::SYMBOL_RULE_SEPARATOR,
-                        $ruleListItem
+                        static::SYMBOL_RULELIST_SEPARATOR,
+                        $rulesListItem
                     );
 
                 } else {
-                    $rulesArray = [ $ruleListItem ];
+                    $rulesArray = [ $rulesListItem ];
                 }
 
                 foreach ( $rulesArray as $i => $rule ) {
@@ -1652,6 +1939,7 @@ class Validation implements ValidationInterface
                             $rule,
                             [
                                 'registry'  => $this->registry,
+                                //
                                 'separator' => static::SYMBOL_RULEARGS_SEPARATOR,
                                 'delimiter' => static::SYMBOL_RULEARGS_DELIMITER,
                             ]
@@ -1663,12 +1951,12 @@ class Validation implements ValidationInterface
                                 'Unable to create generic rule',
                                 $rule,
                                 $i,
-                                $keyWildcard,
+                                $wildcardDotpath,
                             ]
                         );
                     }
 
-                    $rulesQueueItem[ $keyWildcard ][] = $_rule;
+                    $rulesQueueItem[ static::SYMBOL_NUL . $wildcardDotpath ][] = $_rule;
                 }
             }
         }
@@ -1681,101 +1969,129 @@ class Validation implements ValidationInterface
 
     protected function pushDefaults(array $defaults) : void
     {
-        [ , $defaultsDict ] = Lib::arr()->kwargs($defaults);
-
-        if ([] === $defaultsDict) {
+        if ([] === $defaults) {
             return;
         }
 
-        $this->defaultsQueue[ $this->queueId++ ] = $defaultsDict;
+        $defaultsQueueItem = [];
+        foreach ( $defaults as $wildcardDotpath => $default ) {
+            $defaultsQueueItem[ static::SYMBOL_NUL . $wildcardDotpath ][] = $default;
+        }
+
+        $this->defaultsQueue[ $this->queueId++ ] = $defaultsQueueItem;
 
         $this->isBuilt = false;
         $this->isProcessed = false;
     }
 
 
-    protected function dotRulepath($rulepath, ...$rulepathes) : array
+    protected function dotpath($path, ...$pathes) : array
     {
-        $dotpath = $this->rulePath($rulepath, ...$rulepathes);
+        $theArr = Lib::arr();
+        $theType = Lib::type();
 
-        return $dotpath;
-    }
+        $rulepathArray = [];
 
-    protected function dotRulepathString($rulepath, ...$rulepathes) : string
-    {
-        $dotRulepath = $this->dotRulepath($rulepath, ...$rulepathes);
+        $gen = $theArr->arrpath_it($path, ...$pathes);
 
-        $this->validateDotRulepath($dotRulepath);
+        $first = true;
+        foreach ( $gen as $p ) {
+            if ($theType->string($pString, $p)) {
+                if ('' === $pString) {
+                    $rulepathArray[] = $pString;
 
-        $dotRulepathString = implode(static::SYMBOL_DOTPATH_SEPARATOR, $dotRulepath);
+                } else {
+                    if ($first) {
+                        $pString = ltrim($pString, static::SYMBOL_NUL);
+                    }
 
-        return $dotRulepathString;
-    }
+                    $rulepathArrayCurrent = explode(static::SYMBOL_DOTPATH_SEPARATOR, $pString);
 
-    protected function validateDotRulepath(array $dotRulepath) : void
-    {
-        /**
-         * @noinspection PhpDuplicateArrayKeysInspection
-         */
-        $list = [
-            static::SYMBOL_DOTPATH_SEPARATOR   => true,
-            //
-            static::SYMBOL_RULE_SEPARATOR      => true,
-            //
-            static::SYMBOL_RULEARGS_SEPARATOR  => true,
-            static::SYMBOL_RULEARGS_DELIMITER  => true,
-            //
-            static::SYMBOL_RULEPATH_SEPARATOR  => true,
-            //
-            static::SYMBOL_FIELDPATH_SEPARATOR => true,
-            static::SYMBOL_FIELDPATH_PARENT    => true,
-        ];
-
-        $theStr = Lib::str();
-
-        $fnStrlen = $theStr->mb_func('strlen');
-        $fnSubstr = $theStr->mb_func('substr');
-
-        foreach ( $dotRulepath as $i => $p ) {
-            $len = $fnStrlen($p);
-
-            for ( $ii = 0; $ii < $len; $ii++ ) {
-                $letter = $fnSubstr($p, $ii, 1);
-
-                if (isset($list[ $letter ])) {
-                    throw new LogicException(
-                        [
-                            ''
-                            . 'The `key` should not contain symbols: '
-                            . '[ ' . implode(' ][ ', array_keys($list)) . ' ]',
-                            //
-                            $p,
-                            $i,
-                        ]
+                    $rulepathArray = array_merge(
+                        $rulepathArray,
+                        $rulepathArrayCurrent
                     );
                 }
+            }
+
+            if ($first) {
+                $first = false;
+            }
+        }
+
+        return $rulepathArray;
+    }
+
+    protected function validateDotpathArray(array $wildcardPathArray) : void
+    {
+        $list = [
+            static::SYMBOL_NUL => true,
+        ];
+
+        $regex = '/\x{0}/iu';
+
+        foreach ( $wildcardPathArray as $i => $p ) {
+            if (preg_match($regex, $p)) {
+                throw new LogicException(
+                    [
+                        ''
+                        . 'The `key` should not contain symbols: '
+                        . '[ ' . implode(' ][ ', array_keys($list)) . ' ]',
+                        //
+                        $p,
+                        $i,
+                    ]
+                );
             }
         }
     }
 
 
-    protected function matchDotKeypathesByDotRulepath(string $dotRulepathString) : array
+    protected function nulpathFromDotpath($path, ...$pathes) : string
     {
-        if (! isset($this->cacheMatchDotKeypathesByDotRulepath[ $dotRulepathString ])) {
-            $dotKeypathes = array_keys($this->dataFilteredIndex);
+        $dotpathArray = $this->dotpath($path, ...$pathes);
 
-            $dotKeypathesMatch = Lib::str()->str_match(
-                $dotRulepathString, $dotKeypathes,
-                static::SYMBOL_WILDCARD_SEQUENCE,
-                static::SYMBOL_DOTPATH_SEPARATOR
+        $this->validateDotpathArray($dotpathArray);
+
+        $dotRulepathString = ''
+            . static::SYMBOL_NUL
+            . implode(static::SYMBOL_NUL, $dotpathArray);
+
+        return $dotRulepathString;
+    }
+
+
+    protected function matchKeyNulpathesByWildcardDotpath(string $wildcardDotpath) : array
+    {
+        if (! isset($this->cacheMatchKeyDotpathesByWildcardDotpath[ $wildcardDotpath ])) {
+            $isLastWildcard = (static::SYMBOL_DOTPATH_WILDCARD_SEQUENCE === substr($wildcardDotpath, -1));
+
+            $keyNulpathes = array_keys($this->dataIndex);
+
+            $keyNulpathesMatch = Lib::str()->str_match(
+                $wildcardDotpath, $keyNulpathes,
+                static::SYMBOL_DOTPATH_WILDCARD_SEQUENCE,
+                static::SYMBOL_NUL
             );
 
-            $dotKeypathesMatchIndex = array_fill_keys($dotKeypathesMatch, true);
+            foreach ( $keyNulpathesMatch as $i => $keyNulpath ) {
+                $isArray = is_array($this->dataIndex[ $keyNulpath ]);
 
-            $this->cacheMatchDotKeypathesByDotRulepath[ $dotRulepathString ] = $dotKeypathesMatchIndex;
+                if ($isLastWildcard && $isArray) {
+                    // > ключи, которые заканчиваются на звездочку, например, `users.*`
+                    // > не применяются, если значение содержит потомков или является пустым родителем
+                    // > иначе какой-нибудь фильтр заменит значения-списки
+
+                    unset($keyNulpathesMatch[ $i ]);
+                }
+            }
+
+            $keyNulpathesMatchIndex = array_fill_keys($keyNulpathesMatch, true);
+
+            $this->cacheMatchKeyDotpathesByWildcardDotpath[ $wildcardDotpath ] = $keyNulpathesMatchIndex;
         }
 
-        return array_keys($this->cacheMatchDotKeypathesByDotRulepath[ $dotRulepathString ]);
+        return array_keys($this->cacheMatchKeyDotpathesByWildcardDotpath[ $wildcardDotpath ]);
     }
 
 

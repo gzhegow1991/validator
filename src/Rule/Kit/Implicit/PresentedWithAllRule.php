@@ -51,7 +51,7 @@ class PresentedWithAllRule extends AbstractRuleImplicit
 
         $allExists = true;
         foreach ( $fieldsArray as $field ) {
-            $fieldPath = $validation->fieldPathOrAbsolute($field, $path);
+            $fieldPath = $validation->fieldpathOrAbsolute($field, $path);
 
             if (! $validation->has($fieldPath)) {
                 $allExists = false;

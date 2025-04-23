@@ -51,7 +51,7 @@ class PresentedWithoutAllRule extends AbstractRuleImplicit
 
         $allMissing = true;
         foreach ( $fieldsArray as $field ) {
-            $fieldPath = $validation->fieldPathOrAbsolute($field, $path);
+            $fieldPath = $validation->fieldpathOrAbsolute($field, $path);
 
             if ($validation->has($fieldPath)) {
                 $allMissing = false;

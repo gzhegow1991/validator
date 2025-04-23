@@ -51,7 +51,7 @@ class PresentedWithoutOneRule extends AbstractRuleImplicit
 
         $oneMissing = false;
         foreach ( $fieldsArray as $field ) {
-            $fieldPath = $validation->fieldPathOrAbsolute($field, $path);
+            $fieldPath = $validation->fieldpathOrAbsolute($field, $path);
 
             if (! $validation->has($fieldPath)) {
                 $oneMissing = true;

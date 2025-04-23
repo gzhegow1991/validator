@@ -34,7 +34,7 @@ class InFieldRule extends AbstractRule
         $parameter0 = $this->parameters[ 0 ];
         $parameter1 = $this->parameters[ 1 ] ?? null;
 
-        $fieldPath = $validation->fieldPathOrAbsolute($parameter0, $path);
+        $fieldPath = $validation->fieldpathOrAbsolute($parameter0, $path);
         $fieldValue = $validation->get($fieldPath, [ $this ]);
         if ($this === $fieldValue) {
             return static::message();
