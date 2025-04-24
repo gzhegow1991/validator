@@ -86,12 +86,12 @@ class GenericFilter
         $refs[ 0 ] = $refs[ 0 ] ?? null;
 
         $instance = null
-            ?? GenericFilter::fromInstance($from, $refs)
-            ?? GenericFilter::fromFunction($from, $context, $refs)
-            ?? GenericFilter::fromMethod($from, $context, $refs)
-            ?? GenericFilter::fromClosure($from, $context, $refs)
-            ?? GenericFilter::fromInvokableObject($from, $context, $refs)
-            ?? GenericFilter::fromInvokableClass($from, $context, $refs);
+            ?? static::fromInstance($from, $refs)
+            ?? static::fromFunction($from, $context, $refs)
+            ?? static::fromMethod($from, $context, $refs)
+            ?? static::fromClosure($from, $context, $refs)
+            ?? static::fromInvokableObject($from, $context, $refs)
+            ?? static::fromInvokableClass($from, $context, $refs);
 
         if (! $withErrors) {
             if (null === $instance) {

@@ -64,7 +64,7 @@ class ValidatorProcessor implements ValidatorProcessorInterface
     }
 
 
-    protected function callUserFuncArray($fn, array $args) // : mixed
+    protected function callUserFuncArray($fn, array $args)
     {
         [ $list ] = Lib::arr()->kwargs($args);
 

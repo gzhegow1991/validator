@@ -258,7 +258,7 @@ class Validation implements ValidationInterface
     /**
      * @return mixed
      */
-    public function get($path, array $fallback = []) // : mixed
+    public function get($path, array $fallback = [])
     {
         $status = $this->has($path, $value);
 
@@ -315,7 +315,7 @@ class Validation implements ValidationInterface
     /**
      * @return mixed
      */
-    public function getFiltered($path, array $fallback = []) // : mixed
+    public function getFiltered($path, array $fallback = [])
     {
         $status = $this->hasFiltered($path, $value);
 
@@ -374,7 +374,7 @@ class Validation implements ValidationInterface
     /**
      * @return mixed
      */
-    public function getDefault($path, array $fallback = []) // : mixed
+    public function getDefault($path, array $fallback = [])
     {
         $status = $this->hasDefault($path, $value);
 
@@ -433,7 +433,7 @@ class Validation implements ValidationInterface
     /**
      * @return mixed
      */
-    public function getOriginal($path, array $fallback = []) // : mixed
+    public function getOriginal($path, array $fallback = [])
     {
         $status = $this->hasOriginal($path, $value);
 
