@@ -24,7 +24,7 @@ class DateTzRule extends AbstractRuleType
             ? explode(',', $ruleParameters[ 1 ])
             : [];
 
-        return GenericRule::fromClassAndParameters(
+        return GenericRule::fromRuleClass(
             static::class,
             [ 'parameters' => $ruleParameters ]
         );

@@ -28,7 +28,7 @@ class FileRule extends AbstractRuleType
             ? explode(',', $ruleParameters[ 2 ])
             : [];
 
-        return GenericRule::fromClassAndParameters(
+        return GenericRule::fromRuleClass(
             static::class,
             [ 'parameters' => $ruleParameters ]
         );

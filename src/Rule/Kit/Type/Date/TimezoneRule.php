@@ -18,7 +18,7 @@ class TimezoneRule extends AbstractRuleType
             ? explode(',', $ruleParameters[ 0 ])
             : [];
 
-        return GenericRule::fromClassAndParameters(
+        return GenericRule::fromRuleClass(
             static::class,
             [ 'parameters' => $ruleParameters ]
         );

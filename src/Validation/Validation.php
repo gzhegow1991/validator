@@ -1730,6 +1730,10 @@ class Validation implements ValidationInterface
 
     protected function processRules() : void
     {
+        /**
+         * @var array<string, GenericRule[]> $rulesByKeyNulpath
+         */
+
         $rulesByKeyNulpath = [];
 
         foreach ( $this->rulesMerged as $wildcardDotpathString => $rules ) {
@@ -1775,8 +1779,8 @@ class Validation implements ValidationInterface
                 $ruleObject = null;
                 $ruleClass = null;
                 if (! (false
-                    || ($ruleObject = $rule->hasInstance())
-                    || ($ruleClass = $rule->hasClass())
+                    || ($ruleObject = $rule->hasRuleInstance())
+                    || ($ruleClass = $rule->hasRuleClass())
                 )) {
                     throw new RuntimeException(
                         [
@@ -1914,18 +1918,7 @@ class Validation implements ValidationInterface
             $filtersList = $thePhp->to_list($filterOrFilters, [], 'is_callable');
 
             foreach ( $filtersList as $filter ) {
-                $e = null;
-
-                $genericFilter = null
-                    ?? GenericFilter::fromInstance($filter, [], [ &$e ])
-                    ?? GenericFilter::fromClosure($filter, [], [ &$e ])
-                    ?? GenericFilter::fromMethod($filter, [], [ &$e ])
-                    ?? GenericFilter::fromInvokable($filter, [], [ &$e ])
-                    ?? GenericFilter::fromFunction($filter, [], [ &$e ]);
-
-                if (null === $genericFilter) {
-                    throw $e;
-                }
+                $genericFilter = GenericFilter::from($filter);
 
                 $filtersQueueItem[ static::SYMBOL_NUL . $wildcardDotpath ][] = $genericFilter;
             }
@@ -1965,7 +1958,7 @@ class Validation implements ValidationInterface
                         $_rule = GenericRule::fromObject($rule);
 
                     } elseif (is_string($rule)) {
-                        $_rule = GenericRule::fromString(
+                        $_rule = GenericRule::fromRuleString(
                             $rule,
                             [
                                 'registry'  => $this->registry,

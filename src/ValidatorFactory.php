@@ -34,8 +34,8 @@ class ValidatorFactory implements ValidatorFactoryInterface
         GenericRule $generic
     ) : RuleInterface
     {
-        $ruleClass = $generic->getClass();
-        $ruleParameters = $generic->getClassParameters();
+        $ruleClass = $generic->getRuleClass();
+        $ruleParameters = $generic->getRuleClassParameters();
 
         return new $ruleClass($ruleParameters);
     }

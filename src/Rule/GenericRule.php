@@ -3,7 +3,6 @@
 namespace Gzhegow\Validator\Rule;
 
 use Gzhegow\Lib\Lib;
-use Gzhegow\Validator\Validation\Validation;
 use Gzhegow\Validator\Exception\LogicException;
 use Gzhegow\Validator\Exception\RuntimeException;
 use Gzhegow\Validator\RuleRegistry\RuleRegistryInterface;
@@ -50,12 +49,22 @@ class GenericRule
     /**
      * @return static
      */
-    public static function from($from, array $context = []) // : static
+    public static function from($from, array $context = [], array $refs = [])
     {
-        $instance = static::tryFrom($from, $context, $error);
+        $withErrors = array_key_exists(0, $refs);
 
-        if (null === $instance) {
-            throw $error;
+        $refs[ 0 ] = $refs[ 0 ] ?? null;
+
+        $instance = null
+            ?? static::fromStatic($from, $refs)
+            ?? static::fromRuleInstance($from, $refs)
+            ?? static::fromRuleClass($from, $context, $refs)
+            ?? static::fromRuleString($from, $context, $refs);
+
+        if (! $withErrors) {
+            if (null === $instance) {
+                throw $refs[ 0 ];
+            }
         }
 
         return $instance;
@@ -64,139 +73,19 @@ class GenericRule
     /**
      * @return static
      */
-    public static function fromObject($from, array $context = []) // : static
+    public static function fromObject($from, array $refs = [])
     {
-        $instance = static::tryFromObject($from, $context, $error);
+        $withErrors = array_key_exists(0, $refs);
 
-        if (null === $instance) {
-            throw $error;
-        }
-
-        return $instance;
-    }
-
-    /**
-     * @return static
-     */
-    public static function fromClassAndParameters($ruleClass, array $context = []) // : static
-    {
-        $instance = static::tryFromClassAndParameters($ruleClass, $context, $error);
-
-        if (null === $instance) {
-            throw $error;
-        }
-
-        return $instance;
-    }
-
-    /**
-     * @return static
-     */
-    public static function fromString($ruleString, array $context = []) // : static
-    {
-        $instance = static::tryFromString($ruleString, $context, $error);
-
-        if (null === $instance) {
-            throw $error;
-        }
-
-        return $instance;
-    }
-
-
-    /**
-     * @return static|null
-     */
-    public static function tryFrom($from, array $context = [], ?\Throwable &$last = null) // : ?static
-    {
-        $last = null;
-
-        Lib::php()->errors_start($b);
+        $refs[ 0 ] = $refs[ 0 ] ?? null;
 
         $instance = null
-            ?? static::tryingFromObjectStatic($from, $context)
-            ?? static::tryingFromObjectInstance($from, $context)
-            ?? static::tryingFromClassAndParameters($from, $context)
-            ?? static::tryingFromString($from, $context);
+            ?? static::fromStatic($from, $refs)
+            ?? static::fromRuleInstance($from, $refs);
 
-        $errors = Lib::php()->errors_end($b);
-
-        if (null === $instance) {
-            foreach ( $errors as $error ) {
-                $last = new LogicException($error, $last);
-            }
-        }
-
-        return $instance;
-    }
-
-    /**
-     * @return static|null
-     */
-    public static function tryFromObject($from, array $context = [], ?\Throwable &$last = null) // : ?static
-    {
-        $last = null;
-
-        Lib::php()->errors_start($b);
-
-        $instance = null
-            ?? static::tryingFromObjectStatic($from, $context)
-            ?? static::tryingFromObjectInstance($from, $context);
-
-        $errors = Lib::php()->errors_end($b);
-
-        if (null === $instance) {
-            foreach ( $errors as $error ) {
-                $last = new LogicException($error, $last);
-            }
-        }
-
-        return $instance;
-    }
-
-    /**
-     * @return static|null
-     */
-    public static function tryFromClassAndParameters($ruleClass, array $context = [], ?\Throwable &$last = null) // : ?static
-    {
-        $last = null;
-
-        Lib::php()->errors_start($b);
-
-        $instance = null
-            ?? static::tryingFromObjectStatic($ruleClass, $context)
-            //    ?? static::tryingFromClassAndParameters($ruleClass, $ruleParameters)
-            ?? static::tryingFromClassAndParameters($ruleClass, $context);
-
-        $errors = Lib::php()->errors_end($b);
-
-        if (null === $instance) {
-            foreach ( $errors as $error ) {
-                $last = new LogicException($error, $last);
-            }
-        }
-
-        return $instance;
-    }
-
-    /**
-     * @return static|null
-     */
-    public static function tryFromString($ruleString, array $context = [], ?\Throwable &$last = null) // : ?static
-    {
-        $last = null;
-
-        Lib::php()->errors_start($b);
-
-        $instance = null
-            ?? static::tryingFromClassAndParameters($ruleString, $context)
-            ?? static::tryingFromString($ruleString, $context);
-
-        $errors = Lib::php()->errors_end($b);
-
-        if (null === $instance) {
-            foreach ( $errors as $error ) {
-                $last = new LogicException($error, $last);
+        if (! $withErrors) {
+            if (null === $instance) {
+                throw $refs[ 0 ];
             }
         }
 
@@ -205,51 +94,63 @@ class GenericRule
 
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    protected static function tryingFromObjectStatic($static, array $context = []) // : ?static
+    public static function fromStatic($from, array $refs = [])
     {
-        if (! is_a($static, static::class)) {
-            return Lib::php()->error(
-                [ 'The `static` should be instance of: ' . static::class, $static ]
+        if ($from instanceof static) {
+            return Lib::refsResult($refs, $from);
+        }
+
+        return Lib::refsError(
+            $refs,
+            new LogicException(
+                [ 'The `from` should be instance of: ' . static::class, $from ]
+            )
+        );
+    }
+
+    /**
+     * @return static|bool|null
+     */
+    public static function fromRuleInstance($from, array $refs = [])
+    {
+        if (! ($from instanceof RuleInterface)) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be instance of: ' . RuleInterface::class, $from ]
+                )
             );
         }
 
-        return $static;
+        $instance = new static();
+        $instance->ruleInstance = $from;
+        $instance->ruleClass = get_class($from);
+
+        return Lib::refsResult($refs, $instance);
     }
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    protected static function tryingFromObjectInstance($instance, array $context = []) // : ?static
+    public static function fromRuleClass($from, array $context = [], array $refs = [])
     {
-        if (! is_a($instance, RuleInterface::class)) {
-            return Lib::php()->error(
-                [ 'The `instance` should be instance of: ' . RuleInterface::class, $instance ]
+        if (! (is_string($from) && ('' !== $from))) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be non-empty string', $from ]
+                )
             );
         }
 
-        $object = new static();
-        $object->ruleInstance = $instance;
-        $object->ruleClass = get_class($instance);
-
-        return $object;
-    }
-
-    /**
-     * @return static|null
-     */
-    protected static function tryingFromClassAndParameters($ruleClass, array $context = []) // : ?static
-    {
-        if (! (is_string($ruleClass) && ('' !== $ruleClass))) {
-            return Lib::php()->error(
-                [ 'The `ruleClass` should be non-empty string', $ruleClass ]
-            );
-        }
-
-        if (! is_subclass_of($ruleClass, RuleInterface::class)) {
-            return Lib::php()->error(
-                [ 'The `ruleClass` should be class-string of: ' . RuleInterface::class, $ruleClass ]
+        if (! is_subclass_of($from, RuleInterface::class)) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be class-string of: ' . RuleInterface::class, $from ]
+                )
             );
         }
 
@@ -260,37 +161,46 @@ class GenericRule
         }
 
         $instance = new static();
-        $instance->ruleClass = $ruleClass;
+        $instance->ruleClass = $from;
         $instance->ruleClassParameters = $ruleParameters;
 
-        return $instance;
+        return Lib::refsResult($refs, $instance);
     }
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    protected static function tryingFromString($ruleString, array $context = []) // : ?static
+    public static function fromRuleString($from, array $context = [], array $refs = [])
     {
-        if (! (is_string($ruleString) && ('' !== $ruleString))) {
-            return Lib::php()->error(
-                [ 'The `ruleString` should be non-empty string', $ruleString ]
+        if (! (is_string($from) && ('' !== $from))) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be non-empty string', $from ]
+                )
             );
         }
 
         if (! isset($context[ 'registry' ])) {
-            return Lib::php()->error(
-                [ 'The `context[registry]` is required' ]
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `context[registry]` is required', $context ]
+                )
             );
         }
 
         $ruleRegistry = $context[ 'registry' ];
 
         if (! ($ruleRegistry instanceof RuleRegistryInterface)) {
-            return Lib::php()->error(
-                [
-                    'The `context[registry]` should be instance of: ' . RuleRegistryInterface::class,
-                    $ruleRegistry,
-                ]
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [
+                        'The `context[registry]` should be instance of: ' . RuleRegistryInterface::class,
+                        $ruleRegistry,
+                    ]
+                )
             );
         }
 
@@ -298,11 +208,14 @@ class GenericRule
             || ! isset($context[ 'separator' ])
             || ! Lib::type()->letter($ruleArgsSeparator, $context[ 'separator' ])
         ) {
-            return Lib::php()->error(
-                [
-                    'The `context[ruleArgsSeparator]` should be one letter',
-                    $context[ 'separator' ],
-                ]
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [
+                        'The `context[ruleArgsSeparator]` should be one letter',
+                        $context[ 'separator' ],
+                    ]
+                )
             );
         }
 
@@ -310,21 +223,27 @@ class GenericRule
             || ! isset($context[ 'delimiter' ])
             || ! Lib::type()->letter($ruleArgsDelimiter, $context[ 'delimiter' ])
         ) {
-            return Lib::php()->error(
-                [
-                    'The `context[ruleArgsDelimiter]` should be one letter',
-                    $context[ 'delimiter' ],
-                ]
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [
+                        'The `context[ruleArgsDelimiter]` should be one letter',
+                        $context[ 'delimiter' ],
+                    ]
+                )
             );
         }
 
-        $explode = explode($ruleArgsSeparator, $ruleString, 2);
+        $explode = explode($ruleArgsSeparator, $from, 2);
 
         [ $ruleName, $ruleArguments ] = $explode + [ '', null ];
 
         if (! $ruleRegistry->hasRuleName($ruleName, $ruleClass)) {
-            throw new RuntimeException(
-                [ 'Missing rule with name: ' . $ruleName ]
+            return Lib::refsError(
+                $refs,
+                new RuntimeException(
+                    [ 'Missing rule with name: ' . $ruleName ]
+                )
             );
         }
 
@@ -342,52 +261,13 @@ class GenericRule
 
         $instance = $ruleClass::parse($ruleName, $ruleArgumentsArray);
 
-        $instance->ruleString = $ruleString;
+        $instance->ruleString = $from;
 
-        return $instance;
+        return Lib::refsResult($refs, $instance);
     }
 
 
-    /**
-     * @return string|null
-     */
-    public function hasString() : ?string
-    {
-        return $this->ruleString;
-    }
-
-    public function getString() : string
-    {
-        return $this->ruleString;
-    }
-
-
-    /**
-     * @return class-string<RuleInterface>|null
-     */
-    public function hasClass() : ?string
-    {
-        return $this->ruleClass;
-    }
-
-    /**
-     * @return class-string<RuleInterface>
-     */
-    public function getClass() : string
-    {
-        return $this->ruleClass;
-    }
-
-    /**
-     * @return array
-     */
-    public function getClassParameters() : array
-    {
-        return $this->ruleClassParameters;
-    }
-
-
-    public function hasInstance() : ?RuleInterface
+    public function hasRuleInstance() : ?RuleInterface
     {
         return $this->ruleInstance;
     }
@@ -395,8 +275,47 @@ class GenericRule
     /**
      * @return RuleInterface
      */
-    public function getInstance() : RuleInterface
+    public function getRuleInstance() : RuleInterface
     {
         return $this->ruleInstance;
+    }
+
+
+    /**
+     * @return class-string<RuleInterface>|null
+     */
+    public function hasRuleClass() : ?string
+    {
+        return $this->ruleClass;
+    }
+
+    /**
+     * @return class-string<RuleInterface>
+     */
+    public function getRuleClass() : string
+    {
+        return $this->ruleClass;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRuleClassParameters() : array
+    {
+        return $this->ruleClassParameters;
+    }
+
+
+    /**
+     * @return string|null
+     */
+    public function hasRuleString() : ?string
+    {
+        return $this->ruleString;
+    }
+
+    public function getRuleString() : string
+    {
+        return $this->ruleString;
     }
 }

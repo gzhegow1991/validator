@@ -21,7 +21,7 @@ abstract class AbstractRule implements RuleInterface
     {
         $ruleParameters = $ruleArguments;
 
-        return GenericRule::fromClassAndParameters(
+        return GenericRule::fromRuleClass(
             static::class,
             [ 'parameters' => $ruleParameters ]
         );
