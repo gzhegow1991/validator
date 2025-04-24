@@ -34,6 +34,7 @@ class GenericRule
     {
     }
 
+
     public function __toString() : string
     {
         if (null === $this->ruleString) {

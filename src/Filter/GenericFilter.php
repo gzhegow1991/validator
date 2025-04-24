@@ -87,10 +87,11 @@ class GenericFilter
 
         $instance = null
             ?? GenericFilter::fromInstance($from, $refs)
-            ?? GenericFilter::fromClosure($from, $context, $refs)
+            ?? GenericFilter::fromFunction($from, $context, $refs)
             ?? GenericFilter::fromMethod($from, $context, $refs)
-            ?? GenericFilter::fromInvokable($from, $context, $refs)
-            ?? GenericFilter::fromFunction($from, $context, $refs);
+            ?? GenericFilter::fromClosure($from, $context, $refs)
+            ?? GenericFilter::fromInvokableObject($from, $context, $refs)
+            ?? GenericFilter::fromInvokableClass($from, $context, $refs);
 
         if (! $withErrors) {
             if (null === $instance) {
@@ -123,28 +124,28 @@ class GenericFilter
      */
     public static function fromClosure($from, array $context = [], array $refs = [])
     {
-        if ($from instanceof \Closure) {
-            $arguments = $context[ 'arguments' ] ?? [];
-
-            $instance = new static();
-            $instance->args = $arguments;
-
-            $instance->isClosure = true;
-            $instance->closureObject = $from;
-
-            $phpId = spl_object_id($from);
-
-            $instance->key = "{ object # \Closure # {$phpId} }";
-
-            return Lib::refsResult($refs, $instance);
+        if (! ($from instanceof \Closure)) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be instance of \Closure', $from ]
+                )
+            );
         }
 
-        return Lib::refsError(
-            $refs,
-            new LogicException(
-                [ 'The `from` should be instance of \Closure', $from ]
-            )
-        );
+        $arguments = $context[ 'arguments' ] ?? [];
+
+        $instance = new static();
+        $instance->args = $arguments;
+
+        $instance->isClosure = true;
+        $instance->closureObject = $from;
+
+        $phpId = spl_object_id($from);
+
+        $instance->key = "{ object # \Closure # {$phpId} }";
+
+        return Lib::refsResult($refs, $instance);
     }
 
     /**
@@ -200,72 +201,85 @@ class GenericFilter
     /**
      * @return static|bool|null
      */
-    public static function fromInvokable($from, array $context = [], array $refs = [])
+    public static function fromInvokableObject($from, array $context = [], array $refs = [])
     {
-        if (is_object($from)) {
-            if (! method_exists($from, '__invoke')) {
-                return Lib::refsError(
-                    $refs,
-                    new LogicException(
-                        [ 'The `from` should have method __invoke()', $from ]
-                    )
-                );
-            }
-
-            $arguments = $context[ 'arguments' ] ?? [];
-
-            $instance = new static();
-            $instance->args = $arguments;
-
-            $instance->isInvokable = true;
-            $instance->invokableObject = $from;
-
-            $phpClass = get_class($from);
-            $phpId = spl_object_id($from);
-
-            $instance->key = "\"{ object # {$phpClass} # {$phpId} }\"";
-
-            return Lib::refsResult($refs, $instance);
+        if (! is_object($from)) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be object', $from ]
+                )
+            );
         }
 
-        if (Lib::type()->string_not_empty($_invokableClass, $from)) {
-            if (! class_exists($_invokableClass)) {
-                return Lib::refsError(
-                    $refs,
-                    new LogicException(
-                        [ 'The `from` should be existing class', $from ]
-                    )
-                );
-            }
-
-            if (! method_exists($_invokableClass, '__invoke')) {
-                return Lib::refsError(
-                    $refs,
-                    new LogicException(
-                        [ 'The `from` should have method __invoke()', $from ]
-                    )
-                );
-            }
-
-            $arguments = $context[ 'arguments' ] ?? [];
-
-            $instance = new static();
-            $instance->args = $arguments;
-
-            $instance->isInvokable = true;
-            $instance->invokableClass = $_invokableClass;
-
-            $instance->key = "\"{$_invokableClass}\"";
-
-            return Lib::refsResult($refs, $instance);
+        if (! method_exists($from, '__invoke')) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be invokable object', $from ]
+                )
+            );
         }
 
-        return Lib::refsError(
-            $refs,
-            new LogicException(
-                [ 'The `from` should be invokable object or class', $from ]
-            )
-        );
+        $arguments = $context[ 'arguments' ] ?? [];
+
+        $instance = new static();
+        $instance->args = $arguments;
+
+        $instance->isInvokable = true;
+        $instance->invokableObject = $from;
+
+        $phpClass = get_class($from);
+        $phpId = spl_object_id($from);
+
+        $instance->key = "\"{ object # {$phpClass} # {$phpId} }\"";
+
+        return Lib::refsResult($refs, $instance);
+    }
+
+    /**
+     * @return static|bool|null
+     */
+    public static function fromInvokableClass($from, array $context = [], array $refs = [])
+    {
+        if (! Lib::type()->string_not_empty($_invokableClass, $from)) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be non-empty string', $from ]
+                )
+            );
+        }
+
+        if (! class_exists($_invokableClass)) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be existing class', $from ]
+                )
+            );
+        }
+
+        if (! method_exists($_invokableClass, '__invoke')) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be invokable class', $from ]
+                )
+            );
+        }
+
+        $arguments = $context[ 'arguments' ] ?? [];
+
+        $instance = new static();
+        $instance->args = $arguments;
+
+        $instance->isInvokable = true;
+        $instance->invokableClass = $_invokableClass;
+
+        $instance->key = "\"{$_invokableClass}\"";
+
+        return Lib::refsResult($refs, $instance);
     }
 
     /**
