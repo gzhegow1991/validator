@@ -241,7 +241,13 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        $keyPath = ArrPath::from($path)->getPath();
+        if (! Lib::type()->arrpath($keyPath, $path)) {
+            throw new LogicException(
+                [ 'The `path` should be valid path', $path ]
+            );
+        }
+
+        $keyPath = $keyPath->getPath();
         $keyNulpath = static::SYMBOL_NUL . implode(static::SYMBOL_NUL, $keyPath);
 
         $status = $this->hasByIndex($keyNulpath, $value);
@@ -292,7 +298,13 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        $keyPath = ArrPath::from($path)->getPath();
+        if (! Lib::type()->arrpath($keyPath, $path)) {
+            throw new LogicException(
+                [ 'The `path` should be valid path', $path ]
+            );
+        }
+
+        $keyPath = $keyPath->getPath();
         $keyNulpath = static::SYMBOL_NUL . implode(static::SYMBOL_NUL, $keyPath);
 
         $status = $this->hasFilteredByIndex($keyNulpath, $value);
@@ -345,7 +357,13 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        $keyPath = ArrPath::from($path)->getPath();
+        if (! Lib::type()->arrpath($keyPath, $path)) {
+            throw new LogicException(
+                [ 'The `path` should be valid path', $path ]
+            );
+        }
+
+        $keyPath = $keyPath->getPath();
         $keyNulpath = static::SYMBOL_NUL . implode(static::SYMBOL_NUL, $keyPath);
 
         $status = $this->hasDefaultByIndex($keyNulpath, $value);
@@ -398,7 +416,13 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        $keyPath = ArrPath::from($path)->getPath();
+        if (! Lib::type()->arrpath($keyPath, $path)) {
+            throw new LogicException(
+                [ 'The `path` should be valid path', $path ]
+            );
+        }
+
+        $keyPath = $keyPath->getPath();
         $keyNulpath = static::SYMBOL_NUL . implode(static::SYMBOL_NUL, $keyPath);
 
         $status = $this->hasOriginalByIndex($keyNulpath, $value);
@@ -553,7 +577,19 @@ class Validation implements ValidationInterface
 
         $this->messagesTranslate();
 
-        return $this->messagesByKeyNulpath;
+        $messages = [];
+        foreach ( $this->messagesByKeyNulpath as $keyNulpath => $array ) {
+            $keyPath = explode(
+                static::SYMBOL_NUL,
+                ltrim($keyNulpath, static::SYMBOL_NUL)
+            );
+
+            $keyDotpath = implode('.', $keyPath);
+
+            $messages[ $keyDotpath ] = $array;
+        }
+
+        return $messages;
     }
 
     protected function messagesTranslate() : void
@@ -562,26 +598,7 @@ class Validation implements ValidationInterface
             return;
         }
 
-        $messagesByKeyNulpath = [];
-
-        foreach ( $this->errorsByKeyNulpath as $keyNulpath => $array ) {
-            $keyPath = explode(
-                static::SYMBOL_NUL,
-                ltrim($keyNulpath, static::SYMBOL_NUL)
-            );
-
-            $keyDotpath = implode('.', $keyPath);
-
-            foreach ( $array as $error ) {
-                $message = $this->translator->translate(
-                    $error[ 'message' ], $error[ 'throwable' ],
-                    $error[ 'value' ], $error[ 'key' ], $error[ 'path' ],
-                    $error[ 'rule' ], $error[ 'parameters' ]
-                );
-
-                $messagesByKeyNulpath[ $keyDotpath ][] = $message;
-            }
-        }
+        $messagesByKeyNulpath = $this->translator->translate($this->errorsByKeyNulpath);
 
         $this->messagesByKeyNulpath = $messagesByKeyNulpath;
     }
@@ -1521,7 +1538,7 @@ class Validation implements ValidationInterface
                 unset($this->dataPathes[ $keyNulpath ]);
                 unset($this->dataTypes[ $keyNulpath ]);
 
-                $keyPathObject = ArrPath::fromValid($keyPath);
+                $keyPathObject = ArrPath::fromValidArray($keyPath);
 
                 $theArr->unset_path(
                     $this->data,
@@ -1555,7 +1572,7 @@ class Validation implements ValidationInterface
 
                 if ($hasValue) {
                     $thePath = $this->dataPathes[ $keyNulpath ];
-                    $thePathObject = ArrPath::fromValid($thePath);
+                    $thePathObject = ArrPath::fromValidArray($thePath);
                     $theValue = [ $value ];
 
                 } else {
@@ -1563,7 +1580,7 @@ class Validation implements ValidationInterface
                         static::SYMBOL_NUL,
                         ltrim($keyNulpath, static::SYMBOL_NUL)
                     );
-                    $thePathObject = ArrPath::fromValid($thePath);
+                    $thePathObject = ArrPath::fromValidArray($thePath);
                     $theValue = [];
                 }
 
@@ -1655,7 +1672,7 @@ class Validation implements ValidationInterface
 
                 if ($hasValue) {
                     $thePath = $this->dataPathes[ $keyNulpath ];
-                    $thePathObject = ArrPath::fromValid($thePath);
+                    $thePathObject = ArrPath::fromValidArray($thePath);
 
                     $isValueEqualsDefault = ($value === $valueDefault);
 
@@ -1664,7 +1681,7 @@ class Validation implements ValidationInterface
                         static::SYMBOL_NUL,
                         ltrim($keyNulpath, static::SYMBOL_NUL)
                     );
-                    $thePathObject = ArrPath::fromValid($thePath);
+                    $thePathObject = ArrPath::fromValidArray($thePath);
 
                     $isNoValue = true;
                 }
@@ -1897,7 +1914,20 @@ class Validation implements ValidationInterface
             $filtersList = $thePhp->to_list($filterOrFilters, [], 'is_callable');
 
             foreach ( $filtersList as $filter ) {
-                $filtersQueueItem[ static::SYMBOL_NUL . $wildcardDotpath ][] = GenericFilter::from($filter);
+                $e = null;
+
+                $genericFilter = null
+                    ?? GenericFilter::fromInstance($filter, [], [ &$e ])
+                    ?? GenericFilter::fromClosure($filter, [], [ &$e ])
+                    ?? GenericFilter::fromMethod($filter, [], [ &$e ])
+                    ?? GenericFilter::fromInvokable($filter, [], [ &$e ])
+                    ?? GenericFilter::fromFunction($filter, [], [ &$e ]);
+
+                if (null === $genericFilter) {
+                    throw $e;
+                }
+
+                $filtersQueueItem[ static::SYMBOL_NUL . $wildcardDotpath ][] = $genericFilter;
             }
         }
 

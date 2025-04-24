@@ -77,102 +77,71 @@ class GenericFilter
 
 
     /**
-     * @return static
+     * @return static|bool|null
      */
-    public static function from($from, array $args = []) // : static
+    public static function fromInstance($from, array $context = [], array $refs = [])
     {
-        $instance = static::tryFrom($from, $args, $error);
-
-        if (null === $instance) {
-            throw $error;
+        if ($from instanceof static) {
+            return Lib::refsResult($refs, $from);
         }
 
-        return $instance;
+        return Lib::refsError(
+            $refs,
+            new LogicException(
+                [ 'The `from` should be instance of: ' . static::class, $from ]
+            )
+        );
     }
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    public static function tryFrom($from, array $args = [], ?\Throwable &$last = null) // : ?static
+    public static function fromClosure($from, array $context = [], array $refs = [])
     {
-        $last = null;
+        if ($from instanceof \Closure) {
+            $arguments = $context[ 'arguments' ] ?? [];
 
-        Lib::php()->errors_start($b);
+            $instance = new static();
+            $instance->args = $arguments;
 
-        $instance = null
-            ?? static::tryFromInstance($from)
-            ?? static::tryFromClosure($from, $args)
-            ?? static::tryFromMethod($from, $args)
-            ?? static::tryFromInvokable($from, $args)
-            ?? static::tryFromFunction($from, $args);
+            $instance->isClosure = true;
+            $instance->closureObject = $from;
 
-        $errors = Lib::php()->errors_end($b);
+            $phpId = spl_object_id($from);
 
-        if (null === $instance) {
-            foreach ( $errors as $error ) {
-                $last = new LogicException($error, $last);
-            }
+            $instance->key = "{ object # \Closure # {$phpId} }";
+
+            return Lib::refsResult($refs, $instance);
         }
 
-        return $instance;
+        return Lib::refsError(
+            $refs,
+            new LogicException(
+                [ 'The `from` should be instance of \Closure', $from ]
+            )
+        );
     }
 
-
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    protected static function tryFromInstance($instance) // : ?static
+    public static function fromMethod($from, array $context = [], array $refs = [])
     {
-        if (! is_a($instance, static::class)) {
-            return Lib::php()->error(
-                [ 'The `from` should be instance of: ' . static::class, $instance ]
+        if (! Lib::php()->type_method_string($methodString, $from, [ &$methodArray ])) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be existing method', $from ]
+                )
             );
         }
 
-        return $instance;
-    }
-
-    /**
-     * @return static|null
-     */
-    protected static function tryFromClosure($closure, array $args = []) // : ?static
-    {
-        if (! is_a($closure, \Closure::class)) {
-            return Lib::php()->error(
-                [ 'The `from` should be instance of: ' . \Closure::class, $closure ]
-            );
-        }
-
-        $instance = new static();
-        $instance->args = $args;
-
-        $instance->isClosure = true;
-        $instance->closureObject = $closure;
-
-        $phpId = spl_object_id($closure);
-
-        $instance->key = "{ object # \Closure # {$phpId} }";
-
-        return $instance;
-    }
-
-    /**
-     * @return static|null
-     */
-    protected static function tryFromMethod($method, array $args = []) // : ?static
-    {
-        $thePhp = Lib::php();
-
-        if (! $thePhp->type_method_string($methodString, $method, [ &$methodArray ])) {
-            return $thePhp->error(
-                [ 'The `from` should be existing method', $method ]
-            );
-        }
+        $arguments = $context[ 'arguments' ] ?? [];
 
         [ $objectOrClass, $methodName ] = $methodArray;
 
         $instance = new static();
-        $instance->args = $args;
+        $instance->args = $arguments;
 
         $instance->isMethod = true;
 
@@ -200,82 +169,109 @@ class GenericFilter
 
         $instance->key = "[ {$key0}, {$key1} ]";
 
-        return $instance;
+        return Lib::refsResult($refs, $instance);
     }
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    protected static function tryFromInvokable($invokable, array $args = []) // : ?static
+    public static function fromInvokable($from, array $context = [], array $refs = [])
     {
-        $instance = null;
-
-        if (is_object($invokable)) {
-            if (! method_exists($invokable, '__invoke')) {
-                return null;
+        if (is_object($from)) {
+            if (! method_exists($from, '__invoke')) {
+                return Lib::refsError(
+                    $refs,
+                    new LogicException(
+                        [ 'The `from` should have method __invoke()', $from ]
+                    )
+                );
             }
 
+            $arguments = $context[ 'arguments' ] ?? [];
+
             $instance = new static();
-            $instance->args = $args;
+            $instance->args = $arguments;
 
             $instance->isInvokable = true;
-            $instance->invokableObject = $invokable;
+            $instance->invokableObject = $from;
 
-            $phpClass = get_class($invokable);
-            $phpId = spl_object_id($invokable);
+            $phpClass = get_class($from);
+            $phpId = spl_object_id($from);
 
             $instance->key = "\"{ object # {$phpClass} # {$phpId} }\"";
 
-        } else {
-            if (Lib::type()->string_not_empty($_invokableClass, $invokable)) {
-                if (! class_exists($_invokableClass)) {
-                    return null;
-                }
+            return Lib::refsResult($refs, $instance);
+        }
 
-                if (! method_exists($_invokableClass, '__invoke')) {
-                    return null;
-                }
-
-                $instance = new static();
-                $instance->args = $args;
-
-                $instance->isInvokable = true;
-                $instance->invokableClass = $_invokableClass;
-
-                $instance->key = "\"{$_invokableClass}\"";
+        if (Lib::type()->string_not_empty($_invokableClass, $from)) {
+            if (! class_exists($_invokableClass)) {
+                return Lib::refsError(
+                    $refs,
+                    new LogicException(
+                        [ 'The `from` should be existing class', $from ]
+                    )
+                );
             }
+
+            if (! method_exists($_invokableClass, '__invoke')) {
+                return Lib::refsError(
+                    $refs,
+                    new LogicException(
+                        [ 'The `from` should have method __invoke()', $from ]
+                    )
+                );
+            }
+
+            $arguments = $context[ 'arguments' ] ?? [];
+
+            $instance = new static();
+            $instance->args = $arguments;
+
+            $instance->isInvokable = true;
+            $instance->invokableClass = $_invokableClass;
+
+            $instance->key = "\"{$_invokableClass}\"";
+
+            return Lib::refsResult($refs, $instance);
         }
 
-        if (null === $instance) {
-            return Lib::php()->error(
-                [ 'The `from` should be existing invokable class or object', $invokable ]
-            );
-        }
-
-        return $instance;
+        return Lib::refsError(
+            $refs,
+            new LogicException(
+                [ 'The `from` should be invokable object or class', $from ]
+            )
+        );
     }
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    protected static function tryFromFunction($function, array $args = []) // : ?static
+    public static function fromFunction($function, array $context = [], array $refs = [])
     {
         $thePhp = Lib::php();
 
         if (! Lib::type()->string_not_empty($_function, $function)) {
-            return $thePhp->error(
-                [ 'The `from` should be existing function name', $function ]
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be existing function name', $function ]
+                )
             );
         }
 
         if (! function_exists($_function)) {
-            return $thePhp->error(
-                [ 'The `from` should be existing function name', $_function ]
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be existing function name', $_function ]
+                )
             );
         }
 
+        $arguments = $context[ 'arguments' ] ?? [];
+
         $instance = new static();
-        $instance->args = $args;
+        $instance->args = $arguments;
 
         $instance->isFunction = true;
 
@@ -290,7 +286,7 @@ class GenericFilter
 
         $instance->key = "\"{$_function}\"";
 
-        return $instance;
+        return Lib::refsResult($refs, $instance);
     }
 
 
