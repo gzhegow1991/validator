@@ -8,7 +8,8 @@ ini_set('memory_limit', '32M');
 
 
 // > настраиваем обработку ошибок
-(new \Gzhegow\Lib\Exception\ErrorHandler())
+\Gzhegow\Lib\Lib::errorHandler()
+    ->setDirRoot(__DIR__ . '/..')
     ->useErrorReporting()
     ->useErrorHandler()
     ->useExceptionHandler()
@@ -28,6 +29,11 @@ $ffn = new class {
         return \Gzhegow\Lib\Lib::debug()->value_array_multiline($value, $maxLevel, $options);
     }
 
+    function var_export($value, array $options = []) : string
+    {
+        return \Gzhegow\Lib\Lib::debug()->var_export($value, $options);
+    }
+
 
     function values($separator = null, ...$values) : string
     {
@@ -43,6 +49,14 @@ $ffn = new class {
     function print_array_multiline($value, ?int $maxLevel = null, array $options = []) : void
     {
         echo $this->value_array_multiline($value, $maxLevel, $options) . PHP_EOL;
+    }
+
+    function print_var_export($value, array $options = []) : void
+    {
+        echo ''
+            . '###' . PHP_EOL
+            . $this->var_export($value, $options) . PHP_EOL
+            . '###' . PHP_EOL;
     }
 
 
@@ -1024,8 +1038,8 @@ $fn = function () use ($ffn) {
     $bindObject = new \stdClass();
     $validation->valid($bindObject);
 
-    $ffn->print_array_multiline($bindArray, 3);
-    $ffn->print_array_multiline((array) $bindObject, 2);
+    $ffn->print_var_export($bindArray);
+    $ffn->print_var_export($bindObject);
 };
 $ffn->assert_stdout($fn, [], '
 "TEST 5"
@@ -1072,7 +1086,7 @@ FALSE
 ]
 ###
 ###
-[
+(object) [
   "users" => (object) [
     21 => (object) [
       "id" => "0",

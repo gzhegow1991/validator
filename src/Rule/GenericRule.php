@@ -3,7 +3,7 @@
 namespace Gzhegow\Validator\Rule;
 
 use Gzhegow\Lib\Lib;
-use Gzhegow\Validator\Exception\LogicException;
+use Gzhegow\Lib\Modules\Php\Result\Result;
 use Gzhegow\Validator\Exception\RuntimeException;
 use Gzhegow\Validator\RuleRegistry\RuleRegistryInterface;
 
@@ -48,80 +48,70 @@ class GenericRule
 
 
     /**
-     * @return static
+     * @return static|bool|null
      */
-    public static function from($from, array $context = [], array $refs = [])
+    public static function from($from, array $context = [], $ctx = null)
     {
-        $withErrors = array_key_exists(0, $refs);
-
-        $refs[ 0 ] = $refs[ 0 ] ?? null;
+        Result::parse($cur);
 
         $instance = null
-            ?? static::fromStatic($from, $refs)
-            ?? static::fromRuleInstance($from, $refs)
-            ?? static::fromRuleClass($from, $context, $refs)
-            ?? static::fromRuleString($from, $context, $refs);
+            ?? static::fromStatic($from, $cur)
+            ?? static::fromRuleInstance($from, $cur)
+            ?? static::fromRuleClass($from, $context, $cur)
+            ?? static::fromRuleString($from, $context, $cur);
 
-        if (! $withErrors) {
-            if (null === $instance) {
-                throw $refs[ 0 ];
-            }
+        if ($cur->isErr()) {
+            return Result::err($ctx, $cur);
         }
 
-        return $instance;
+        return Result::ok($ctx, $instance);
     }
 
     /**
-     * @return static
+     * @return static|bool|null
      */
-    public static function fromObject($from, array $refs = [])
+    public static function fromObject($from, $ctx = null)
     {
-        $withErrors = array_key_exists(0, $refs);
-
-        $refs[ 0 ] = $refs[ 0 ] ?? null;
+        Result::parse($cur);
 
         $instance = null
-            ?? static::fromStatic($from, $refs)
-            ?? static::fromRuleInstance($from, $refs);
+            ?? static::fromStatic($from, $cur)
+            ?? static::fromRuleInstance($from, $cur);
 
-        if (! $withErrors) {
-            if (null === $instance) {
-                throw $refs[ 0 ];
-            }
+        if ($cur->isErr()) {
+            return Result::err($ctx, $cur);
         }
 
-        return $instance;
+        return Result::ok($ctx, $instance);
     }
 
 
     /**
      * @return static|bool|null
      */
-    public static function fromStatic($from, array $refs = [])
+    public static function fromStatic($from, $ctx = null)
     {
         if ($from instanceof static) {
-            return Lib::refsResult($refs, $from);
+            return Result::ok($ctx, $from);
         }
 
-        return Lib::refsError(
-            $refs,
-            new LogicException(
-                [ 'The `from` should be instance of: ' . static::class, $from ]
-            )
+        return Result::err(
+            $ctx,
+            [ 'The `from` should be instance of: ' . static::class, $from ],
+            [ __FILE__, __LINE__ ]
         );
     }
 
     /**
      * @return static|bool|null
      */
-    public static function fromRuleInstance($from, array $refs = [])
+    public static function fromRuleInstance($from, $ctx = null)
     {
         if (! ($from instanceof RuleInterface)) {
-            return Lib::refsError(
-                $refs,
-                new LogicException(
-                    [ 'The `from` should be instance of: ' . RuleInterface::class, $from ]
-                )
+            return Result::err(
+                $ctx,
+                [ 'The `from` should be instance of: ' . RuleInterface::class, $from ],
+                [ __FILE__, __LINE__ ]
             );
         }
 
@@ -129,29 +119,27 @@ class GenericRule
         $instance->ruleInstance = $from;
         $instance->ruleClass = get_class($from);
 
-        return Lib::refsResult($refs, $instance);
+        return Result::ok($ctx, $instance);
     }
 
     /**
      * @return static|bool|null
      */
-    public static function fromRuleClass($from, array $context = [], array $refs = [])
+    public static function fromRuleClass($from, array $context = [], $ctx = null)
     {
         if (! (is_string($from) && ('' !== $from))) {
-            return Lib::refsError(
-                $refs,
-                new LogicException(
-                    [ 'The `from` should be non-empty string', $from ]
-                )
+            return Result::err(
+                $ctx,
+                [ 'The `from` should be non-empty string', $from ],
+                [ __FILE__, __LINE__ ]
             );
         }
 
         if (! is_subclass_of($from, RuleInterface::class)) {
-            return Lib::refsError(
-                $refs,
-                new LogicException(
-                    [ 'The `from` should be class-string of: ' . RuleInterface::class, $from ]
-                )
+            return Result::err(
+                $ctx,
+                [ 'The `from` should be class-string of: ' . RuleInterface::class, $from ],
+                [ __FILE__, __LINE__ ]
             );
         }
 
@@ -165,43 +153,40 @@ class GenericRule
         $instance->ruleClass = $from;
         $instance->ruleClassParameters = $ruleParameters;
 
-        return Lib::refsResult($refs, $instance);
+        return Result::ok($ctx, $instance);
     }
 
     /**
      * @return static|bool|null
      */
-    public static function fromRuleString($from, array $context = [], array $refs = [])
+    public static function fromRuleString($from, array $context = [], $ctx = null)
     {
         if (! (is_string($from) && ('' !== $from))) {
-            return Lib::refsError(
-                $refs,
-                new LogicException(
-                    [ 'The `from` should be non-empty string', $from ]
-                )
+            return Result::err(
+                $ctx,
+                [ 'The `from` should be non-empty string', $from ],
+                [ __FILE__, __LINE__ ]
             );
         }
 
         if (! isset($context[ 'registry' ])) {
-            return Lib::refsError(
-                $refs,
-                new LogicException(
-                    [ 'The `context[registry]` is required', $context ]
-                )
+            return Result::err(
+                $ctx,
+                [ 'The `context[registry]` is required', $context ],
+                [ __FILE__, __LINE__ ]
             );
         }
 
         $ruleRegistry = $context[ 'registry' ];
 
         if (! ($ruleRegistry instanceof RuleRegistryInterface)) {
-            return Lib::refsError(
-                $refs,
-                new LogicException(
-                    [
-                        'The `context[registry]` should be instance of: ' . RuleRegistryInterface::class,
-                        $ruleRegistry,
-                    ]
-                )
+            return Result::err(
+                $ctx,
+                [
+                    'The `context[registry]` should be instance of: ' . RuleRegistryInterface::class,
+                    $ruleRegistry,
+                ],
+                [ __FILE__, __LINE__ ]
             );
         }
 
@@ -209,14 +194,13 @@ class GenericRule
             || ! isset($context[ 'separator' ])
             || ! Lib::type()->letter($ruleArgsSeparator, $context[ 'separator' ])
         ) {
-            return Lib::refsError(
-                $refs,
-                new LogicException(
-                    [
-                        'The `context[ruleArgsSeparator]` should be one letter',
-                        $context[ 'separator' ],
-                    ]
-                )
+            return Result::err(
+                $ctx,
+                [
+                    'The `context[ruleArgsSeparator]` should be one letter',
+                    $context[ 'separator' ],
+                ],
+                [ __FILE__, __LINE__ ]
             );
         }
 
@@ -224,14 +208,13 @@ class GenericRule
             || ! isset($context[ 'delimiter' ])
             || ! Lib::type()->letter($ruleArgsDelimiter, $context[ 'delimiter' ])
         ) {
-            return Lib::refsError(
-                $refs,
-                new LogicException(
-                    [
-                        'The `context[ruleArgsDelimiter]` should be one letter',
-                        $context[ 'delimiter' ],
-                    ]
-                )
+            return Result::err(
+                $ctx,
+                [
+                    'The `context[ruleArgsDelimiter]` should be one letter',
+                    $context[ 'delimiter' ],
+                ],
+                [ __FILE__, __LINE__ ]
             );
         }
 
@@ -240,11 +223,10 @@ class GenericRule
         [ $ruleName, $ruleArguments ] = $explode + [ '', null ];
 
         if (! $ruleRegistry->hasRuleName($ruleName, $ruleClass)) {
-            return Lib::refsError(
-                $refs,
-                new RuntimeException(
-                    [ 'Missing rule with name: ' . $ruleName ]
-                )
+            return Result::err(
+                $ctx,
+                [ 'Missing rule with name: ' . $ruleName ],
+                [ __FILE__, __LINE__ ]
             );
         }
 
@@ -264,7 +246,7 @@ class GenericRule
 
         $instance->ruleString = $from;
 
-        return Lib::refsResult($refs, $instance);
+        return Result::ok($ctx, $instance);
     }
 
 
