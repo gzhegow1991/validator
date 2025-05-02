@@ -62,7 +62,7 @@ class DateRule extends AbstractRuleType
 
         $status = Lib::type()->date_formatted(
             $date,
-            $formats, $value[ 0 ]
+            $value[ 0 ], $formats
         );
 
         if (! $status) {

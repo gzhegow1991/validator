@@ -64,7 +64,7 @@ class DateTzOffsetRule extends AbstractRuleType
 
         $status = Lib::type()->date_tz_formatted(
             $dateTz,
-            $formats, $value[ 0 ],
+            $value[ 0 ], $formats,
             $allowedTimeZoneTypes
         );
 
