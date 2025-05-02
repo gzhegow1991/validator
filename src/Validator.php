@@ -13,7 +13,7 @@ class Validator
     }
 
 
-    public static function setFacade(ValidatorInterface $facade) : ?ValidatorInterface
+    public static function setFacade(?ValidatorInterface $facade) : ?ValidatorInterface
     {
         $last = static::$facade;
 
