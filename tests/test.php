@@ -4,14 +4,12 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 
 // > настраиваем PHP
-ini_set('memory_limit', '32M');
-
-
-// > настраиваем обработку ошибок
-\Gzhegow\Lib\Lib::errorHandler()
+\Gzhegow\Lib\Lib::entrypoint()
     ->setDirRoot(__DIR__ . '/..')
     //
     ->useErrorReporting()
+    ->useMemoryLimit()
+    ->useTimeLimit()
     ->useErrorHandler()
     ->useExceptionHandler()
 ;
@@ -61,18 +59,14 @@ $ffn = new class {
     }
 
 
-    function assert_stdout(
-        \Closure $fn, array $fnArgs = [],
-        string $expectedStdout = null
-    ) : void
+    function test(\Closure $fn, array $args = []) : \Gzhegow\Lib\Modules\Test\TestRunner\TestRunner
     {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
 
-        \Gzhegow\Lib\Lib::test()->assertStdout(
-            $trace,
-            $fn, $fnArgs,
-            $expectedStdout
-        );
+        return \Gzhegow\Lib\Lib::test()->test()
+            ->fn($fn, $args)
+            ->trace($trace)
+        ;
     }
 };
 
@@ -82,6 +76,7 @@ if (PHP_VERSION_ID >= 80100) {
     require_once $ffn->root() . '/tests/src/Enum/HelloWorldEnum.php';
     require_once $ffn->root() . '/tests/src/Enum/HelloWorldBackedEnum.php';
 }
+
 
 
 // >>> ЗАПУСКАЕМ!
@@ -523,6 +518,8 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 // die();
 
 
+// >>> ТЕСТЫ
+
 // > TEST
 // > создаем валидатор и запускаем проверку
 $fn = function () use ($ffn) {
@@ -556,7 +553,8 @@ $fn = function () use ($ffn) {
     $messages = $validation->messages();
     $ffn->print_array_multiline($messages, 2);
 };
-$ffn->assert_stdout($fn, [], '
+$test = $ffn->test($fn);
+$test->expectStdout('
 "TEST 1"
 
 ###
@@ -576,6 +574,7 @@ $ffn->assert_stdout($fn, [], '
 ]
 ###
 ');
+$test->run();
 
 
 // > TEST
@@ -644,7 +643,8 @@ $fn = function () use ($ffn) {
     $messages = $validation->messages();
     $ffn->print_array_multiline($messages, 2);
 };
-$ffn->assert_stdout($fn, [], '
+$test = $ffn->test($fn);
+$test->expectStdout('
 "TEST 2"
 
 ###
@@ -702,6 +702,7 @@ $ffn->assert_stdout($fn, [], '
 ]
 ###
 ');
+$test->run();
 
 
 // > TEST
@@ -789,7 +790,8 @@ $fn = function () use ($ffn) {
 
     $ffn->print_array_multiline($messages, 2);
 };
-$ffn->assert_stdout($fn, [], '
+$test = $ffn->test($fn);
+$test->expectStdout('
 "TEST 3"
 
 ###
@@ -863,6 +865,7 @@ $ffn->assert_stdout($fn, [], '
 ]
 ###
 ');
+$test->run();
 
 
 // > TEST
@@ -928,7 +931,8 @@ $fn = function () use ($ffn) {
     $ffn->print_array_multiline($messages, 2);
     echo PHP_EOL;
 };
-$ffn->assert_stdout($fn, [], '
+$test = $ffn->test($fn);
+$test->expectStdout('
 "TEST 4"
 
 ###
@@ -969,6 +973,7 @@ $ffn->assert_stdout($fn, [], '
 ]
 ###
 ');
+$test->run();
 
 
 // > TEST
@@ -1042,7 +1047,8 @@ $fn = function () use ($ffn) {
     $ffn->print_var_export($bindArray);
     $ffn->print_var_export($bindObject);
 };
-$ffn->assert_stdout($fn, [], '
+$test = $ffn->test($fn);
+$test->expectStdout('
 "TEST 5"
 
 FALSE
@@ -1101,3 +1107,4 @@ FALSE
 ]
 ###
 ');
+$test->run();
