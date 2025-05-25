@@ -26,7 +26,7 @@ class BlankRule extends AbstractRuleImplicit
             return null;
         }
 
-        if (! Lib::type()->is_blank($value[ 0 ])) {
+        if (! Lib::type()->blank($var, $value[ 0 ])) {
             // > filled - FAIL
             return static::message();
         }

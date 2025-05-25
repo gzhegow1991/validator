@@ -41,7 +41,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
     //
     ->useErrorReporting()
     ->useMemoryLimit()
-    ->useTimeLimit()
     ->useUmask()
     ->useErrorHandler()
     ->useExceptionHandler()
@@ -92,11 +91,11 @@ $ffn = new class {
     }
 
 
-    function test(\Closure $fn, array $args = []) : \Gzhegow\Lib\Modules\Test\TestRunner\TestRunner
+    function test(\Closure $fn, array $args = []) : \Gzhegow\Lib\Modules\Test\Test
     {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
 
-        return \Gzhegow\Lib\Lib::test()->test()
+        return \Gzhegow\Lib\Lib::test()->newTest()
             ->fn($fn, $args)
             ->trace($trace)
         ;
@@ -157,7 +156,7 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 \Gzhegow\Validator\Validator::setFacade($validator);
 
 
-// > ПРИМЕР со всеми правилами, которые идут в комплекте
+// // > ПРИМЕР со всеми правилами, которые идут в комплекте
 //
 // $validation = \Gzhegow\Validator\Validator::new();
 //
