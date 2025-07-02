@@ -7,6 +7,11 @@ use Gzhegow\Validator\Validation\ValidationInterface;
 
 class Validator
 {
+    private function __construct()
+    {
+    }
+
+
     public static function new() : ValidationInterface
     {
         return static::$facade->new();
