@@ -241,7 +241,7 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        if (! Lib::type()->arrpath($keyPath, $path)) {
+        if (! Lib::type()->arrpath($path)->isOk([ &$keyPath ])) {
             throw new LogicException(
                 [ 'The `path` should be valid path', $path ]
             );
@@ -298,7 +298,7 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        if (! Lib::type()->arrpath($keyPath, $path)) {
+        if (! Lib::type()->arrpath($path)->isOk([ &$keyPath ])) {
             throw new LogicException(
                 [ 'The `path` should be valid path', $path ]
             );
@@ -357,7 +357,7 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        if (! Lib::type()->arrpath($keyPath, $path)) {
+        if (! Lib::type()->arrpath($path)->isOk([ &$keyPath ])) {
             throw new LogicException(
                 [ 'The `path` should be valid path', $path ]
             );
@@ -416,7 +416,7 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        if (! Lib::type()->arrpath($keyPath, $path)) {
+        if (! Lib::type()->arrpath($path)->isOk([ &$keyPath ])) {
             throw new LogicException(
                 [ 'The `path` should be valid path', $path ]
             );
@@ -1291,13 +1291,15 @@ class Validation implements ValidationInterface
 
     public function fieldpathOrAbsolute($path, $pathCurrent) : array
     {
+        $thePhp = Lib::php();
+
         $keyPath = $this->fieldpath($path);
         $keyPathCurrent = $this->fieldpath($pathCurrent);
 
         $keyString = implode(static::SYMBOL_FIELDPATH_SEPARATOR, $keyPath);
         $keyStringCurrent = implode(static::SYMBOL_FIELDPATH_SEPARATOR, $keyPathCurrent);
 
-        $keyStringAbsolute = Lib::php()->path_or_absolute(
+        $keyStringAbsolute = $thePhp->path_or_absolute(
             $keyString, $keyStringCurrent,
             static::SYMBOL_FIELDPATH_SEPARATOR, static::SYMBOL_FIELDPATH_PARENT
         );
@@ -1538,7 +1540,7 @@ class Validation implements ValidationInterface
                 unset($this->dataPathes[ $keyNulpath ]);
                 unset($this->dataTypes[ $keyNulpath ]);
 
-                $keyPathObject = ArrPath::fromValidArray($keyPath);
+                $keyPathObject = ArrPath::fromValidArray($keyPath)->orThrow();
 
                 $theArr->unset_path(
                     $this->data,
@@ -1572,7 +1574,7 @@ class Validation implements ValidationInterface
 
                 if ($hasValue) {
                     $thePath = $this->dataPathes[ $keyNulpath ];
-                    $thePathObject = ArrPath::fromValidArray($thePath);
+                    $thePathObject = ArrPath::fromValidArray($thePath)->orThrow();
                     $theValue = [ $value ];
 
                 } else {
@@ -1580,7 +1582,7 @@ class Validation implements ValidationInterface
                         static::SYMBOL_NUL,
                         ltrim($keyNulpath, static::SYMBOL_NUL)
                     );
-                    $thePathObject = ArrPath::fromValidArray($thePath);
+                    $thePathObject = ArrPath::fromValidArray($thePath)->orThrow();
                     $theValue = [];
                 }
 
@@ -1672,7 +1674,7 @@ class Validation implements ValidationInterface
 
                 if ($hasValue) {
                     $thePath = $this->dataPathes[ $keyNulpath ];
-                    $thePathObject = ArrPath::fromValidArray($thePath);
+                    $thePathObject = ArrPath::fromValidArray($thePath)->orThrow();
 
                     $isValueEqualsDefault = ($value === $valueDefault);
 
@@ -1681,7 +1683,7 @@ class Validation implements ValidationInterface
                         static::SYMBOL_NUL,
                         ltrim($keyNulpath, static::SYMBOL_NUL)
                     );
-                    $thePathObject = ArrPath::fromValidArray($thePath);
+                    $thePathObject = ArrPath::fromValidArray($thePath)->orThrow();
 
                     $isNoValue = true;
                 }
@@ -1918,7 +1920,7 @@ class Validation implements ValidationInterface
             $filtersList = $thePhp->to_list($filterOrFilters, [], 'is_callable');
 
             foreach ( $filtersList as $filter ) {
-                $genericFilter = GenericFilter::from($filter);
+                $genericFilter = GenericFilter::from($filter)->orThrow();
 
                 $filtersQueueItem[ static::SYMBOL_NUL . $wildcardDotpath ][] = $genericFilter;
             }
@@ -1955,7 +1957,7 @@ class Validation implements ValidationInterface
 
                 foreach ( $rulesArray as $i => $rule ) {
                     if (is_object($rule)) {
-                        $_rule = GenericRule::fromObject($rule);
+                        $_rule = GenericRule::fromObject($rule)->orThrow();
 
                     } elseif (is_string($rule)) {
                         $_rule = GenericRule::fromRuleString(
@@ -1966,7 +1968,7 @@ class Validation implements ValidationInterface
                                 'separator' => static::SYMBOL_RULEARGS_SEPARATOR,
                                 'delimiter' => static::SYMBOL_RULEARGS_DELIMITER,
                             ]
-                        );
+                        )->orThrow();
 
                     } else {
                         throw new RuntimeException(
@@ -2019,7 +2021,7 @@ class Validation implements ValidationInterface
 
         $first = true;
         foreach ( $gen as $p ) {
-            if ($theType->string($pString, $p)) {
+            if ($theType->string($p)->isOk([ &$pString ])) {
                 if ('' === $pString) {
                     $rulepathArray[] = $pString;
 
@@ -2087,11 +2089,13 @@ class Validation implements ValidationInterface
     protected function matchKeyNulpathesByWildcardDotpath(string $wildcardDotpath) : array
     {
         if (! isset($this->cacheMatchKeyDotpathesByWildcardDotpath[ $wildcardDotpath ])) {
+            $theStr = Lib::str();
+
             $isLastWildcard = (static::SYMBOL_DOTPATH_WILDCARD_SEQUENCE === substr($wildcardDotpath, -1));
 
             $keyNulpathes = array_keys($this->dataIndex);
 
-            $keyNulpathesMatch = Lib::str()->str_match(
+            $keyNulpathesMatch = $theStr->str_match(
                 $wildcardDotpath, $keyNulpathes,
                 static::SYMBOL_DOTPATH_WILDCARD_SEQUENCE,
                 static::SYMBOL_NUL
@@ -2142,7 +2146,9 @@ class Validation implements ValidationInterface
             }
 
         } elseif (null !== $boundObject) {
-            Lib::arr()->map_to_object($data, $boundObject);
+            $theArr = Lib::arr();
+
+            $theArr->map_to_object($data, $boundObject);
         }
 
         return $bind;

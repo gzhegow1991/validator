@@ -4,7 +4,6 @@ namespace Gzhegow\Validator\Rule\Kit\Main\Format;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Rule\AbstractRule;
-use Gzhegow\Lib\Modules\Php\Result\Result;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
@@ -26,9 +25,8 @@ class JsonRule extends AbstractRule
         if ([] === $value) return static::message();
 
         $jsonDecoded = Lib::format()->json()->json_decode(
-            $value[ 0 ], null,
-            null, null,
-            Result::asValue([ $this ])
+            [ $this ],
+            $value[ 0 ]
         );
 
         $status = ($jsonDecoded !== $this);

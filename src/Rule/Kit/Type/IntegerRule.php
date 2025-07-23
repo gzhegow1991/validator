@@ -23,7 +23,7 @@ class IntegerRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->int($result, $value[ 0 ]);
+        $status = Lib::type()->int($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

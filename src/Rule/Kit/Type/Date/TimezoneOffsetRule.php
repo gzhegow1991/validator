@@ -26,7 +26,7 @@ class TimezoneOffsetRule extends AbstractRuleType
 
         $allowedTimeZoneTypes = [ 1 ];
 
-        $status = Lib::type()->timezone($dateTimeZone, $value[ 0 ], $allowedTimeZoneTypes);
+        $status = Lib::type()->timezone($value[ 0 ], $allowedTimeZoneTypes)->isOk();
 
         if (! $status) {
             return static::message();

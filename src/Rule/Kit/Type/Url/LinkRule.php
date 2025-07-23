@@ -24,7 +24,7 @@ class LinkRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->link($result, $value[ 0 ]);
+        $status = Lib::type()->link($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

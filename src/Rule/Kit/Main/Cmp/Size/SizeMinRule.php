@@ -36,7 +36,7 @@ class SizeMinRule extends AbstractRule
 
         $theType = Lib::type();
 
-        if (! $theType->int($sizeMin, $parameter0)) {
+        if (! $theType->int($parameter0)->isOk([ &$sizeMin ])) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be integer', $parameter0 ]
             );
@@ -44,7 +44,7 @@ class SizeMinRule extends AbstractRule
 
         $mode = 'size';
         if (null !== $parameter1) {
-            if (! $theType->string_not_empty($mode, $parameter1)) {
+            if (! $theType->string_not_empty($parameter1)->isOk([ &$mode ])) {
                 throw new LogicException(
                     [ 'The `parameters[2]` should be non-empty string, and known as `mode`', $parameter1 ]
                 );

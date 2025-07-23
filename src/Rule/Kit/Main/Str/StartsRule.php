@@ -33,23 +33,25 @@ class StartsRule extends AbstractRule
 
         $parameter0 = $this->parameters[ 0 ];
 
-        if (! Lib::type()->string_not_empty($string, $value[ 0 ])) {
+        $theType = Lib::type();
+
+        if (! $theType->string_not_empty($value[ 0 ])->isOk([ &$valueStringNotEmpty ])) {
             return static::message();
         }
 
-        if (! Lib::type()->string($stringToStarts, $parameter0)) {
+        if (! $theType->string($parameter0)->isOk([ &$stringStarts ])) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be string', $parameter0 ]
             );
         }
 
-        if ('' === $stringToStarts) {
+        if ('' === $stringStarts) {
             return null;
         }
 
         $fnStrpos = Lib::str()->mb_func('strpos');
 
-        if (0 !== $fnStrpos($string, $stringToStarts)) {
+        if (0 !== $fnStrpos($valueStringNotEmpty, $stringStarts)) {
             return static::message();
         }
 

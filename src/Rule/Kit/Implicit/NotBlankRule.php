@@ -26,7 +26,7 @@ class NotBlankRule extends AbstractRuleImplicit
             return null;
         }
 
-        if (! Lib::type()->blank($var, $value[ 0 ])) {
+        if (! Lib::type()->blank($value[ 0 ])->isOk()) {
             // > filled - OK
             return null;
         }

@@ -35,8 +35,8 @@ class DictRule extends AbstractRule
         $isSorted = boolval($parameter0 ?? false);
 
         $status = $isSorted
-            ? Lib::type()->dict_sorted($result, $array, true)
-            : Lib::type()->dict($result, $array, true);
+            ? Lib::type()->dict_sorted($array, true)->isOk()
+            : Lib::type()->dict($array, true)->isOk();
 
         if (! $status) {
             return static::message();

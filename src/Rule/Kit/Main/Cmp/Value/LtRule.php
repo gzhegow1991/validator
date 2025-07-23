@@ -40,7 +40,7 @@ class LtRule extends AbstractRule
         if (null !== $parameter1) {
             $theType = Lib::type();
 
-            if (! $theType->int($flagsMode, $parameter1)) {
+            if (! $theType->int($parameter1)->isOk([ &$flagsMode ])) {
                 throw new LogicException(
                     [ 'The `parameters[1]` should be integer, and known as `flags`', $parameter1 ]
                 );

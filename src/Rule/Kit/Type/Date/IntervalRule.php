@@ -24,7 +24,7 @@ class IntervalRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->interval_duration($dateInterval, $value[ 0 ]);
+        $status = Lib::type()->interval_duration($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

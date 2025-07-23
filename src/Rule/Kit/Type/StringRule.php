@@ -23,7 +23,7 @@ class StringRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->string($result, $value[ 0 ]);
+        $status = Lib::type()->string($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

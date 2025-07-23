@@ -23,7 +23,7 @@ class DoubleRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->float($result, $value[ 0 ]);
+        $status = Lib::type()->float($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

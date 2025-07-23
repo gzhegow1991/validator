@@ -43,17 +43,17 @@ class DateBetweenRule extends AbstractRule
 
         $theType = Lib::type();
 
-        if (! $theType->date($date, $value[ 0 ])) {
+        if (! $theType->date($value[ 0 ])->isOk([ &$date ])) {
             return static::message();
         }
 
-        if (! $theType->date($dateMin, $parameter0)) {
+        if (! $theType->date($parameter0)->isOk([ &$dateMin ])) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be valid date', $parameter0 ]
             );
         }
 
-        if (! $theType->date($dateMax, $parameter1)) {
+        if (! $theType->date($parameter1)->isOk([ &$dateMax ])) {
             throw new LogicException(
                 [ 'The `parameters[1]` should be valid date', $parameter1 ]
             );
@@ -67,7 +67,7 @@ class DateBetweenRule extends AbstractRule
 
         $flagsMode = _CMP_MODE_DATE_VS_USEC;
         if (null !== $parameter2) {
-            if (! $theType->string_not_empty($mode, $parameter2)) {
+            if (! $theType->string_not_empty($parameter2)->isOk([ &$mode ])) {
                 throw new LogicException(
                     [ 'The `parameters[2]` should be non-empty string, and known as `mode`', $parameter2 ]
                 );

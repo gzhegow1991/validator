@@ -43,13 +43,13 @@ class SizeBetweenRule extends AbstractRule
         $parameter1 = $this->parameters[ 1 ];
         $parameter2 = $this->parameters[ 2 ] ?? null;
 
-        if (! $theType->int($sizeMin, $parameter0)) {
+        if (! $theType->int($parameter0)->isOk([ &$sizeMin ])) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be integer', $parameter0 ]
             );
         }
 
-        if (! $theType->int($sizeMax, $parameter1)) {
+        if (! $theType->int($parameter1)->isOk([ &$sizeMax ])) {
             throw new LogicException(
                 [ 'The `parameters[1]` should be integer', $parameter1 ]
             );
@@ -63,7 +63,7 @@ class SizeBetweenRule extends AbstractRule
 
         $mode = 'size';
         if (null !== $parameter2) {
-            if (! $theType->string_not_empty($mode, $parameter2)) {
+            if (! $theType->string_not_empty($parameter2)->isOk([ &$mode ])) {
                 throw new LogicException(
                     [ 'The `parameters[2]` should be non-empty string, and known as `mode`', $parameter2 ]
                 );

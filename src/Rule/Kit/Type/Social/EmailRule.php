@@ -31,7 +31,7 @@ class EmailRule extends AbstractRuleType
             ?? (is_string($parameter0) ? [ $parameter0 ] : null)
             ?? null;
 
-        if (! Lib::type()->email_non_fake($emailString, $value[ 0 ], $filters)) {
+        if (! Lib::type()->email_non_fake($value[ 0 ], $filters)->isOk()) {
             return static::message();
         }
 

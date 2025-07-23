@@ -33,7 +33,7 @@ class GettypeRule extends AbstractRule
 
         $parameter0 = $this->parameters[ 0 ];
 
-        if (! Lib::type()->string_not_empty($type, $parameter0)) {
+        if (! Lib::type()->string_not_empty($parameter0)->isOk([ &$type ])) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be non empty string', $parameter0 ]
             );

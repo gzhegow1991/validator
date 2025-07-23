@@ -51,13 +51,13 @@ class IpInSubnetsV6Rule extends AbstractRule
 
         $theType = Lib::type();
 
-        if (! $theType->address_ip_v6($addressIpV6, $value[ 0 ])) {
+        if (! $theType->address_ip_v6($value[ 0 ])->isOk([ &$addressIpV6 ])) {
             return static::message();
         }
 
         $subnetsV6 = null
             ?? (is_array($parameter0) ? $parameter0 : null)
-            ?? ($theType->string_not_empty($string, $parameter0) ? [ $string ] : null)
+            ?? ($theType->string_not_empty($parameter0)->isOk([ &$parameter0String ]) ? [ $parameter0String ] : null)
             ?? [];
 
         $status = Lib::net()->is_ip_in_subnets_v6($addressIpV6, $subnetsV6);

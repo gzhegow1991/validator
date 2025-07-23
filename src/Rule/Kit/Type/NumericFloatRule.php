@@ -23,7 +23,7 @@ class NumericFloatRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->numeric_float($result, $value[ 0 ]);
+        $status = Lib::type()->numeric_float($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

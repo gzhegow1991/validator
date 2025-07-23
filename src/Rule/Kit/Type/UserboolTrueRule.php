@@ -23,13 +23,13 @@ class UserboolTrueRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->userbool($bool, $value[ 0 ]);
+        $status = Lib::type()->userbool($value[ 0 ])->isOk([ &$valueBool ]);
 
         if (! $status) {
             return static::message();
         }
 
-        if (true !== $bool) {
+        if (true !== $valueBool) {
             return static::message();
         }
 

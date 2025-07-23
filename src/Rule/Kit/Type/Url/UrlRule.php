@@ -24,7 +24,7 @@ class UrlRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->url($result, $value[ 0 ]);
+        $status = Lib::type()->url($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

@@ -36,11 +36,11 @@ class DateGtRule extends AbstractRule
 
         $theType = Lib::type();
 
-        if (! $theType->date($date, $value[ 0 ])) {
+        if (! $theType->date($value[ 0 ])->isOk([ &$date ])) {
             return static::message();
         }
 
-        if (! $theType->date($dateGt, $parameter0)) {
+        if (! $theType->date($parameter0)->isOk([ &$dateGt ])) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be valid date', $parameter0 ]
             );
@@ -48,7 +48,7 @@ class DateGtRule extends AbstractRule
 
         $flagsMode = _CMP_MODE_DATE_VS_USEC;
         if (null !== $parameter1) {
-            if (! $theType->string_not_empty($mode, $parameter1)) {
+            if (! $theType->string_not_empty($parameter1)->isOk([ &$mode ])) {
                 throw new LogicException(
                     [ 'The `parameters[1]` should be non-empty string, and known as `mode`', $parameter1 ]
                 );

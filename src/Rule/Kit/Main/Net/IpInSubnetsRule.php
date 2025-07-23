@@ -51,13 +51,13 @@ class IpInSubnetsRule extends AbstractRule
 
         $theType = Lib::type();
 
-        if (! $theType->address_ip($addressIp, $value[ 0 ])) {
+        if (! $theType->address_ip($value[ 0 ])->isOk([ &$addressIp ])) {
             return static::message();
         }
 
         $subnets = null
             ?? (is_array($parameter0) ? $parameter0 : null)
-            ?? ($theType->string_not_empty($string, $parameter0) ? [ $string ] : null)
+            ?? ($theType->string_not_empty($parameter0)->isOk([ &$parameter0String ]) ? [ $parameter0String ] : null)
             ?? [];
 
         $status = Lib::net()->is_ip_in_subnets($addressIp, $subnets);

@@ -24,7 +24,7 @@ class CtypeAlnumRule extends AbstractRule
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->ctype_alnum($result, $value[ 0 ]);
+        $status = Lib::type()->ctype_alnum($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

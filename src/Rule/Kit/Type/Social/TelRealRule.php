@@ -28,7 +28,9 @@ class TelRealRule extends AbstractRuleType
 
         $region = $parameter0 ?? '';
 
-        if (! Lib::type()->tel_real($telRealString, $value[ 0 ], $region)) {
+        $status = Lib::type()->tel_real($value[ 0 ], $region)->isOk();
+
+        if (! $status) {
             return static::message();
         }
 

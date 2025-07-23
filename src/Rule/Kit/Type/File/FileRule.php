@@ -81,10 +81,10 @@ class FileRule extends AbstractRuleType
         }
 
         $status = Lib::type()->file(
-            $splFileInfo, $value[ 0 ],
+            $value[ 0 ],
             $extensions, $mimeTypes,
             $filters
-        );
+        )->isOk();
 
         if (! $status) {
             return static::message();

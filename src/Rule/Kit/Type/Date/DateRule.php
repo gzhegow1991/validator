@@ -56,14 +56,13 @@ class DateRule extends AbstractRuleType
 
         if ([] === $formats) {
             throw new LogicException(
-                'The `formats` should be non-empty string or array'
+                [ 'The `formats` should be non-empty string or array', $parameter0 ]
             );
         }
 
         $status = Lib::type()->date_formatted(
-            $date,
             $value[ 0 ], $formats
-        );
+        )->isOk();
 
         if (! $status) {
             return static::message();

@@ -34,11 +34,13 @@ class RegexNotRule extends AbstractRule
         $parameter0 = $this->parameters[ 0 ];
         $parameter1 = $this->parameters[ 1 ] ?? null;
 
-        if (! Lib::type()->string_not_empty($string, $value[ 0 ])) {
+        $theType = Lib::type();
+
+        if (! $theType->string_not_empty($value[ 0 ])->isOk([ &$valueStringNotEmpty ])) {
             return static::message();
         }
 
-        if (! Lib::type()->string_not_empty($regex, $parameter0)) {
+        if (! $theType->string_not_empty($parameter0)->isOk([ &$regex ])) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be non-empty string', $parameter0 ]
             );
@@ -46,7 +48,7 @@ class RegexNotRule extends AbstractRule
 
         $regexFlags = '';
         if (null !== $parameter1) {
-            if (! Lib::type()->string_not_empty($regexFlags, $parameter1)) {
+            if (! $theType->string_not_empty($parameter1)->isOk([ &$regexFlags ])) {
                 throw new LogicException(
                     [ 'The `parameters[1]` should be non-empty string, and known as `flags`', $parameter1 ]
                 );
@@ -68,7 +70,7 @@ class RegexNotRule extends AbstractRule
             );
         }
 
-        if (0 !== preg_match($regexp, $string)) {
+        if (0 !== preg_match($regexp, $valueStringNotEmpty)) {
             return static::message();
         }
 

@@ -27,7 +27,7 @@ class DecimalRule extends AbstractRuleType
 
         $scale = intval($parameter0 ?? 0);
 
-        $status = Lib::type()->decimal($result, $value[ 0 ], $scale);
+        $status = Lib::type()->decimal($value[ 0 ], $scale)->isOk();
 
         if (! $status) {
             return static::message();

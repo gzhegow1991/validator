@@ -24,7 +24,7 @@ class HostRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->host($result, $value[ 0 ]);
+        $status = Lib::type()->host($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

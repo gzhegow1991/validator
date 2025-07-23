@@ -35,8 +35,8 @@ class ListRule extends AbstractRule
         $isSorted = boolval($parameter0 ?? false);
 
         $status = $isSorted
-            ? Lib::type()->list_sorted($result, $array, true)
-            : Lib::type()->list($result, $array, true);
+            ? Lib::type()->list_sorted($array, true)->isOk()
+            : Lib::type()->list($array, true)->isOk();
 
         if (! $status) {
             return static::message();

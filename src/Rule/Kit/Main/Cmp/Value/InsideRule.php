@@ -46,7 +46,7 @@ class InsideRule extends AbstractRule
 
         $flagsMode = null;
         if (null !== $parameter2) {
-            if (! Lib::type()->int($flagsMode, $parameter2)) {
+            if (! Lib::type()->int($parameter2)->isOk([ &$flagsMode ])) {
                 throw new LogicException(
                     [ 'The `parameters[2]` should be integer, and known as `flags`', $parameter2 ]
                 );

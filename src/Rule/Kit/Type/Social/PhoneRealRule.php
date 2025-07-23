@@ -28,7 +28,9 @@ class PhoneRealRule extends AbstractRuleType
 
         $region = $parameter0 ?? '';
 
-        if (! Lib::type()->phone_real($phoneRealString, $value[ 0 ], $region)) {
+        $status = Lib::type()->phone_real($value[ 0 ], $region)->isOk();
+
+        if (! $status) {
             return static::message();
         }
 

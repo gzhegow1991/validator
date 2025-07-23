@@ -81,10 +81,10 @@ class ImageRule extends AbstractRuleType
         }
 
         $status = Lib::type()->image(
-            $splFileInfo, $value[ 0 ],
+            $value[ 0 ],
             $extensions, $mimeTypes,
             $filters
-        );
+        )->isOk();
 
         if (! $status) {
             return static::message();

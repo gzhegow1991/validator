@@ -62,7 +62,7 @@ class DateTzRule extends AbstractRuleType
 
         if ([] === $formats) {
             throw new LogicException(
-                'The `formats` should be non-empty string or array'
+                [ 'The `formats` should be non-empty string or array', $parameter0 ]
             );
         }
 
@@ -72,10 +72,9 @@ class DateTzRule extends AbstractRuleType
             ?? null;
 
         $status = Lib::type()->date_tz_formatted(
-            $dateTz,
             $value[ 0 ], $formats,
             $allowedTimeZoneTypes
-        );
+        )->isOk();
 
         if (! $status) {
             return static::message();

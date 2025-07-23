@@ -60,15 +60,17 @@ class IntersectAnyRule extends AbstractRule
         $cmpNativeIsStrict = true;
         $cmpCustomFlagsMode = null;
         if (null !== $parameter1) {
-            if (Lib::type()->int($int, $parameter1)) {
+            $theType = Lib::type();
+
+            if ($theType->int($parameter1)->isOk([ &$parameter1Int ])) {
                 $cmpNative = false;
-                $cmpCustomFlagsMode = $int;
+                $cmpCustomFlagsMode = $parameter1Int;
 
-            } elseif (Lib::type()->userbool($bool, $parameter1)) {
-                $cmpNativeIsStrict = $bool;
+            } elseif ($theType->userbool($parameter1)->isOk([ &$parameter1Userbool ])) {
+                $cmpNativeIsStrict = $parameter1Userbool;
 
-            } elseif (Lib::type()->string_not_empty($string, $parameter1)) {
-                $cmpNativeIsStrict = ('strict' === $string);
+            } elseif ($theType->string_not_empty($parameter1)->isOk([ &$parameter1String ])) {
+                $cmpNativeIsStrict = ('strict' === $parameter1String);
 
             } else {
                 throw new LogicException(

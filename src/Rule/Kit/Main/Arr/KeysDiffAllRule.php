@@ -62,12 +62,14 @@ class KeysDiffAllRule extends AbstractRule
         $cmpNativeIsStrict = true;
         $cmpCustomFlagsMode = null;
         if (null !== $parameter1) {
-            if (Lib::type()->int($int, $parameter1)) {
-                $cmpNative = false;
-                $cmpCustomFlagsMode = $int;
+            $theType = Lib::type();
 
-            } elseif (Lib::type()->string_not_empty($string, $parameter1)) {
-                $cmpNativeIsStrict = ('strict' === $string);
+            if ($theType->int($parameter1)->isOk([ &$parameter1Int ])) {
+                $cmpNative = false;
+                $cmpCustomFlagsMode = $parameter1Int;
+
+            } elseif ($theType->string_not_empty($parameter1)->isOk([ &$parameter1String ])) {
+                $cmpNativeIsStrict = ('strict' === $parameter1String);
 
             } else {
                 throw new LogicException(

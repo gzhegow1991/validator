@@ -24,7 +24,7 @@ class SubnetV6Rule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->subnet_v6($subnet, $value[ 0 ]);
+        $status = Lib::type()->subnet_v6($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

@@ -66,7 +66,9 @@ class ValidatorProcessor implements ValidatorProcessorInterface
 
     protected function callUserFuncArray($fn, array $args)
     {
-        [ $list ] = Lib::arr()->kwargs($args);
+        $theArr = Lib::arr();
+
+        [ $list ] = $theArr->kwargs($args);
 
         $result = call_user_func_array($fn, $list);
 
@@ -115,8 +117,10 @@ class ValidatorProcessor implements ValidatorProcessorInterface
         if (! is_callable($fn)) {
             throw new RuntimeException(
                 [
-                    'Unable to extract callable from handler.'
-                    . ' / Filter: ' . Lib::debug()->var_dump($filter),
+                    ''
+                    . 'Unable to extract callable from handler. '
+                    . 'Filter: ' . $filter->getKey(),
+                    //
                     $filter,
                 ]
             );

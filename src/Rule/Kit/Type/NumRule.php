@@ -23,7 +23,7 @@ class NumRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->num($result, $value[ 0 ]);
+        $status = Lib::type()->num($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

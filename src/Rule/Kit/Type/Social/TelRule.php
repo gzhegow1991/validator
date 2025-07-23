@@ -24,7 +24,9 @@ class TelRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        if (! Lib::type()->tel_non_fake($telString, $value[ 0 ])) {
+        $status = Lib::type()->tel_non_fake($value[ 0 ])->isOk();
+
+        if (! $status) {
             return static::message();
         }
 

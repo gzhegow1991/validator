@@ -24,7 +24,7 @@ class AddressIpRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->address_ip($addressIp, $value[ 0 ]);
+        $status = Lib::type()->address_ip($value[ 0 ])->isOk([ &$addressIp ]);
 
         if (! $status) {
             return static::message();

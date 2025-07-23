@@ -1,14 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
-
 // > настраиваем PHP
 \Gzhegow\Lib\Lib::entrypoint()
     ->setDirRoot(__DIR__ . '/..')
-    //
-    ->useAll()
+    ->useAllRecommended()
 ;
+
 
 
 // > объявляем несколько функция для тестирования
@@ -21,7 +18,7 @@ $ffn = new class {
 
     function value_array_multiline($value, ?int $maxLevel = null, array $options = []) : string
     {
-        return \Gzhegow\Lib\Lib::debug()->value_array_multiline($value, $maxLevel, $options);
+        return \Gzhegow\Lib\Lib::debug()->dump_value_array_multiline($value, $maxLevel, $options);
     }
 
     function var_export($value, array $options = []) : string
@@ -32,7 +29,7 @@ $ffn = new class {
 
     function values($separator = null, ...$values) : string
     {
-        return \Gzhegow\Lib\Lib::debug()->values([], $separator, ...$values);
+        return \Gzhegow\Lib\Lib::debug()->dump_values([], $separator, ...$values);
     }
 
 
@@ -55,11 +52,11 @@ $ffn = new class {
     }
 
 
-    function test(\Closure $fn, array $args = []) : \Gzhegow\Lib\Modules\Test\Test
+    function test(\Closure $fn, array $args = []) : \Gzhegow\Lib\Modules\Test\TestCase
     {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
 
-        return \Gzhegow\Lib\Lib::test()->newTest()
+        return \Gzhegow\Lib\Lib::test()->newTestCase()
             ->fn($fn, $args)
             ->trace($trace)
         ;

@@ -23,7 +23,7 @@ class BooleanRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->bool($result, $value[ 0 ]);
+        $status = Lib::type()->bool($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

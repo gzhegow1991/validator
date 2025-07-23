@@ -24,7 +24,7 @@ class UuidRule extends AbstractRule
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->uuid($result, $value[ 0 ]);
+        $status = Lib::type()->uuid($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

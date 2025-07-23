@@ -23,7 +23,7 @@ class NumericIntRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        $status = Lib::type()->numeric_int($result, $value[ 0 ]);
+        $status = Lib::type()->numeric_int($value[ 0 ])->isOk();
 
         if (! $status) {
             return static::message();

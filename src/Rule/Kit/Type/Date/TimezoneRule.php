@@ -47,7 +47,7 @@ class TimezoneRule extends AbstractRuleType
             ?? (is_int($parameter0) ? [ $parameter0 ] : null)
             ?? null;
 
-        $status = Lib::type()->timezone($dateTimeZone, $value[ 0 ], $allowedTimeZoneTypes);
+        $status = Lib::type()->timezone($value[ 0 ], $allowedTimeZoneTypes)->isOk();
 
         if (! $status) {
             return static::message();

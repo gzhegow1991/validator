@@ -24,7 +24,9 @@ class PhoneRule extends AbstractRuleType
     {
         if ([] === $value) return static::message();
 
-        if (! Lib::type()->phone_non_fake($phoneString, $value[ 0 ])) {
+        $status = Lib::type()->phone_non_fake($value[ 0 ])->isOk();
+
+        if (! $status) {
             return static::message();
         }
 

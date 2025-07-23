@@ -33,13 +33,15 @@ class ContainsRule extends AbstractRule
 
         $parameter0 = $this->parameters[ 0 ];
 
-        if (! Lib::type()->string_not_empty($string, $value[ 0 ])) {
+        $theType = Lib::type();
+
+        if (! $theType->string_not_empty($value[ 0 ])->isOk([ &$valueStringNotEmpty ])) {
             return static::message();
         }
 
-        if (! Lib::type()->string($needle, $parameter0)) {
+        if (! $theType->string($parameter0)->isOk([ &$needle ])) {
             throw new LogicException(
-                [ 'The `parameters[0]` should be string', $needle ]
+                [ 'The `parameters[0]` should be string', $parameter0 ]
             );
         }
 
@@ -49,7 +51,7 @@ class ContainsRule extends AbstractRule
 
         $fnStrpos = Lib::str()->mb_func('strpos');
 
-        if (false === $fnStrpos($string, $needle)) {
+        if (false === $fnStrpos($valueStringNotEmpty, $needle)) {
             return static::message();
         }
 

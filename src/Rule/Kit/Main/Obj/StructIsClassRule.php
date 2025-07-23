@@ -39,7 +39,7 @@ class StructIsClassRule extends AbstractRule
             return static::message();
         }
 
-        if (! Lib::type()->struct_exists($instanceClass, $parameter0)) {
+        if (! Lib::type()->struct_exists($parameter0)->isOk([ &$instanceClass ])) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be existing struct', $parameter0 ]
             );

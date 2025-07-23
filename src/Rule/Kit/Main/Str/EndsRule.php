@@ -33,28 +33,32 @@ class EndsRule extends AbstractRule
 
         $parameter0 = $this->parameters[ 0 ];
 
-        if (! Lib::type()->string_not_empty($string, $value[ 0 ])) {
+        $theType = Lib::type();
+
+        if (! $theType->string_not_empty($value[ 0 ])->isOk([ &$string ])) {
             return static::message();
         }
 
-        if (! Lib::type()->string($stringToEnds, $parameter0)) {
+        if (! $theType->string($parameter0)->isOk([ &$needle ])) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be string', $parameter0 ]
             );
         }
 
-        if ('' === $stringToEnds) {
+        if ('' === $needle) {
             return null;
         }
 
-        $fnStrlen = Lib::str()->mb_func('strlen');
+        $theStr = Lib::str();
+
+        $fnStrlen = $theStr->mb_func('strlen');
 
         $len = $fnStrlen($string);
-        $lenContains = $fnStrlen($stringToEnds);
+        $lenContains = $fnStrlen($needle);
 
-        $fnStrpos = Lib::str()->mb_func('strpos');
+        $fnStrpos = $theStr->mb_func('strpos');
 
-        $pos = $fnStrpos($string, $stringToEnds);
+        $pos = $fnStrpos($string, $needle);
 
         if (false === $pos) {
             return static::message();

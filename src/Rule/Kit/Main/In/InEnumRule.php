@@ -37,13 +37,13 @@ class InEnumRule extends AbstractRule
 
         $theType = Lib::type();
 
-        if (! $theType->struct_enum($enumClass, $parameter0)) {
+        if (! $theType->struct_enum($parameter0)->isOk([ &$enumClass ])) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be enum class or object', $parameter0 ]
             );
         }
 
-        $status = $theType->enum_case($enumItemObject, $enumItem, $enumClass);
+        $status = $theType->enum_case($enumItem, $enumClass)->isOk();
 
         if (! $status) {
             return static::message();
