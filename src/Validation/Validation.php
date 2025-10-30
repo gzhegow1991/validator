@@ -690,7 +690,7 @@ class Validation implements ValidationInterface
         );
 
         foreach ( $gen as $keyPath => $value ) {
-            $theArr->set_path(
+            $theArr->put_path(
                 $result, $keyPath, $value
             );
         }
@@ -750,7 +750,7 @@ class Validation implements ValidationInterface
 
             $keyPath = $this->dataPathes[ $keyNulpath ];
 
-            $theArr->set_path($result, $keyPath, $value);
+            $theArr->put_path($result, $keyPath, $value);
         }
 
         if (null !== $bind) {
@@ -826,7 +826,7 @@ class Validation implements ValidationInterface
         );
 
         foreach ( $gen as $keyPath => $value ) {
-            $theArr->set_path(
+            $theArr->put_path(
                 $result, $keyPath, $value
             );
         }
@@ -892,7 +892,7 @@ class Validation implements ValidationInterface
 
             $keyPath = $this->dataPathes[ $keyNulpath ];
 
-            $theArr->set_path($result, $keyPath, $value);
+            $theArr->put_path($result, $keyPath, $value);
         }
 
         if (null !== $bind) {
@@ -975,7 +975,7 @@ class Validation implements ValidationInterface
 
             $keyPath = $this->dataPathes[ $keyNulpath ];
 
-            $theArr->set_path($result, $keyPath, $value);
+            $theArr->put_path($result, $keyPath, $value);
         }
 
         if (null !== $bind) {
@@ -1058,7 +1058,7 @@ class Validation implements ValidationInterface
 
             $keyPath = $this->dataPathes[ $keyNulpath ];
 
-            $theArr->set_path($result, $keyPath, $value);
+            $theArr->put_path($result, $keyPath, $value);
         }
 
         if (null !== $bind) {
