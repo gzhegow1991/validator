@@ -22,11 +22,11 @@ class AddressIpRule extends AbstractRuleType
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $status = Lib::type()->address_ip($value[ 0 ])->isOk([ &$addressIp ]);
+        $status = Lib::type()->address_ip($value[0])->isOk([ &$addressIp ]);
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

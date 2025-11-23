@@ -22,11 +22,11 @@ class IntervalRule extends AbstractRuleType
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $status = Lib::type()->interval_duration($value[ 0 ])->isOk();
+        $status = Lib::type()->interval_duration($value[0])->isOk();
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

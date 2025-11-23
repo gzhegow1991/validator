@@ -23,26 +23,26 @@ class NeqFieldRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        if (! isset($this->parameters[ 0 ])) {
+        if ( ! isset($this->parameters[0]) ) {
             throw new LogicException(
                 'The `parameters[0]` should be present, and known as `dateNeqField`'
             );
         }
 
-        $parameter0 = $this->parameters[ 0 ];
-        $parameter1 = $this->parameters[ 1 ] ?? null;
+        $parameter0 = $this->parameters[0];
+        $parameter1 = $this->parameters[1] ?? null;
 
         $fieldPath = $validation->fieldpathOrAbsolute($parameter0, $path);
         $fieldValue = $validation->get($fieldPath, [ $this ]);
-        if ($this === $fieldValue) {
+        if ( $this === $fieldValue ) {
             return static::message();
         }
 
         $flagsMode = null;
-        if (null !== $parameter1) {
-            if (! Lib::type()->int($parameter1)->isOk([ &$flagsMode ])) {
+        if ( null !== $parameter1 ) {
+            if ( ! Lib::type()->int($parameter1)->isOk([ &$flagsMode ]) ) {
                 throw new LogicException(
                     [ 'The `parameters[1]` should be integer, and known as `flags`', $parameter1 ]
                 );
@@ -54,13 +54,13 @@ class NeqFieldRule extends AbstractRule
             _CMP_RESULT_NAN_RETURN
         );
 
-        $status = $fnCmp($value[ 0 ], $fieldValue);
+        $status = $fnCmp($value[0], $fieldValue);
 
-        if (! is_int($status)) {
+        if ( ! is_int($status) ) {
             return null;
         }
 
-        if (0 === $status) {
+        if ( 0 === $status ) {
             return static::message();
         }
 

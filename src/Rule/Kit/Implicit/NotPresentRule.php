@@ -20,7 +20,7 @@ class NotPresentRule extends AbstractRuleImplicit
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) {
+        if ( [] === $value ) {
             // > missing - OK
             return null;
         }

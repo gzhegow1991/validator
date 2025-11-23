@@ -12,20 +12,20 @@ class FileRule extends AbstractRuleType
 {
     public static function parse(string $ruleName, array $ruleArguments = []) : GenericRule
     {
-        $ruleParameters[ 0 ] = $ruleArguments[ 0 ] ?? null;
-        $ruleParameters[ 1 ] = $ruleArguments[ 1 ] ?? null;
-        $ruleParameters[ 2 ] = $ruleArguments[ 2 ] ?? null;
+        $ruleParameters[0] = $ruleArguments[0] ?? null;
+        $ruleParameters[1] = $ruleArguments[1] ?? null;
+        $ruleParameters[2] = $ruleArguments[2] ?? null;
 
-        $ruleParameters[ 0 ] = is_string($ruleParameters[ 0 ])
-            ? explode(',', $ruleParameters[ 0 ])
+        $ruleParameters[0] = is_string($ruleParameters[0])
+            ? explode(',', $ruleParameters[0])
             : [];
 
-        $ruleParameters[ 1 ] = is_string($ruleParameters[ 1 ])
-            ? explode(',', $ruleParameters[ 1 ])
+        $ruleParameters[1] = is_string($ruleParameters[1])
+            ? explode(',', $ruleParameters[1])
             : [];
 
-        $ruleParameters[ 2 ] = is_string($ruleParameters[ 2 ])
-            ? explode(',', $ruleParameters[ 2 ])
+        $ruleParameters[2] = is_string($ruleParameters[2])
+            ? explode(',', $ruleParameters[2])
             : [];
 
         return GenericRule::fromRuleClass(
@@ -48,11 +48,11 @@ class FileRule extends AbstractRuleType
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $parameter0 = $this->parameters[ 0 ] ?? null;
-        $parameter1 = $this->parameters[ 1 ] ?? null;
-        $parameter2 = $this->parameters[ 2 ] ?? null;
+        $parameter0 = $this->parameters[0] ?? null;
+        $parameter1 = $this->parameters[1] ?? null;
+        $parameter2 = $this->parameters[2] ?? null;
 
         $extensions = null
             ?? (is_array($parameter0) ? $parameter0 : null)
@@ -70,23 +70,23 @@ class FileRule extends AbstractRuleType
             ?? [];
 
         $filters = null;
-        if ([] !== $filterStrings) {
+        if ( [] !== $filterStrings ) {
             foreach ( $filterStrings as $filterName => $filterValue ) {
-                if (is_int($filterName)) {
+                if ( is_int($filterName) ) {
                     [ $filterName, $filterValue ] = explode('=', $filterValue);
                 }
 
-                $filters[ $filterName ] = $filterValue;
+                $filters[$filterName] = $filterValue;
             }
         }
 
         $status = Lib::type()->file(
-            $value[ 0 ],
+            $value[0],
             $extensions, $mimeTypes,
             $filters
         )->isOk();
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

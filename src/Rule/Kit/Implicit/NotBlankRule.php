@@ -21,12 +21,12 @@ class NotBlankRule extends AbstractRuleImplicit
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) {
+        if ( [] === $value ) {
             // > missing - OK
             return null;
         }
 
-        if (! Lib::type()->blank($value[ 0 ])->isOk()) {
+        if ( ! Lib::type()->blank($value[0])->isOk() ) {
             // > filled - OK
             return null;
         }

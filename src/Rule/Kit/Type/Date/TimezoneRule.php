@@ -12,10 +12,10 @@ class TimezoneRule extends AbstractRuleType
 {
     public static function parse(string $ruleName, array $ruleArguments = []) : GenericRule
     {
-        $ruleParameters[ 0 ] = $ruleArguments[ 0 ] ?? null;
+        $ruleParameters[0] = $ruleArguments[0] ?? null;
 
-        $ruleParameters[ 0 ] = is_string($ruleParameters[ 0 ])
-            ? explode(',', $ruleParameters[ 0 ])
+        $ruleParameters[0] = is_string($ruleParameters[0])
+            ? explode(',', $ruleParameters[0])
             : [];
 
         return GenericRule::fromRuleClass(
@@ -38,18 +38,18 @@ class TimezoneRule extends AbstractRuleType
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $parameter0 = $this->parameters[ 0 ] ?? null;
+        $parameter0 = $this->parameters[0] ?? null;
 
         $allowedTimeZoneTypes = null
             ?? (is_array($parameter0) ? $parameter0 : null)
             ?? (is_int($parameter0) ? [ $parameter0 ] : null)
             ?? null;
 
-        $status = Lib::type()->timezone($value[ 0 ], $allowedTimeZoneTypes)->isOk();
+        $status = Lib::type()->timezone($value[0], $allowedTimeZoneTypes)->isOk();
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

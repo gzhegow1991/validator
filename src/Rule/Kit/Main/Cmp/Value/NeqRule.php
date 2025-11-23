@@ -23,24 +23,24 @@ class NeqRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        if (! isset($this->parameters[ 0 ])) {
+        if ( ! isset($this->parameters[0]) ) {
             throw new LogicException(
                 'The `parameters[0]` should be present, and known as `valueNeq`'
             );
         }
 
-        $parameter0 = $this->parameters[ 0 ];
-        $parameter1 = $this->parameters[ 1 ] ?? null;
+        $parameter0 = $this->parameters[0];
+        $parameter1 = $this->parameters[1] ?? null;
 
         $valueNeq = $parameter0;
 
         $flagsMode = null;
-        if (null !== $parameter1) {
+        if ( null !== $parameter1 ) {
             $theType = Lib::type();
 
-            if (! $theType->int($parameter1)->isOk([ &$flagsMode ])) {
+            if ( ! $theType->int($parameter1)->isOk([ &$flagsMode ]) ) {
                 throw new LogicException(
                     [ 'The `parameters[1]` should be integer, and known as `flags`', $parameter1 ]
                 );
@@ -52,13 +52,13 @@ class NeqRule extends AbstractRule
             _CMP_RESULT_NAN_RETURN
         );
 
-        $status = $fnCmp($value[ 0 ], $valueNeq);
+        $status = $fnCmp($value[0], $valueNeq);
 
-        if (! is_int($status)) {
+        if ( ! is_int($status) ) {
             return null;
         }
 
-        if (0 === $status) {
+        if ( 0 === $status ) {
             return static::message();
         }
 

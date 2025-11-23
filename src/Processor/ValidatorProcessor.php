@@ -34,12 +34,12 @@ class ValidatorProcessor implements ValidatorProcessorInterface
         ValidationInterface $validation
     ) : array
     {
-        if ([] === $value) return [];
+        if ( [] === $value ) return [];
 
         $callable = $this->extractFilterCallable($filter);
 
         $callableArgs = [
-            0 => $value[ 0 ],
+            0 => $value[0],
             1 => $key,
             2 => $path,
             3 => $validation,
@@ -47,7 +47,7 @@ class ValidatorProcessor implements ValidatorProcessorInterface
 
         $callableArgs += [
             'filter'     => $filter,
-            'value'      => $value[ 0 ],
+            'value'      => $value[0],
             'key'        => $key,
             'path'       => $path,
             'validation' => $validation,
@@ -83,10 +83,10 @@ class ValidatorProcessor implements ValidatorProcessorInterface
     {
         $fn = null;
 
-        if ($filter->isClosure()) {
+        if ( $filter->isClosure() ) {
             $fn = $filter->getClosureObject();
 
-        } elseif ($filter->isMethod()) {
+        } elseif ( $filter->isMethod() ) {
             $object = null
                 ?? ($filter->hasMethodObject() ? $filter->getMethodObject() : null)
                 ?? $this->factory->newFilterObject($filter->getMethodClass());
@@ -95,15 +95,15 @@ class ValidatorProcessor implements ValidatorProcessorInterface
 
             $fn = [ $object, $method ];
 
-        } elseif ($filter->isInvokable()) {
+        } elseif ( $filter->isInvokable() ) {
             $object = null
                 ?? ($filter->hasInvokableObject() ? $filter->getInvokableObject() : null)
                 ?? ($this->factory->newFilterObject($filter->getInvokableClass()));
 
             $fn = $object;
 
-        } elseif ($filter->isFunction()) {
-            if ($filter->hasFunctionStringNonInternal()) {
+        } elseif ( $filter->isFunction() ) {
+            if ( $filter->hasFunctionStringNonInternal() ) {
                 $fn = $filter->getFunctionStringNonInternal();
 
             } else {
@@ -114,7 +114,7 @@ class ValidatorProcessor implements ValidatorProcessorInterface
             }
         }
 
-        if (! is_callable($fn)) {
+        if ( ! is_callable($fn) ) {
             throw new RuntimeException(
                 [
                     ''

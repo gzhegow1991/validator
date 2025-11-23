@@ -26,7 +26,7 @@ class ValidatorPassTranslator implements ValidatorTranslatorInterface
         unset($errors);
 
         foreach ( $list as $i => $error ) {
-            $list[ $i ] = $this->translateError($error);
+            $list[$i] = $this->translateError($error);
         }
         unset($error);
 
@@ -35,10 +35,10 @@ class ValidatorPassTranslator implements ValidatorTranslatorInterface
 
     protected function translateError(array $error) : string
     {
-        $message = $error[ 'message' ] ?? null;
-        $throwable = $error[ 'throwable' ] ?? null;
+        $message = $error['message'] ?? null;
+        $throwable = $error['throwable'] ?? null;
 
-        if (null !== $throwable) {
+        if ( null !== $throwable ) {
             dd($throwable);
             throw new RuntimeException('Unable to ' . __METHOD__, $throwable);
         }

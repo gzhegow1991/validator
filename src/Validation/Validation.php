@@ -213,17 +213,17 @@ class Validation implements ValidationInterface
     public function merge(ValidationInterface $validation)
     {
         for ( $i = 0; $i < $validation->queueId; $i++ ) {
-            if (isset($validation->dataQueue[ $i ])) {
-                $this->dataQueue[ $this->queueId++ ] = $validation->dataQueue[ $i ];
+            if ( isset($validation->dataQueue[$i]) ) {
+                $this->dataQueue[$this->queueId++] = $validation->dataQueue[$i];
 
-            } elseif (isset($validation->rulesQueue[ $i ])) {
-                $this->rulesQueue[ $this->queueId++ ] = $validation->rulesQueue[ $i ];
+            } elseif ( isset($validation->rulesQueue[$i]) ) {
+                $this->rulesQueue[$this->queueId++] = $validation->rulesQueue[$i];
 
-            } elseif (isset($validation->filtersQueue[ $i ])) {
-                $this->filtersQueue[ $this->queueId++ ] = $validation->filtersQueue[ $i ];
+            } elseif ( isset($validation->filtersQueue[$i]) ) {
+                $this->filtersQueue[$this->queueId++] = $validation->filtersQueue[$i];
 
-            } elseif (isset($validation->defaultsQueue[ $i ])) {
-                $this->defaultsQueue[ $this->queueId++ ] = $validation->defaultsQueue[ $i ];
+            } elseif ( isset($validation->defaultsQueue[$i]) ) {
+                $this->defaultsQueue[$this->queueId++] = $validation->defaultsQueue[$i];
 
             } else {
                 continue;
@@ -241,7 +241,7 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        if (! Lib::type()->arrpath($path)->isOk([ &$keyPath ])) {
+        if ( ! Lib::type()->arrpath($path)->isOk([ &$keyPath ]) ) {
             throw new LogicException(
                 [ 'The `path` should be valid path', $path ]
             );
@@ -262,8 +262,8 @@ class Validation implements ValidationInterface
     {
         $status = $this->has($path, $value);
 
-        if (! $status) {
-            if ($fallback) {
+        if ( ! $status ) {
+            if ( $fallback ) {
                 [ $fallback ] = $fallback;
 
                 return $fallback;
@@ -284,8 +284,8 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        if (isset($this->dataTypes[ $nulpath ])) {
-            $value = $this->dataIndex[ $nulpath ];
+        if ( isset($this->dataTypes[$nulpath]) ) {
+            $value = $this->dataIndex[$nulpath];
 
             return true;
         }
@@ -298,7 +298,7 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        if (! Lib::type()->arrpath($path)->isOk([ &$keyPath ])) {
+        if ( ! Lib::type()->arrpath($path)->isOk([ &$keyPath ]) ) {
             throw new LogicException(
                 [ 'The `path` should be valid path', $path ]
             );
@@ -319,8 +319,8 @@ class Validation implements ValidationInterface
     {
         $status = $this->hasFiltered($path, $value);
 
-        if (! $status) {
-            if ($fallback) {
+        if ( ! $status ) {
+            if ( $fallback ) {
                 [ $fallback ] = $fallback;
 
                 return $fallback;
@@ -341,10 +341,10 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        $valueType = $this->dataTypes[ $nulpath ] ?? 0;
+        $valueType = $this->dataTypes[$nulpath] ?? 0;
 
-        if (static::VALUE_TYPE_FILTERED === $valueType) {
-            $value = $this->dataIndex[ $nulpath ];
+        if ( static::VALUE_TYPE_FILTERED === $valueType ) {
+            $value = $this->dataIndex[$nulpath];
 
             return true;
         }
@@ -357,7 +357,7 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        if (! Lib::type()->arrpath($path)->isOk([ &$keyPath ])) {
+        if ( ! Lib::type()->arrpath($path)->isOk([ &$keyPath ]) ) {
             throw new LogicException(
                 [ 'The `path` should be valid path', $path ]
             );
@@ -378,8 +378,8 @@ class Validation implements ValidationInterface
     {
         $status = $this->hasDefault($path, $value);
 
-        if (! $status) {
-            if ($fallback) {
+        if ( ! $status ) {
+            if ( $fallback ) {
                 [ $fallback ] = $fallback;
 
                 return $fallback;
@@ -400,10 +400,10 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        $valueType = $this->dataTypes[ $nulpath ] ?? 0;
+        $valueType = $this->dataTypes[$nulpath] ?? 0;
 
-        if (static::VALUE_TYPE_DEFAULT === $valueType) {
-            $value = $this->dataIndex[ $nulpath ];
+        if ( static::VALUE_TYPE_DEFAULT === $valueType ) {
+            $value = $this->dataIndex[$nulpath];
 
             return true;
         }
@@ -416,7 +416,7 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        if (! Lib::type()->arrpath($path)->isOk([ &$keyPath ])) {
+        if ( ! Lib::type()->arrpath($path)->isOk([ &$keyPath ]) ) {
             throw new LogicException(
                 [ 'The `path` should be valid path', $path ]
             );
@@ -437,8 +437,8 @@ class Validation implements ValidationInterface
     {
         $status = $this->hasOriginal($path, $value);
 
-        if (! $status) {
-            if ($fallback) {
+        if ( ! $status ) {
+            if ( $fallback ) {
                 [ $fallback ] = $fallback;
 
                 return $fallback;
@@ -459,10 +459,10 @@ class Validation implements ValidationInterface
     {
         $value = null;
 
-        $valueType = $this->dataTypes[ $nulpath ] ?? 0;
+        $valueType = $this->dataTypes[$nulpath] ?? 0;
 
-        if (static::VALUE_TYPE_ORIGINAL === $valueType) {
-            $value = $this->dataIndex[ $nulpath ];
+        if ( static::VALUE_TYPE_ORIGINAL === $valueType ) {
+            $value = $this->dataIndex[$nulpath];
 
             return true;
         }
@@ -478,13 +478,13 @@ class Validation implements ValidationInterface
     {
         $status = $this->passes();
 
-        if (! $status) {
+        if ( ! $status ) {
             throw new ValidationException($this, 'Validation failed');
         }
 
         $valid = $this->valid();
 
-        if (null !== $bind) {
+        if ( null !== $bind ) {
             $this->applyBind($bind, $valid);
         }
 
@@ -498,13 +498,13 @@ class Validation implements ValidationInterface
     {
         $status = $this->passes();
 
-        if (! $status) {
+        if ( ! $status ) {
             throw new InspectionException($this, 'Inspection failed');
         }
 
         $valid = $this->valid();
 
-        if (null !== $bind) {
+        if ( null !== $bind ) {
             $this->applyBind($bind, $valid);
         }
 
@@ -514,13 +514,13 @@ class Validation implements ValidationInterface
 
     public function passes() : bool
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -533,13 +533,13 @@ class Validation implements ValidationInterface
 
     public function errors() : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -554,7 +554,7 @@ class Validation implements ValidationInterface
 
             $keyDotpath = implode('.', $keyPath);
 
-            $errors[ $keyDotpath ] = $array;
+            $errors[$keyDotpath] = $array;
         }
 
         return $errors;
@@ -563,13 +563,13 @@ class Validation implements ValidationInterface
 
     public function messages() : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -586,7 +586,7 @@ class Validation implements ValidationInterface
 
             $keyDotpath = implode('.', $keyPath);
 
-            $messages[ $keyDotpath ] = $array;
+            $messages[$keyDotpath] = $array;
         }
 
         return $messages;
@@ -594,7 +594,7 @@ class Validation implements ValidationInterface
 
     protected function messagesTranslate() : void
     {
-        if (null !== $this->messagesByKeyNulpath) {
+        if ( null !== $this->messagesByKeyNulpath ) {
             return;
         }
 
@@ -606,7 +606,7 @@ class Validation implements ValidationInterface
 
     public function getRules() : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
@@ -622,7 +622,7 @@ class Validation implements ValidationInterface
 
             $keyDotpath = implode('.', $keyPath);
 
-            $result[ $keyDotpath ] = $list;
+            $result[$keyDotpath] = $list;
         }
 
         return $result;
@@ -630,7 +630,7 @@ class Validation implements ValidationInterface
 
     public function rules(array $fillKeys = []) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
@@ -640,7 +640,7 @@ class Validation implements ValidationInterface
 
         $result = [];
 
-        if ($hasValue) {
+        if ( $hasValue ) {
             foreach ( array_keys($this->rulesMerged) as $keyNulpath ) {
                 $keyPath = explode(
                     static::SYMBOL_NUL,
@@ -649,7 +649,7 @@ class Validation implements ValidationInterface
 
                 $keyDotpath = implode('.', $keyPath);
 
-                $result[ $keyDotpath ] = $fillKeys[ 0 ];
+                $result[$keyDotpath] = $fillKeys[0];
             }
 
         } else {
@@ -664,7 +664,7 @@ class Validation implements ValidationInterface
                 $list = array_map('strval', $list);
                 $list = implode('|', $list);
 
-                $result[ $keyDotpath ] = $list;
+                $result[$keyDotpath] = $list;
             }
         }
 
@@ -674,7 +674,7 @@ class Validation implements ValidationInterface
 
     public function data(&$bind = null) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
@@ -695,7 +695,7 @@ class Validation implements ValidationInterface
             );
         }
 
-        if (null !== $bind) {
+        if ( null !== $bind ) {
             $this->applyBind($bind, $result);
         }
 
@@ -704,7 +704,7 @@ class Validation implements ValidationInterface
 
     public function dataAttributes(array $fillKeys = []) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
@@ -721,13 +721,13 @@ class Validation implements ValidationInterface
 
     public function dataValidated(&$bind = null) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -738,22 +738,22 @@ class Validation implements ValidationInterface
         $result = [];
 
         foreach ( $this->dataMergedIndex as $keyNulpath => $value ) {
-            $hasRules = isset($this->rulesByKeyNulpath[ $keyNulpath ]);
+            $hasRules = isset($this->rulesByKeyNulpath[$keyNulpath]);
 
-            if (! $hasRules) {
+            if ( ! $hasRules ) {
                 continue;
             }
 
-            if (is_array($value) && ([] !== $value)) {
+            if ( is_array($value) && ([] !== $value) ) {
                 continue;
             }
 
-            $keyPath = $this->dataPathes[ $keyNulpath ];
+            $keyPath = $this->dataPathes[$keyNulpath];
 
             $theArr->put_path($result, $keyPath, $value);
         }
 
-        if (null !== $bind) {
+        if ( null !== $bind ) {
             $this->applyBind($bind, $result);
         }
 
@@ -762,13 +762,13 @@ class Validation implements ValidationInterface
 
     public function dataValidatedAttributes(array $fillKeys = []) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -779,22 +779,22 @@ class Validation implements ValidationInterface
         $result = [];
 
         foreach ( $this->dataMergedIndex as $keyNulpath => $value ) {
-            $hasRules = isset($this->rulesByKeyNulpath[ $keyNulpath ]);
+            $hasRules = isset($this->rulesByKeyNulpath[$keyNulpath]);
 
-            if (! $hasRules) {
+            if ( ! $hasRules ) {
                 continue;
             }
 
-            if (is_array($value) && ([] !== $value)) {
+            if ( is_array($value) && ([] !== $value) ) {
                 continue;
             }
 
-            $keyPath = $this->dataPathes[ $keyNulpath ];
+            $keyPath = $this->dataPathes[$keyNulpath];
 
             $keyDotpath = implode('.', $keyPath);
 
-            $result[ $keyDotpath ] = $hasValue
-                ? $fillKeys[ 0 ]
+            $result[$keyDotpath] = $hasValue
+                ? $fillKeys[0]
                 : $value;
         }
 
@@ -804,13 +804,13 @@ class Validation implements ValidationInterface
 
     public function all(&$bind = null) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -831,7 +831,7 @@ class Validation implements ValidationInterface
             );
         }
 
-        if (null !== $bind) {
+        if ( null !== $bind ) {
             $this->applyBind($bind, $result);
         }
 
@@ -840,13 +840,13 @@ class Validation implements ValidationInterface
 
     public function allAttributes(array $fillKeys = []) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -863,13 +863,13 @@ class Validation implements ValidationInterface
 
     public function valid(&$bind = null) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -880,22 +880,22 @@ class Validation implements ValidationInterface
         $result = [];
 
         foreach ( $this->dataIndex as $keyNulpath => $value ) {
-            $hasErrors = isset($this->errorsByKeyNulpath[ $keyNulpath ]);
+            $hasErrors = isset($this->errorsByKeyNulpath[$keyNulpath]);
 
-            if ($hasErrors) {
+            if ( $hasErrors ) {
                 continue;
             }
 
-            if (is_array($value) && ([] !== $value)) {
+            if ( is_array($value) && ([] !== $value) ) {
                 continue;
             }
 
-            $keyPath = $this->dataPathes[ $keyNulpath ];
+            $keyPath = $this->dataPathes[$keyNulpath];
 
             $theArr->put_path($result, $keyPath, $value);
         }
 
-        if (null !== $bind) {
+        if ( null !== $bind ) {
             $this->applyBind($bind, $result);
         }
 
@@ -904,13 +904,13 @@ class Validation implements ValidationInterface
 
     public function validAttributes(array $fillKeys = []) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -921,22 +921,22 @@ class Validation implements ValidationInterface
         $result = [];
 
         foreach ( $this->dataIndex as $keyNulpath => $value ) {
-            $hasErrors = isset($this->errorsByKeyNulpath[ $keyNulpath ]);
+            $hasErrors = isset($this->errorsByKeyNulpath[$keyNulpath]);
 
-            if ($hasErrors) {
+            if ( $hasErrors ) {
                 continue;
             }
 
-            if (is_array($value) && ([] !== $value)) {
+            if ( is_array($value) && ([] !== $value) ) {
                 continue;
             }
 
-            $keyPath = $this->dataPathes[ $keyNulpath ];
+            $keyPath = $this->dataPathes[$keyNulpath];
 
             $keyDotpath = implode('.', $keyPath);
 
-            $result[ $keyDotpath ] = $hasValue
-                ? $fillKeys[ 0 ]
+            $result[$keyDotpath] = $hasValue
+                ? $fillKeys[0]
                 : $value;
         }
 
@@ -946,13 +946,13 @@ class Validation implements ValidationInterface
 
     public function invalid(&$bind = null) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -963,22 +963,22 @@ class Validation implements ValidationInterface
         $result = [];
 
         foreach ( $this->dataIndex as $keyNulpath => $value ) {
-            $hasErrors = isset($this->errorsByKeyNulpath[ $keyNulpath ]);
+            $hasErrors = isset($this->errorsByKeyNulpath[$keyNulpath]);
 
-            if (! $hasErrors) {
+            if ( ! $hasErrors ) {
                 continue;
             }
 
-            if (is_array($value) && ([] !== $value)) {
+            if ( is_array($value) && ([] !== $value) ) {
                 continue;
             }
 
-            $keyPath = $this->dataPathes[ $keyNulpath ];
+            $keyPath = $this->dataPathes[$keyNulpath];
 
             $theArr->put_path($result, $keyPath, $value);
         }
 
-        if (null !== $bind) {
+        if ( null !== $bind ) {
             $this->applyBind($bind, $result);
         }
 
@@ -987,13 +987,13 @@ class Validation implements ValidationInterface
 
     public function invalidAttributes(array $fillKeys = []) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -1004,22 +1004,22 @@ class Validation implements ValidationInterface
         $result = [];
 
         foreach ( $this->dataIndex as $keyNulpath => $value ) {
-            $hasErrors = isset($this->errorsByKeyNulpath[ $keyNulpath ]);
+            $hasErrors = isset($this->errorsByKeyNulpath[$keyNulpath]);
 
-            if (! $hasErrors) {
+            if ( ! $hasErrors ) {
                 continue;
             }
 
-            if (is_array($value) && ([] !== $value)) {
+            if ( is_array($value) && ([] !== $value) ) {
                 continue;
             }
 
-            $keyPath = $this->dataPathes[ $keyNulpath ];
+            $keyPath = $this->dataPathes[$keyNulpath];
 
             $keyDotpath = implode('.', $keyPath);
 
-            $result[ $keyDotpath ] = $hasValue
-                ? $fillKeys[ 0 ]
+            $result[$keyDotpath] = $hasValue
+                ? $fillKeys[0]
                 : $value;
         }
 
@@ -1029,13 +1029,13 @@ class Validation implements ValidationInterface
 
     public function validated(&$bind = null) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -1046,22 +1046,22 @@ class Validation implements ValidationInterface
         $result = [];
 
         foreach ( $this->dataIndex as $keyNulpath => $value ) {
-            $hasRules = isset($this->rulesByKeyNulpath[ $keyNulpath ]);
+            $hasRules = isset($this->rulesByKeyNulpath[$keyNulpath]);
 
-            if (! $hasRules) {
+            if ( ! $hasRules ) {
                 continue;
             }
 
-            if (is_array($value) && ([] !== $value)) {
+            if ( is_array($value) && ([] !== $value) ) {
                 continue;
             }
 
-            $keyPath = $this->dataPathes[ $keyNulpath ];
+            $keyPath = $this->dataPathes[$keyNulpath];
 
             $theArr->put_path($result, $keyPath, $value);
         }
 
-        if (null !== $bind) {
+        if ( null !== $bind ) {
             $this->applyBind($bind, $result);
         }
 
@@ -1070,13 +1070,13 @@ class Validation implements ValidationInterface
 
     public function validatedAttributes(array $fillKeys = []) : array
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             $this->build();
 
             $this->isBuilt = true;
         }
 
-        if (! $this->isProcessed) {
+        if ( ! $this->isProcessed ) {
             $this->process();
 
             $this->isProcessed = true;
@@ -1087,22 +1087,22 @@ class Validation implements ValidationInterface
         $result = [];
 
         foreach ( $this->dataIndex as $keyNulpath => $value ) {
-            $hasRules = isset($this->rulesByKeyNulpath[ $keyNulpath ]);
+            $hasRules = isset($this->rulesByKeyNulpath[$keyNulpath]);
 
-            if (! $hasRules) {
+            if ( ! $hasRules ) {
                 continue;
             }
 
-            if (is_array($value) && ([] !== $value)) {
+            if ( is_array($value) && ([] !== $value) ) {
                 continue;
             }
 
-            $keyPath = $this->dataPathes[ $keyNulpath ];
+            $keyPath = $this->dataPathes[$keyNulpath];
 
             $keyDotpath = implode('.', $keyPath);
 
-            $result[ $keyDotpath ] = $hasValue
-                ? $fillKeys[ 0 ]
+            $result[$keyDotpath] = $hasValue
+                ? $fillKeys[0]
                 : $value;
         }
 
@@ -1122,7 +1122,7 @@ class Validation implements ValidationInterface
 
         $this->modeApi = $modeApi ?? false;
 
-        if ($last !== $this->modeApi) {
+        if ( $last !== $this->modeApi ) {
             $this->isBuilt = false;
             $this->isProcessed = false;
         }
@@ -1142,7 +1142,7 @@ class Validation implements ValidationInterface
 
         $this->modeWeb = $modeWeb ?? false;
 
-        if ($last !== $this->modeWeb) {
+        if ( $last !== $this->modeWeb ) {
             $this->isBuilt = false;
             $this->isProcessed = false;
         }
@@ -1156,7 +1156,7 @@ class Validation implements ValidationInterface
      */
     public function addData(array $data)
     {
-        if ([] === $data) {
+        if ( [] === $data ) {
             return $this;
         }
 
@@ -1181,15 +1181,15 @@ class Validation implements ValidationInterface
         array $defaults = []
     )
     {
-        if ([] !== $rules) {
+        if ( [] !== $rules ) {
             $this->pushRules($rules);
         }
 
-        if ([] !== $filters) {
+        if ( [] !== $filters ) {
             $this->pushFilters($filters);
         }
 
-        if ([] !== $defaults) {
+        if ( [] !== $defaults ) {
             $this->pushDefaults($defaults);
         }
 
@@ -1208,7 +1208,7 @@ class Validation implements ValidationInterface
         $rules, $filter = null, array $default = []
     )
     {
-        if (null === $rules) {
+        if ( null === $rules ) {
             throw new LogicException(
                 [
                     ''
@@ -1222,12 +1222,12 @@ class Validation implements ValidationInterface
 
         $this->pushRules([ $rulepathString => $rules ]);
 
-        if (null !== $filter) {
+        if ( null !== $filter ) {
             $this->pushFilters([ $rulepathString => $filter ]);
         }
 
-        if ([] !== $default) {
-            $this->pushDefaults([ $rulepathString => $default[ 0 ] ]);
+        if ( [] !== $default ) {
+            $this->pushDefaults([ $rulepathString => $default[0] ]);
         }
 
         return $this;
@@ -1244,7 +1244,7 @@ class Validation implements ValidationInterface
         $filter, ...$filters
     )
     {
-        if (null === $filter) {
+        if ( null === $filter ) {
             throw new LogicException(
                 [
                     'The `filter` should be callable or instance of: ' . GenericFilter::class,
@@ -1265,13 +1265,13 @@ class Validation implements ValidationInterface
      */
     public function addDefault(string $rulepathString, array $default)
     {
-        if ([] === $default) {
+        if ( [] === $default ) {
             throw new LogicException(
                 [ 'The `default` should be array with zero key', $default ]
             );
         }
 
-        $this->pushDefaults([ $rulepathString => $default[ 0 ] ]);
+        $this->pushDefaults([ $rulepathString => $default[0] ]);
 
         return $this;
     }
@@ -1309,7 +1309,7 @@ class Validation implements ValidationInterface
             static::SYMBOL_FIELDPATH_SEPARATOR
         );
 
-        if ('' === $keyStringAbsolute) {
+        if ( '' === $keyStringAbsolute ) {
             throw new LogicException(
                 'Result path should be non-empty string',
                 $path,
@@ -1332,7 +1332,7 @@ class Validation implements ValidationInterface
         $regex = '/[\x{0}\x{2F}]/iu';
 
         foreach ( $dotRulepathArray as $i => $p ) {
-            if (preg_match($regex, $p)) {
+            if ( preg_match($regex, $p) ) {
                 throw new LogicException(
                     [
                         ''
@@ -1379,9 +1379,9 @@ class Validation implements ValidationInterface
             foreach ( $filtersQueueItem as $rulepathWildcardString => $filtersList ) {
                 $dotpathWildcardString = $this->nulpathFromDotpath($rulepathWildcardString);
 
-                $filtersMerged[ $dotpathWildcardString ] = $filtersMerged[ $dotpathWildcardString ] ?? [];
-                $filtersMerged[ $dotpathWildcardString ] = array_merge(
-                    $filtersMerged[ $dotpathWildcardString ],
+                $filtersMerged[$dotpathWildcardString] = $filtersMerged[$dotpathWildcardString] ?? [];
+                $filtersMerged[$dotpathWildcardString] = array_merge(
+                    $filtersMerged[$dotpathWildcardString],
                     $filtersList
                 );
             }
@@ -1398,11 +1398,11 @@ class Validation implements ValidationInterface
             foreach ( $defaultsQueueItem as $rulepathWildcardString => $default ) {
                 $dotpathWildcardString = $this->nulpathFromDotpath($rulepathWildcardString);
 
-                if ([] === $default) {
-                    unset($defaultsMerged[ $dotpathWildcardString ]);
+                if ( [] === $default ) {
+                    unset($defaultsMerged[$dotpathWildcardString]);
 
                 } else {
-                    $defaultsMerged[ $dotpathWildcardString ] = $default[ 0 ];
+                    $defaultsMerged[$dotpathWildcardString] = $default[0];
                 }
             }
         }
@@ -1418,9 +1418,9 @@ class Validation implements ValidationInterface
             foreach ( $rulesQueueItem as $rulepathWildcardString => $rulesList ) {
                 $wildcardDotpathString = $this->nulpathFromDotpath($rulepathWildcardString);
 
-                $rulesMerged[ $wildcardDotpathString ] = $rulesMerged[ $wildcardDotpathString ] ?? [];
-                $rulesMerged[ $wildcardDotpathString ] = array_merge(
-                    $rulesMerged[ $wildcardDotpathString ],
+                $rulesMerged[$wildcardDotpathString] = $rulesMerged[$wildcardDotpathString] ?? [];
+                $rulesMerged[$wildcardDotpathString] = array_merge(
+                    $rulesMerged[$wildcardDotpathString],
                     $rulesList
                 );
             }
@@ -1465,7 +1465,7 @@ class Validation implements ValidationInterface
                 . static::SYMBOL_NUL
                 . implode(static::SYMBOL_NUL, $keyPath);
 
-            $dataMergedIndex[ $keyNulpath ] =& $value;
+            $dataMergedIndex[$keyNulpath] =& $value;
         }
 
         $this->dataMergedIndex = $dataMergedIndex;
@@ -1484,9 +1484,9 @@ class Validation implements ValidationInterface
                 . static::SYMBOL_NUL
                 . implode(static::SYMBOL_NUL, $keyPath);
 
-            $dataIndex[ $keyNulpath ] =& $value;
-            $dataPathes[ $keyNulpath ] = $keyPath;
-            $dataTypes[ $keyNulpath ] = static::VALUE_TYPE_ORIGINAL;
+            $dataIndex[$keyNulpath] =& $value;
+            $dataPathes[$keyNulpath] = $keyPath;
+            $dataTypes[$keyNulpath] = static::VALUE_TYPE_ORIGINAL;
         }
 
         $this->dataIndex = $dataIndex;
@@ -1497,7 +1497,7 @@ class Validation implements ValidationInterface
 
     protected function process() : void
     {
-        if (! $this->isBuilt) {
+        if ( ! $this->isBuilt ) {
             throw new RuntimeException(
                 'The `->build()` should be called first'
             );
@@ -1532,13 +1532,13 @@ class Validation implements ValidationInterface
                 . static::SYMBOL_NUL
                 . implode(static::SYMBOL_NUL, $keyPath);
 
-            if (false
+            if ( false
                 || ($isModeApi && (null === $value))
                 || ($isModeWeb && ('' === $value))
             ) {
-                unset($this->dataIndex[ $keyNulpath ]);
-                unset($this->dataPathes[ $keyNulpath ]);
-                unset($this->dataTypes[ $keyNulpath ]);
+                unset($this->dataIndex[$keyNulpath]);
+                unset($this->dataPathes[$keyNulpath]);
+                unset($this->dataTypes[$keyNulpath]);
 
                 $keyPathObject = ArrPath::fromValidArray($keyPath)->orThrow();
 
@@ -1548,7 +1548,7 @@ class Validation implements ValidationInterface
                 );
 
             } else {
-                $this->dataTypes[ $keyNulpath ] = static::VALUE_TYPE_FILTERED;
+                $this->dataTypes[$keyNulpath] = static::VALUE_TYPE_FILTERED;
             }
         }
     }
@@ -1562,7 +1562,7 @@ class Validation implements ValidationInterface
         foreach ( $this->filtersMerged as $wildcardDotpath => $filters ) {
             $hasWildcard = (false !== strpos($wildcardDotpath, $symbolSequence));
 
-            if ($hasWildcard) {
+            if ( $hasWildcard ) {
                 $keyNulpathesOfFilters = $this->matchKeyNulpathesByWildcardDotpath($wildcardDotpath);
 
             } else {
@@ -1572,8 +1572,8 @@ class Validation implements ValidationInterface
             foreach ( $keyNulpathesOfFilters as $keyNulpath ) {
                 $hasValue = $this->hasFilteredByIndex($keyNulpath, $value);
 
-                if ($hasValue) {
-                    $thePath = $this->dataPathes[ $keyNulpath ];
+                if ( $hasValue ) {
+                    $thePath = $this->dataPathes[$keyNulpath];
                     $thePathObject = ArrPath::fromValidArray($thePath)->orThrow();
                     $theValue = [ $value ];
 
@@ -1597,8 +1597,8 @@ class Validation implements ValidationInterface
                     );
                 }
 
-                if ([] !== $current) {
-                    $valueNew = $current[ 0 ];
+                if ( [] !== $current ) {
+                    $valueNew = $current[0];
 
                     $ref =& $theArr->put_path(
                         $this->data,
@@ -1606,11 +1606,11 @@ class Validation implements ValidationInterface
                         $valueNew
                     );
 
-                    $this->dataIndex[ $keyNulpath ] =& $ref;
-                    $this->dataPathes[ $keyNulpath ] = $thePath;
-                    $this->dataTypes[ $keyNulpath ] = static::VALUE_TYPE_FILTERED;
+                    $this->dataIndex[$keyNulpath] =& $ref;
+                    $this->dataPathes[$keyNulpath] = $thePath;
+                    $this->dataTypes[$keyNulpath] = static::VALUE_TYPE_FILTERED;
 
-                    if (is_array($valueNew)) {
+                    if ( is_array($valueNew) ) {
                         $gen = $theArr->walk_it(
                             $valueNew,
                             _ARR_WALK_WITH_PARENTS | _ARR_WALK_WITH_EMPTY_ARRAYS
@@ -1624,9 +1624,9 @@ class Validation implements ValidationInterface
 
                             $ref =& $theArr->fetch_path($this->data, $subkeyPath);
 
-                            $this->dataIndex[ $subkeyNulpath ] =& $ref;
-                            $this->dataPathes[ $subkeyNulpath ] = $subkeyPath;
-                            $this->dataTypes[ $subkeyNulpath ] = static::VALUE_TYPE_FILTERED;
+                            $this->dataIndex[$subkeyNulpath] =& $ref;
+                            $this->dataPathes[$subkeyNulpath] = $subkeyPath;
+                            $this->dataTypes[$subkeyNulpath] = static::VALUE_TYPE_FILTERED;
                         }
                     }
 
@@ -1636,13 +1636,13 @@ class Validation implements ValidationInterface
                         $thePathObject
                     );
 
-                    unset($this->dataIndex[ $keyNulpath ]);
-                    unset($this->dataPathes[ $keyNulpath ]);
-                    unset($this->dataTypes[ $keyNulpath ]);
+                    unset($this->dataIndex[$keyNulpath]);
+                    unset($this->dataPathes[$keyNulpath]);
+                    unset($this->dataTypes[$keyNulpath]);
                 }
 
-                if ($hasWildcard) {
-                    unset($this->cacheMatchKeyDotpathesByWildcardDotpath[ $wildcardDotpath ]);
+                if ( $hasWildcard ) {
+                    unset($this->cacheMatchKeyDotpathesByWildcardDotpath[$wildcardDotpath]);
                 }
             }
         }
@@ -1659,7 +1659,7 @@ class Validation implements ValidationInterface
             );
             $hasWildcard = (false !== $hasWildcard);
 
-            if ($hasWildcard) {
+            if ( $hasWildcard ) {
                 $keyNulpathesOfDefaults = $this->matchKeyNulpathesByWildcardDotpath($wildcardDotpath);
 
             } else {
@@ -1672,8 +1672,8 @@ class Validation implements ValidationInterface
                 $isNoValue = false;
                 $isValueEqualsDefault = false;
 
-                if ($hasValue) {
-                    $thePath = $this->dataPathes[ $keyNulpath ];
+                if ( $hasValue ) {
+                    $thePath = $this->dataPathes[$keyNulpath];
                     $thePathObject = ArrPath::fromValidArray($thePath)->orThrow();
 
                     $isValueEqualsDefault = ($value === $valueDefault);
@@ -1688,21 +1688,21 @@ class Validation implements ValidationInterface
                     $isNoValue = true;
                 }
 
-                if ($isValueEqualsDefault) {
-                    $this->dataTypes[ $keyNulpath ] = static::VALUE_TYPE_DEFAULT;
+                if ( $isValueEqualsDefault ) {
+                    $this->dataTypes[$keyNulpath] = static::VALUE_TYPE_DEFAULT;
 
-                } elseif ($isNoValue) {
+                } elseif ( $isNoValue ) {
                     $ref =& $theArr->put_path(
                         $this->data,
                         $thePathObject,
                         $valueDefault
                     );
 
-                    $this->dataPathes[ $keyNulpath ] = $thePath;
-                    $this->dataIndex[ $keyNulpath ] =& $ref;
-                    $this->dataTypes[ $keyNulpath ] = static::VALUE_TYPE_DEFAULT;
+                    $this->dataPathes[$keyNulpath] = $thePath;
+                    $this->dataIndex[$keyNulpath] =& $ref;
+                    $this->dataTypes[$keyNulpath] = static::VALUE_TYPE_DEFAULT;
 
-                    if (is_array($valueDefault) && ([] !== $valueDefault)) {
+                    if ( is_array($valueDefault) && ([] !== $valueDefault) ) {
                         $gen = $theArr->walk_it(
                             $valueDefault,
                             _ARR_WALK_WITH_PARENTS | _ARR_WALK_WITH_EMPTY_ARRAYS
@@ -1716,15 +1716,15 @@ class Validation implements ValidationInterface
 
                             $ref =& $theArr->fetch_path($this->data, $subkeyPath);
 
-                            $this->dataIndex[ $subkeyNulpath ] =& $ref;
-                            $this->dataPathes[ $subkeyNulpath ] = $subkeyPath;
-                            $this->dataTypes[ $subkeyNulpath ] = static::VALUE_TYPE_DEFAULT;
+                            $this->dataIndex[$subkeyNulpath] =& $ref;
+                            $this->dataPathes[$subkeyNulpath] = $subkeyPath;
+                            $this->dataTypes[$subkeyNulpath] = static::VALUE_TYPE_DEFAULT;
                         }
                     }
                 }
 
-                if ($hasWildcard) {
-                    unset($this->cacheMatchKeyDotpathesByWildcardDotpath[ $wildcardDotpath ]);
+                if ( $hasWildcard ) {
+                    unset($this->cacheMatchKeyDotpathesByWildcardDotpath[$wildcardDotpath]);
                 }
             }
         }
@@ -1745,7 +1745,7 @@ class Validation implements ValidationInterface
             );
             $hasWildcard = (false !== $hasWildcard);
 
-            if ($hasWildcard) {
+            if ( $hasWildcard ) {
                 $keyNulpathesOfRules = $this->matchKeyNulpathesByWildcardDotpath($wildcardDotpathString);
 
             } else {
@@ -1753,19 +1753,19 @@ class Validation implements ValidationInterface
             }
 
             foreach ( $keyNulpathesOfRules as $keyNulpath ) {
-                $rulesByKeyNulpath[ $keyNulpath ] = $rulesByKeyNulpath[ $keyNulpath ] ?? [];
-                $rulesByKeyNulpath[ $keyNulpath ] = array_merge(
-                    $rulesByKeyNulpath[ $keyNulpath ],
+                $rulesByKeyNulpath[$keyNulpath] = $rulesByKeyNulpath[$keyNulpath] ?? [];
+                $rulesByKeyNulpath[$keyNulpath] = array_merge(
+                    $rulesByKeyNulpath[$keyNulpath],
                     $rules
                 );
             }
         }
 
         foreach ( $rulesByKeyNulpath as $keyNulpath => $rules ) {
-            $dataType = $this->dataTypes[ $keyNulpath ] ?? 0;
+            $dataType = $this->dataTypes[$keyNulpath] ?? 0;
 
-            if (static::VALUE_TYPE_DEFAULT === $dataType) {
-                unset($rulesByKeyNulpath[ $keyNulpath ]);
+            if ( static::VALUE_TYPE_DEFAULT === $dataType ) {
+                unset($rulesByKeyNulpath[$keyNulpath]);
             }
         }
 
@@ -1776,14 +1776,14 @@ class Validation implements ValidationInterface
             $ruleClasses = [];
             $ruleInstances = [];
             foreach ( $rules as $i => $rule ) {
-                $ruleInstances[ $i ] = null;
+                $ruleInstances[$i] = null;
 
                 $ruleObject = null;
                 $ruleClass = null;
-                if (! (false
+                if ( ! (false
                     || ($ruleObject = $rule->hasRuleInstance())
                     || ($ruleClass = $rule->hasRuleClass())
-                )) {
+                ) ) {
                     throw new RuntimeException(
                         [
                             'Each of `rules` should be valid object of: ' . GenericRule::class,
@@ -1793,40 +1793,40 @@ class Validation implements ValidationInterface
                     );
                 }
 
-                if (false === $hasImplicitRule) {
+                if ( false === $hasImplicitRule ) {
                     $hasImplicitRule = is_subclass_of(
                         $ruleObject ?? $ruleClass,
                         RuleImplicitInterface::class
                     );
                 }
 
-                if ($ruleObject) {
-                    $ruleInstances[ $i ] = $ruleObject;
+                if ( $ruleObject ) {
+                    $ruleInstances[$i] = $ruleObject;
 
                 } else {
-                    $ruleClasses[ $i ] = $ruleClass;
+                    $ruleClasses[$i] = $ruleClass;
                 }
             }
 
             // > если значения нет, и нет принудительных (Implicit) правил
             // > то ключ пропускается и проверки не выполняются
             // > из соображений скорости работы
-            if (! ($hasImplicitRule || $hasValue)) {
-                unset($rulesByKeyNulpath[ $keyNulpath ]);
+            if ( ! ($hasImplicitRule || $hasValue) ) {
+                unset($rulesByKeyNulpath[$keyNulpath]);
 
                 continue;
             }
 
             foreach ( $ruleClasses as $i => $ruleClass ) {
-                $rule = $rules[ $i ];
+                $rule = $rules[$i];
 
                 $ruleInstance = $this->factory->newRule($rule);
 
-                $ruleInstances[ $i ] = $ruleInstance;
+                $ruleInstances[$i] = $ruleInstance;
             }
 
             foreach ( $ruleInstances as $i => $ruleInstance ) {
-                $rulesByKeyNulpath[ $keyNulpath ][ $i ] = $ruleInstances[ $i ];
+                $rulesByKeyNulpath[$keyNulpath][$i] = $ruleInstances[$i];
             }
         }
 
@@ -1840,8 +1840,8 @@ class Validation implements ValidationInterface
         foreach ( $this->rulesByKeyNulpath as $keyNulpath => $rules ) {
             $hasValue = $this->hasFilteredByIndex($keyNulpath, $value);
 
-            if ($hasValue) {
-                $thePath = $this->dataPathes[ $keyNulpath ];
+            if ( $hasValue ) {
+                $thePath = $this->dataPathes[$keyNulpath];
                 $theValue = [ $value ];
 
             } else {
@@ -1866,7 +1866,7 @@ class Validation implements ValidationInterface
 
                 $hasError = (null !== $message) || (null !== $throwable);
 
-                if ($hasError) {
+                if ( $hasError ) {
                     $ruleParameters = $rule->getParameters();
 
                     $error = [
@@ -1881,7 +1881,7 @@ class Validation implements ValidationInterface
                         'parameters' => $ruleParameters,
                     ];
 
-                    $errorsByKeyNulpath[ $keyNulpath ][] = $error;
+                    $errorsByKeyNulpath[$keyNulpath][] = $error;
 
                     // > если предыдущее правило закончилось провалом
                     // > валидатор перестает выполнять проверку следующих правил
@@ -1897,11 +1897,11 @@ class Validation implements ValidationInterface
 
     protected function pushData(array $data) : void
     {
-        if ([] === $data) {
+        if ( [] === $data ) {
             return;
         }
 
-        $this->dataQueue[ $this->queueId++ ] = $data;
+        $this->dataQueue[$this->queueId++] = $data;
 
         $this->isBuilt = false;
         $this->isProcessed = false;
@@ -1909,7 +1909,7 @@ class Validation implements ValidationInterface
 
     protected function pushFilters(array $filters) : void
     {
-        if ([] === $filters) {
+        if ( [] === $filters ) {
             return;
         }
 
@@ -1922,11 +1922,11 @@ class Validation implements ValidationInterface
             foreach ( $filtersList as $filter ) {
                 $genericFilter = GenericFilter::from($filter)->orThrow();
 
-                $filtersQueueItem[ static::SYMBOL_NUL . $wildcardDotpath ][] = $genericFilter;
+                $filtersQueueItem[static::SYMBOL_NUL . $wildcardDotpath][] = $genericFilter;
             }
         }
 
-        $this->filtersQueue[ $this->queueId++ ] = $filtersQueueItem;
+        $this->filtersQueue[$this->queueId++] = $filtersQueueItem;
 
         $this->isBuilt = false;
         $this->isProcessed = false;
@@ -1934,7 +1934,7 @@ class Validation implements ValidationInterface
 
     protected function pushRules(array $rules) : void
     {
-        if ([] === $rules) {
+        if ( [] === $rules ) {
             return;
         }
 
@@ -1945,7 +1945,7 @@ class Validation implements ValidationInterface
             $rulesList = $thePhp->to_list($rulesList);
 
             foreach ( $rulesList as $rulesListItem ) {
-                if (is_string($rulesListItem)) {
+                if ( is_string($rulesListItem) ) {
                     $rulesArray = explode(
                         static::SYMBOL_RULELIST_SEPARATOR,
                         $rulesListItem
@@ -1956,10 +1956,10 @@ class Validation implements ValidationInterface
                 }
 
                 foreach ( $rulesArray as $i => $rule ) {
-                    if (is_object($rule)) {
+                    if ( is_object($rule) ) {
                         $_rule = GenericRule::fromObject($rule)->orThrow();
 
-                    } elseif (is_string($rule)) {
+                    } elseif ( is_string($rule) ) {
                         $_rule = GenericRule::fromRuleString(
                             $rule,
                             [
@@ -1981,12 +1981,12 @@ class Validation implements ValidationInterface
                         );
                     }
 
-                    $rulesQueueItem[ static::SYMBOL_NUL . $wildcardDotpath ][] = $_rule;
+                    $rulesQueueItem[static::SYMBOL_NUL . $wildcardDotpath][] = $_rule;
                 }
             }
         }
 
-        $this->rulesQueue[ $this->queueId++ ] = $rulesQueueItem;
+        $this->rulesQueue[$this->queueId++] = $rulesQueueItem;
 
         $this->isBuilt = false;
         $this->isProcessed = false;
@@ -1994,16 +1994,16 @@ class Validation implements ValidationInterface
 
     protected function pushDefaults(array $defaults) : void
     {
-        if ([] === $defaults) {
+        if ( [] === $defaults ) {
             return;
         }
 
         $defaultsQueueItem = [];
         foreach ( $defaults as $wildcardDotpath => $default ) {
-            $defaultsQueueItem[ static::SYMBOL_NUL . $wildcardDotpath ][] = $default;
+            $defaultsQueueItem[static::SYMBOL_NUL . $wildcardDotpath][] = $default;
         }
 
-        $this->defaultsQueue[ $this->queueId++ ] = $defaultsQueueItem;
+        $this->defaultsQueue[$this->queueId++] = $defaultsQueueItem;
 
         $this->isBuilt = false;
         $this->isProcessed = false;
@@ -2021,12 +2021,12 @@ class Validation implements ValidationInterface
 
         $first = true;
         foreach ( $gen as $p ) {
-            if ($theType->string($p)->isOk([ &$pString ])) {
-                if ('' === $pString) {
+            if ( $theType->string($p)->isOk([ &$pString ]) ) {
+                if ( '' === $pString ) {
                     $rulepathArray[] = $pString;
 
                 } else {
-                    if ($first) {
+                    if ( $first ) {
                         $pString = ltrim($pString, static::SYMBOL_NUL);
                     }
 
@@ -2039,7 +2039,7 @@ class Validation implements ValidationInterface
                 }
             }
 
-            if ($first) {
+            if ( $first ) {
                 $first = false;
             }
         }
@@ -2056,7 +2056,7 @@ class Validation implements ValidationInterface
         $regex = '/\x{0}/iu';
 
         foreach ( $wildcardPathArray as $i => $p ) {
-            if (preg_match($regex, $p)) {
+            if ( preg_match($regex, $p) ) {
                 throw new LogicException(
                     [
                         ''
@@ -2088,7 +2088,7 @@ class Validation implements ValidationInterface
 
     protected function matchKeyNulpathesByWildcardDotpath(string $wildcardDotpath) : array
     {
-        if (! isset($this->cacheMatchKeyDotpathesByWildcardDotpath[ $wildcardDotpath ])) {
+        if ( ! isset($this->cacheMatchKeyDotpathesByWildcardDotpath[$wildcardDotpath]) ) {
             $theStr = Lib::str();
 
             $isLastWildcard = (static::SYMBOL_DOTPATH_WILDCARD_SEQUENCE === substr($wildcardDotpath, -1));
@@ -2102,23 +2102,23 @@ class Validation implements ValidationInterface
             );
 
             foreach ( $keyNulpathesMatch as $i => $keyNulpath ) {
-                $isArray = is_array($this->dataIndex[ $keyNulpath ]);
+                $isArray = is_array($this->dataIndex[$keyNulpath]);
 
-                if ($isLastWildcard && $isArray) {
+                if ( $isLastWildcard && $isArray ) {
                     // > ключи, которые заканчиваются на звездочку, например, `users.*`
                     // > не применяются, если значение содержит потомков или является пустым родителем
                     // > иначе какой-нибудь фильтр заменит значения-списки
 
-                    unset($keyNulpathesMatch[ $i ]);
+                    unset($keyNulpathesMatch[$i]);
                 }
             }
 
             $keyNulpathesMatchIndex = array_fill_keys($keyNulpathesMatch, true);
 
-            $this->cacheMatchKeyDotpathesByWildcardDotpath[ $wildcardDotpath ] = $keyNulpathesMatchIndex;
+            $this->cacheMatchKeyDotpathesByWildcardDotpath[$wildcardDotpath] = $keyNulpathesMatchIndex;
         }
 
-        return array_keys($this->cacheMatchKeyDotpathesByWildcardDotpath[ $wildcardDotpath ]);
+        return array_keys($this->cacheMatchKeyDotpathesByWildcardDotpath[$wildcardDotpath]);
     }
 
 
@@ -2127,7 +2127,7 @@ class Validation implements ValidationInterface
         $isArray = is_array($bind);
         $isObject = is_object($bind);
 
-        if (! ($isArray || $isObject)) {
+        if ( ! ($isArray || $isObject) ) {
             throw new LogicException(
                 'The `reference` should be array or object'
             );
@@ -2140,12 +2140,12 @@ class Validation implements ValidationInterface
             ? ($boundArray =& $bind)
             : ($boundObject =& $bind);
 
-        if (null !== $boundArray) {
+        if ( null !== $boundArray ) {
             foreach ( $data as $key => $value ) {
-                $boundArray[ $key ] = $value;
+                $boundArray[$key] = $value;
             }
 
-        } elseif (null !== $boundObject) {
+        } elseif ( null !== $boundObject ) {
             $theArr = Lib::arr();
 
             $theArr->map_to_object($data, $boundObject);

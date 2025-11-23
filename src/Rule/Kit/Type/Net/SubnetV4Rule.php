@@ -22,11 +22,11 @@ class SubnetV4Rule extends AbstractRuleType
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $status = Lib::type()->subnet_v4($value[ 0 ])->isOk();
+        $status = Lib::type()->subnet_v4($value[0])->isOk();
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

@@ -22,16 +22,16 @@ class JsonRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
         $jsonDecoded = Lib::format()->json()->json_decode(
             [ $this ],
-            $value[ 0 ]
+            $value[0]
         );
 
         $status = ($jsonDecoded !== $this);
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

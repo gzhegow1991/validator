@@ -22,13 +22,13 @@ class TimezoneNamedRule extends AbstractRuleType
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
         $allowedTimeZoneTypes = [ 2, 3 ];
 
-        $status = Lib::type()->timezone($value[ 0 ], $allowedTimeZoneTypes)->isOk();
+        $status = Lib::type()->timezone($value[0], $allowedTimeZoneTypes)->isOk();
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

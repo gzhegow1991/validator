@@ -65,7 +65,7 @@ $ffn = new class {
 
 
 // > создаем enum-ы для тестирования правила InEnum (только для PHP >8.1.0)
-if (PHP_VERSION_ID >= 80100) {
+if ( PHP_VERSION_ID >= 80100 ) {
     require_once $ffn->root() . '/tests/src/Enum/HelloWorldEnum.php';
     require_once $ffn->root() . '/tests/src/Enum/HelloWorldBackedEnum.php';
 }
@@ -477,6 +477,7 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //         'numeric'        => '1',
 //         'numeric_float'  => '1.01',
 //         'numeric_int'    => '1.0',
+//         'ratio'          => '5/2',
 //         'string'         => 'hello',
 //         'trim'           => ' hello ',
 //         //
@@ -497,6 +498,7 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //     $validation->addRules('numeric', [ \Gzhegow\Validator\Rule\Kit\Rule::numeric() ]);
 //     $validation->addRules('numeric_float', [ \Gzhegow\Validator\Rule\Kit\Rule::numeric_float() ]);
 //     $validation->addRules('numeric_int', [ \Gzhegow\Validator\Rule\Kit\Rule::numeric_int() ]);
+//     $validation->addRules('ratio', [ \Gzhegow\Validator\Rule\Kit\Rule::ratio() ]);
 //     $validation->addRules('string', [ \Gzhegow\Validator\Rule\Kit\Rule::string() ]);
 //     $validation->addRules('trim', [ \Gzhegow\Validator\Rule\Kit\Rule::trim() ]);
 //     //

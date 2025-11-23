@@ -37,7 +37,7 @@ class GenericRule
 
     public function __toString() : string
     {
-        if (null === $this->ruleString) {
+        if ( null === $this->ruleString ) {
             throw new RuntimeException(
                 [ 'Rule can be casted to string only if it was created from string' ]
             );
@@ -60,7 +60,7 @@ class GenericRule
             ?? static::fromRuleClass($from, $context)->orNull($ret)
             ?? static::fromRuleString($from, $context)->orNull($ret);
 
-        if ($ret->isFail()) {
+        if ( $ret->isFail() ) {
             return Ret::throw($fallback, $ret);
         }
 
@@ -78,7 +78,7 @@ class GenericRule
             ?? static::fromStatic($from)->orNull($ret)
             ?? static::fromRuleInstance($from)->orNull($ret);
 
-        if ($ret->isFail()) {
+        if ( $ret->isFail() ) {
             return Ret::throw($fallback, $ret);
         }
 
@@ -91,7 +91,7 @@ class GenericRule
      */
     public static function fromStatic($from, ?array $fallback = null)
     {
-        if ($from instanceof static) {
+        if ( $from instanceof static ) {
             return Ret::ok($fallback, $from);
         }
 
@@ -107,7 +107,7 @@ class GenericRule
      */
     public static function fromRuleInstance($from, ?array $fallback = null)
     {
-        if (! ($from instanceof RuleInterface)) {
+        if ( ! ($from instanceof RuleInterface) ) {
             return Ret::throw(
                 $fallback,
                 [ 'The `from` should be instance of: ' . RuleInterface::class, $from ],
@@ -129,11 +129,11 @@ class GenericRule
     {
         $theType = Lib::type();
 
-        if (! $theType->string_not_empty($from)->isOk([ &$fromStringNotEmpty, &$ret ])) {
+        if ( ! $theType->string_not_empty($from)->isOk([ &$fromStringNotEmpty, &$ret ]) ) {
             return Ret::throw($fallback, $ret);
         }
 
-        if (! is_subclass_of($from, RuleInterface::class)) {
+        if ( ! is_subclass_of($from, RuleInterface::class) ) {
             return Ret::throw(
                 $fallback,
                 [ 'The `from` should be class-string of: ' . RuleInterface::class, $from ],
@@ -141,9 +141,9 @@ class GenericRule
             );
         }
 
-        $ruleParameters = $context[ 'parameters' ] ?? [];
+        $ruleParameters = $context['parameters'] ?? [];
 
-        if (! is_array($ruleParameters)) {
+        if ( ! is_array($ruleParameters) ) {
             $ruleParameters = [];
         }
 
@@ -161,11 +161,11 @@ class GenericRule
     {
         $theType = Lib::type();
 
-        if (! $theType->string_not_empty($from)->isOk([ &$fromStringNotEmpty, &$ret ])) {
+        if ( ! $theType->string_not_empty($from)->isOk([ &$fromStringNotEmpty, &$ret ]) ) {
             return Ret::throw($fallback, $ret);
         }
 
-        if (! isset($context[ 'registry' ])) {
+        if ( ! isset($context['registry']) ) {
             return Ret::throw(
                 $fallback,
                 [ 'The `context[registry]` is required', $context ],
@@ -173,9 +173,9 @@ class GenericRule
             );
         }
 
-        $ruleRegistry = $context[ 'registry' ];
+        $ruleRegistry = $context['registry'];
 
-        if (! ($ruleRegistry instanceof RuleRegistryInterface)) {
+        if ( ! ($ruleRegistry instanceof RuleRegistryInterface) ) {
             return Ret::throw(
                 $fallback,
                 [
@@ -186,24 +186,24 @@ class GenericRule
             );
         }
 
-        if (false
-            || ! isset($context[ 'separator' ])
-            || ! $theType->letter($context[ 'separator' ])->isOk([ &$ruleArgsSeparator ])
+        if ( false
+            || ! isset($context['separator'])
+            || ! $theType->letter($context['separator'])->isOk([ &$ruleArgsSeparator ])
         ) {
             return Ret::throw(
                 $fallback,
-                [ 'The `context[ruleArgsSeparator]` should be one letter', $context[ 'separator' ] ],
+                [ 'The `context[ruleArgsSeparator]` should be one letter', $context['separator'] ],
                 [ __FILE__, __LINE__ ]
             );
         }
 
-        if (false
-            || ! isset($context[ 'delimiter' ])
-            || ! $theType->letter($context[ 'delimiter' ])->isOk([ &$ruleArgsDelimiter ])
+        if ( false
+            || ! isset($context['delimiter'])
+            || ! $theType->letter($context['delimiter'])->isOk([ &$ruleArgsDelimiter ])
         ) {
             return Ret::throw(
                 $fallback,
-                [ 'The `context[ruleArgsDelimiter]` should be one letter', $context[ 'delimiter' ] ],
+                [ 'The `context[ruleArgsDelimiter]` should be one letter', $context['delimiter'] ],
                 [ __FILE__, __LINE__ ]
             );
         }
@@ -212,7 +212,7 @@ class GenericRule
 
         [ $ruleName, $ruleArguments ] = $explode + [ '', null ];
 
-        if (! $ruleRegistry->hasRuleName($ruleName, $ruleClass)) {
+        if ( ! $ruleRegistry->hasRuleName($ruleName, $ruleClass) ) {
             return Ret::throw(
                 $fallback,
                 [ 'Missing rule with name: ' . $ruleName ],
@@ -222,12 +222,12 @@ class GenericRule
 
         $ruleArgumentsArray = [];
 
-        if (null !== $ruleArguments) {
+        if ( null !== $ruleArguments ) {
             $ruleArgumentsArray = explode($ruleArgsDelimiter, $ruleArguments);
 
             foreach ( $ruleArgumentsArray as $ii => $ruleArgument ) {
-                if ($ruleArgument === '') {
-                    $ruleArgumentsArray[ $ii ] = null;
+                if ( $ruleArgument === '' ) {
+                    $ruleArgumentsArray[$ii] = null;
                 }
             }
         }
@@ -286,7 +286,7 @@ class GenericRule
     {
         $refRuleString = null;
 
-        if (null !== $this->ruleString) {
+        if ( null !== $this->ruleString ) {
             $refRuleString = $this->ruleString;
 
             return true;

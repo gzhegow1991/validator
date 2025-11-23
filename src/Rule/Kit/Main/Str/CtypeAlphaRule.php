@@ -22,11 +22,11 @@ class CtypeAlphaRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $status = Lib::type()->ctype_alpha($value[ 0 ])->isOk();
+        $status = Lib::type()->ctype_alpha($value[0])->isOk();
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

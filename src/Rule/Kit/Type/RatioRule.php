@@ -1,19 +1,18 @@
 <?php
 
-namespace Gzhegow\Validator\Rule\Kit\Type\Net;
+namespace Gzhegow\Validator\Rule\Kit\Type;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Validation\ValidationInterface;
-use Gzhegow\Validator\Rule\Kit\Type\AbstractRuleType;
 
 
-class AddressMacRule extends AbstractRuleType
+class RatioRule extends AbstractRuleType
 {
-    const NAME = 'address_mac';
+    const NAME = 'ratio';
 
     public static function message(array $conditions = []) : string
     {
-        return 'validation.address_mac';
+        return 'validation.num';
     }
 
 
@@ -24,7 +23,7 @@ class AddressMacRule extends AbstractRuleType
     {
         if ( [] === $value ) return static::message();
 
-        $status = Lib::type()->address_mac($value[0])->isOk([ &$addressIp ]);
+        $status = Lib::type()->ratio($value[0])->isOk();
 
         if ( ! $status ) {
             return static::message();

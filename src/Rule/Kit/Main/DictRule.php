@@ -22,13 +22,13 @@ class DictRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $parameter0 = $this->parameters[ 0 ] ?? null;
+        $parameter0 = $this->parameters[0] ?? null;
 
-        $array = $value[ 0 ];
+        $array = $value[0];
 
-        if (! is_array($array)) {
+        if ( ! is_array($array) ) {
             return static::message();
         }
 
@@ -38,7 +38,7 @@ class DictRule extends AbstractRule
             ? Lib::type()->dict_sorted($array, true)->isOk()
             : Lib::type()->dict($array, true)->isOk();
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

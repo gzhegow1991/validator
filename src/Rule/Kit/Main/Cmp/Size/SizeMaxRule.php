@@ -23,28 +23,28 @@ class SizeMaxRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        if (! isset($this->parameters[ 0 ])) {
+        if ( ! isset($this->parameters[0]) ) {
             throw new LogicException(
                 'The `parameters[0]` should be present, and known as `sizeMax`'
             );
         }
 
-        $parameter0 = $this->parameters[ 0 ];
-        $parameter1 = $this->parameters[ 1 ] ?? null;
+        $parameter0 = $this->parameters[0];
+        $parameter1 = $this->parameters[1] ?? null;
 
         $theType = Lib::type();
 
-        if (! $theType->int($parameter0)->isOk([ &$sizeMax ])) {
+        if ( ! $theType->int($parameter0)->isOk([ &$sizeMax ]) ) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be integer', $parameter0 ]
             );
         }
 
         $mode = 'size';
-        if (null !== $parameter1) {
-            if (! $theType->string_not_empty($parameter1)->isOk([ &$mode ])) {
+        if ( null !== $parameter1 ) {
+            if ( ! $theType->string_not_empty($parameter1)->isOk([ &$mode ]) ) {
                 throw new LogicException(
                     [ 'The `parameters[2]` should be non-empty string, and known as `mode`', $parameter1 ]
                 );
@@ -57,7 +57,7 @@ class SizeMaxRule extends AbstractRule
                 'strlen'  => true,
             ];
 
-            if (! isset($modes[ $mode ])) {
+            if ( ! isset($modes[$mode]) ) {
                 throw new LogicException(
                     [
                         ''
@@ -71,26 +71,26 @@ class SizeMaxRule extends AbstractRule
         }
 
         $fnSize = '';
-        if ('size' === $mode) {
+        if ( 'size' === $mode ) {
             $fnSize = [ Lib::php(), 'size' ];
 
-        } elseif ('count' === $mode) {
+        } elseif ( 'count' === $mode ) {
             $fnSize = [ Lib::php(), 'count' ];
 
-        } elseif ('strsize' === $mode) {
+        } elseif ( 'strsize' === $mode ) {
             $fnSize = [ Lib::str(), 'strsize' ];
 
-        } elseif ('strlen' === $mode) {
+        } elseif ( 'strlen' === $mode ) {
             $fnSize = [ Lib::str(), 'strlen' ];
         }
 
-        $size = $fnSize($value[ 0 ]);
+        $size = $fnSize($value[0]);
 
-        if (! is_int($size)) {
+        if ( ! is_int($size) ) {
             return static::message();
         }
 
-        if ($size > $sizeMax) {
+        if ( $size > $sizeMax ) {
             return static::message();
         }
 

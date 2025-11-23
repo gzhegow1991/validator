@@ -22,15 +22,15 @@ class PhoneRealRule extends AbstractRuleType
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $parameter0 = $this->parameters[ 0 ] ?? null;
+        $parameter0 = $this->parameters[0] ?? null;
 
         $region = $parameter0 ?? '';
 
-        $status = Lib::type()->phone_real($value[ 0 ], $region)->isOk();
+        $status = Lib::type()->phone_real($value[0], $region)->isOk();
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

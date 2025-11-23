@@ -23,25 +23,25 @@ class GettypeRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        if (! isset($this->parameters[ 0 ])) {
+        if ( ! isset($this->parameters[0]) ) {
             throw new LogicException(
                 'The `parameters[0]` should be present, and known as `type`'
             );
         }
 
-        $parameter0 = $this->parameters[ 0 ];
+        $parameter0 = $this->parameters[0];
 
-        if (! Lib::type()->string_not_empty($parameter0)->isOk([ &$type ])) {
+        if ( ! Lib::type()->string_not_empty($parameter0)->isOk([ &$type ]) ) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be non empty string', $parameter0 ]
             );
         }
 
-        $status = ($type === gettype($value[ 0 ]));
+        $status = ($type === gettype($value[0]));
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

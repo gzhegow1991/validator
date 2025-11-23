@@ -23,36 +23,36 @@ class DateNeqFieldRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        if (! isset($this->parameters[ 0 ])) {
+        if ( ! isset($this->parameters[0]) ) {
             throw new LogicException(
                 'The `parameters[0]` should be present, and known as `dateMinField`'
             );
         }
 
-        $parameter0 = $this->parameters[ 0 ];
-        $parameter1 = $this->parameters[ 1 ] ?? null;
+        $parameter0 = $this->parameters[0];
+        $parameter1 = $this->parameters[1] ?? null;
 
         $theType = Lib::type();
 
-        if (! $theType->date($value[ 0 ])->isOk([ &$date ])) {
+        if ( ! $theType->date($value[0])->isOk([ &$date ]) ) {
             return static::message();
         }
 
         $fieldPath = $validation->fieldpathOrAbsolute($parameter0, $path);
         $fieldValue = $validation->get($fieldPath, [ $this ]);
-        if ($this === $fieldValue) {
+        if ( $this === $fieldValue ) {
             return static::message();
         }
 
-        if (! $theType->date($fieldValue)->isOk([ &$dateNeq ])) {
+        if ( ! $theType->date($fieldValue)->isOk([ &$dateNeq ]) ) {
             return null;
         }
 
         $flagsMode = _CMP_MODE_DATE_VS_USEC;
-        if (null !== $parameter1) {
-            if (! $theType->string_not_empty($parameter1)->isOk([ &$mode ])) {
+        if ( null !== $parameter1 ) {
+            if ( ! $theType->string_not_empty($parameter1)->isOk([ &$mode ]) ) {
                 throw new LogicException(
                     [ 'The `parameters[1]` should be non-empty string, and known as `mode`', $parameter1 ]
                 );
@@ -69,9 +69,9 @@ class DateNeqFieldRule extends AbstractRule
                 'usec'  => _CMP_MODE_DATE_VS_USEC,
             ];
 
-            $flagsMode = $modes[ $mode ] ?? null;
+            $flagsMode = $modes[$mode] ?? null;
 
-            if (null === $flagsMode) {
+            if ( null === $flagsMode ) {
                 throw new LogicException(
                     [
                         ''
@@ -91,7 +91,7 @@ class DateNeqFieldRule extends AbstractRule
 
         $status = $fnCmp($date, $dateNeq);
 
-        if (0 === $status) {
+        if ( 0 === $status ) {
             return static::message();
         }
 

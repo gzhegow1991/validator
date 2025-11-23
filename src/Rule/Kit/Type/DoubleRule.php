@@ -21,11 +21,11 @@ class DoubleRule extends AbstractRuleType
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $status = Lib::type()->float($value[ 0 ])->isOk();
+        $status = Lib::type()->float($value[0])->isOk();
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

@@ -23,53 +23,53 @@ class IntersectAnyRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        if (! isset($this->parameters[ 0 ])) {
+        if ( ! isset($this->parameters[0]) ) {
             throw new LogicException(
                 'The `parameters[0]` should be present, and known as `arrayToIntersectAny`'
             );
         }
 
-        $parameter0 = $this->parameters[ 0 ];
-        $parameter1 = $this->parameters[ 1 ] ?? null;
+        $parameter0 = $this->parameters[0];
+        $parameter1 = $this->parameters[1] ?? null;
 
-        $valueArray = $value[ 0 ];
+        $valueArray = $value[0];
 
-        if (! is_array($valueArray)) {
+        if ( ! is_array($valueArray) ) {
             return static::message();
         }
 
-        if ([] === $valueArray) {
+        if ( [] === $valueArray ) {
             return static::message();
         }
 
         $arrayToIntersectAny = $parameter0;
 
-        if (! is_array($arrayToIntersectAny)) {
+        if ( ! is_array($arrayToIntersectAny) ) {
             throw new LogicException(
                 [ 'The `arrayToIntersectAny` should be array', $arrayToIntersectAny ]
             );
         }
 
-        if ([] === $arrayToIntersectAny) {
+        if ( [] === $arrayToIntersectAny ) {
             return static::message();
         }
 
         $cmpNative = true;
         $cmpNativeIsStrict = true;
         $cmpCustomFlagsMode = null;
-        if (null !== $parameter1) {
+        if ( null !== $parameter1 ) {
             $theType = Lib::type();
 
-            if ($theType->int($parameter1)->isOk([ &$parameter1Int ])) {
+            if ( $theType->int($parameter1)->isOk([ &$parameter1Int ]) ) {
                 $cmpNative = false;
                 $cmpCustomFlagsMode = $parameter1Int;
 
-            } elseif ($theType->userbool($parameter1)->isOk([ &$parameter1Userbool ])) {
+            } elseif ( $theType->userbool($parameter1)->isOk([ &$parameter1Userbool ]) ) {
                 $cmpNativeIsStrict = $parameter1Userbool;
 
-            } elseif ($theType->string_not_empty($parameter1)->isOk([ &$parameter1String ])) {
+            } elseif ( $theType->string_not_empty($parameter1)->isOk([ &$parameter1String ]) ) {
                 $cmpNativeIsStrict = ('strict' === $parameter1String);
 
             } else {
@@ -83,7 +83,7 @@ class IntersectAnyRule extends AbstractRule
         }
 
         $fnCmp = null;
-        if (! $cmpNative) {
+        if ( ! $cmpNative ) {
             $cmpCustomFlagsMode = $cmpCustomFlagsMode ?? 0;
 
             $fnCmp = Lib::cmp()->fnCompareValues(
@@ -100,7 +100,7 @@ class IntersectAnyRule extends AbstractRule
                     ? ($cmpNativeIsStrict ? ($v === $vv) : ($v == $vv))
                     : (0 === $fnCmp($v, $vv));
 
-                if ($bool) {
+                if ( $bool ) {
                     $status = true;
 
                     break 2;
@@ -108,7 +108,7 @@ class IntersectAnyRule extends AbstractRule
             }
         }
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

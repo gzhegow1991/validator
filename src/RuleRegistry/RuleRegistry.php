@@ -27,7 +27,7 @@ class RuleRegistry implements RuleRegistryInterface
         $rules = $definition::rules();
 
         foreach ( $rules as $i => $ruleClass ) {
-            if (is_string($i)) {
+            if ( is_string($i) ) {
                 $ruleClass = $i;
             }
 
@@ -45,10 +45,10 @@ class RuleRegistry implements RuleRegistryInterface
     {
         $ruleClass = null;
 
-        $status = isset($this->ruleNameIndex[ $ruleName ]);
+        $status = isset($this->ruleNameIndex[$ruleName]);
 
-        if ($status) {
-            $ruleClass = $this->ruleNameIndex[ $ruleName ];
+        if ( $status ) {
+            $ruleClass = $this->ruleNameIndex[$ruleName];
 
             return true;
         }
@@ -63,10 +63,10 @@ class RuleRegistry implements RuleRegistryInterface
     {
         $ruleName = null;
 
-        $status = isset($this->ruleClassIndex[ $ruleClass ]);
+        $status = isset($this->ruleClassIndex[$ruleClass]);
 
-        if ($status) {
-            $ruleName = $this->ruleClassIndex[ $ruleClass ];
+        if ( $status ) {
+            $ruleName = $this->ruleClassIndex[$ruleClass];
 
             return true;
         }
@@ -80,7 +80,7 @@ class RuleRegistry implements RuleRegistryInterface
      */
     public function getRuleName(string $ruleClass) : string
     {
-        return $this->ruleClassIndex[ $ruleClass ];
+        return $this->ruleClassIndex[$ruleClass];
     }
 
     /**
@@ -88,7 +88,7 @@ class RuleRegistry implements RuleRegistryInterface
      */
     public function getRuleClass(string $ruleName) : string
     {
-        return $this->ruleNameIndex[ $ruleName ];
+        return $this->ruleNameIndex[$ruleName];
     }
 
 
@@ -103,7 +103,7 @@ class RuleRegistry implements RuleRegistryInterface
         $this->ruleClassIndex = [];
 
         foreach ( $rules as $i => $ruleClass ) {
-            if (is_string($i)) {
+            if ( is_string($i) ) {
                 $ruleClass = $i;
             }
 
@@ -120,7 +120,7 @@ class RuleRegistry implements RuleRegistryInterface
      */
     public function addRule(string $ruleClass)
     {
-        if (! is_subclass_of($ruleClass, RuleInterface::class, true)) {
+        if ( ! is_subclass_of($ruleClass, RuleInterface::class, true) ) {
             throw new LogicException(
                 [
                     'The `ruleClass` should be class-string of: ' . RuleInterface::class,
@@ -131,14 +131,14 @@ class RuleRegistry implements RuleRegistryInterface
 
         $ruleName = $ruleClass::NAME;
 
-        if (isset($this->ruleNameIndex[ $ruleName ])) {
+        if ( isset($this->ruleNameIndex[$ruleName]) ) {
             throw new LogicException(
                 [ 'The `ruleName` is already registered', $ruleName ]
             );
         }
 
-        $this->ruleNameIndex[ $ruleName ] = $ruleClass;
-        $this->ruleClassIndex[ $ruleClass ] = $ruleName;
+        $this->ruleNameIndex[$ruleName] = $ruleClass;
+        $this->ruleClassIndex[$ruleClass] = $ruleName;
 
         return $this;
     }
@@ -152,7 +152,7 @@ class RuleRegistry implements RuleRegistryInterface
     public function removeRules(array $ruleNames)
     {
         foreach ( $ruleNames as $i => $ruleName ) {
-            if (is_string($i)) {
+            if ( is_string($i) ) {
                 $ruleName = $i;
             }
 
@@ -167,14 +167,14 @@ class RuleRegistry implements RuleRegistryInterface
      */
     public function removeRule(string $ruleName)
     {
-        if (! isset($this->ruleNameIndex[ $ruleName ])) {
+        if ( ! isset($this->ruleNameIndex[$ruleName]) ) {
             return $this;
         }
 
-        $ruleClass = $this->ruleNameIndex[ $ruleName ];
+        $ruleClass = $this->ruleNameIndex[$ruleName];
 
-        unset($this->ruleNameIndex[ $ruleName ]);
-        unset($this->ruleClassIndex[ $ruleClass ]);
+        unset($this->ruleNameIndex[$ruleName]);
+        unset($this->ruleClassIndex[$ruleClass]);
 
         return $this;
     }

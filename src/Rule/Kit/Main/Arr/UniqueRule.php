@@ -23,27 +23,27 @@ class UniqueRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $parameter0 = $this->parameters[ 0 ] ?? null;
+        $parameter0 = $this->parameters[0] ?? null;
 
-        $array = $value[ 0 ];
+        $array = $value[0];
 
-        if (! is_array($array)) {
+        if ( ! is_array($array) ) {
             return static::message();
         }
 
         $cmpNative = true;
         $cmpNativeIsStrict = true;
         $cmpCustomFlagsMode = null;
-        if (null !== $parameter0) {
+        if ( null !== $parameter0 ) {
             $theType = Lib::type();
 
-            if ($theType->int($parameter0)->isOk([ &$parameter0Int ])) {
+            if ( $theType->int($parameter0)->isOk([ &$parameter0Int ]) ) {
                 $cmpNative = false;
                 $cmpCustomFlagsMode = $parameter0Int;
 
-            } elseif ($theType->string_not_empty($parameter0)->isOk([ &$parameter0String ])) {
+            } elseif ( $theType->string_not_empty($parameter0)->isOk([ &$parameter0String ]) ) {
                 $cmpNativeIsStrict = ('strict' === $parameter0String);
 
             } else {
@@ -54,7 +54,7 @@ class UniqueRule extends AbstractRule
         }
 
         $fnCmp = null;
-        if (! $cmpNative) {
+        if ( ! $cmpNative ) {
             $cmpCustomFlagsMode = $cmpCustomFlagsMode ?? 0;
 
             $fnCmp = Lib::cmp()->fnCompareValues(
@@ -72,7 +72,7 @@ class UniqueRule extends AbstractRule
                     ? ($cmpNativeIsStrict ? ($v === $vv) : ($v == $vv))
                     : (0 === $fnCmp($v, $vv));
 
-                if ($bool) {
+                if ( $bool ) {
                     $status = false;
 
                     break 2;
@@ -82,7 +82,7 @@ class UniqueRule extends AbstractRule
             $seen[] = $v;
         }
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

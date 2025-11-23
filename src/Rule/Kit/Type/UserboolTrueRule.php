@@ -21,15 +21,15 @@ class UserboolTrueRule extends AbstractRuleType
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $status = Lib::type()->userbool($value[ 0 ])->isOk([ &$valueBool ]);
+        $status = Lib::type()->userbool($value[0])->isOk([ &$valueBool ]);
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 
-        if (true !== $valueBool) {
+        if ( true !== $valueBool ) {
             return static::message();
         }
 

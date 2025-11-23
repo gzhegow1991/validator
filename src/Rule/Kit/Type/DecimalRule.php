@@ -21,15 +21,15 @@ class DecimalRule extends AbstractRuleType
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $parameter0 = $this->parameters[ 0 ] ?? null;
+        $parameter0 = $this->parameters[0] ?? null;
 
         $scale = intval($parameter0 ?? 0);
 
-        $status = Lib::type()->decimal($value[ 0 ], $scale)->isOk();
+        $status = Lib::type()->decimal($value[0], $scale)->isOk();
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

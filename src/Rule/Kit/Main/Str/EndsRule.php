@@ -23,29 +23,29 @@ class EndsRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        if (! isset($this->parameters[ 0 ])) {
+        if ( ! isset($this->parameters[0]) ) {
             throw new LogicException(
                 'The `parameters[0]` should be present, and known as `needle`'
             );
         }
 
-        $parameter0 = $this->parameters[ 0 ];
+        $parameter0 = $this->parameters[0];
 
         $theType = Lib::type();
 
-        if (! $theType->string_not_empty($value[ 0 ])->isOk([ &$string ])) {
+        if ( ! $theType->string_not_empty($value[0])->isOk([ &$string ]) ) {
             return static::message();
         }
 
-        if (! $theType->string($parameter0)->isOk([ &$needle ])) {
+        if ( ! $theType->string($parameter0)->isOk([ &$needle ]) ) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be string', $parameter0 ]
             );
         }
 
-        if ('' === $needle) {
+        if ( '' === $needle ) {
             return null;
         }
 
@@ -60,11 +60,11 @@ class EndsRule extends AbstractRule
 
         $pos = $fnStrpos($string, $needle);
 
-        if (false === $pos) {
+        if ( false === $pos ) {
             return static::message();
         }
 
-        if ($pos !== ($len - $lenContains)) {
+        if ( $pos !== ($len - $lenContains) ) {
             return static::message();
         }
 

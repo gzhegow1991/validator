@@ -23,51 +23,51 @@ class DateBetweenRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        if (! isset($this->parameters[ 0 ])) {
+        if ( ! isset($this->parameters[0]) ) {
             throw new LogicException(
                 'The `parameters[0]` should be present, and known as `dateMin`'
             );
         }
 
-        if (! isset($this->parameters[ 1 ])) {
+        if ( ! isset($this->parameters[1]) ) {
             throw new LogicException(
                 'The `parameters[1]` should be present, and known as `dateMax`'
             );
         }
 
-        $parameter0 = $this->parameters[ 0 ];
-        $parameter1 = $this->parameters[ 1 ];
-        $parameter2 = $this->parameters[ 2 ] ?? null;
+        $parameter0 = $this->parameters[0];
+        $parameter1 = $this->parameters[1];
+        $parameter2 = $this->parameters[2] ?? null;
 
         $theType = Lib::type();
 
-        if (! $theType->date($value[ 0 ])->isOk([ &$date ])) {
+        if ( ! $theType->date($value[0])->isOk([ &$date ]) ) {
             return static::message();
         }
 
-        if (! $theType->date($parameter0)->isOk([ &$dateMin ])) {
+        if ( ! $theType->date($parameter0)->isOk([ &$dateMin ]) ) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be valid date', $parameter0 ]
             );
         }
 
-        if (! $theType->date($parameter1)->isOk([ &$dateMax ])) {
+        if ( ! $theType->date($parameter1)->isOk([ &$dateMax ]) ) {
             throw new LogicException(
                 [ 'The `parameters[1]` should be valid date', $parameter1 ]
             );
         }
 
-        if ($dateMin > $dateMax) {
+        if ( $dateMin > $dateMax ) {
             throw new LogicException(
                 [ 'The `dateMin` should be greater than `dateMax`', $dateMin, $dateMax ]
             );
         }
 
         $flagsMode = _CMP_MODE_DATE_VS_USEC;
-        if (null !== $parameter2) {
-            if (! $theType->string_not_empty($parameter2)->isOk([ &$mode ])) {
+        if ( null !== $parameter2 ) {
+            if ( ! $theType->string_not_empty($parameter2)->isOk([ &$mode ]) ) {
                 throw new LogicException(
                     [ 'The `parameters[2]` should be non-empty string, and known as `mode`', $parameter2 ]
                 );
@@ -84,9 +84,9 @@ class DateBetweenRule extends AbstractRule
                 'usec'  => _CMP_MODE_DATE_VS_USEC,
             ];
 
-            $flagsMode = $modes[ $mode ] ?? null;
+            $flagsMode = $modes[$mode] ?? null;
 
-            if (null === $flagsMode) {
+            if ( null === $flagsMode ) {
                 throw new LogicException(
                     [
                         ''
@@ -106,13 +106,13 @@ class DateBetweenRule extends AbstractRule
 
         $statusMin = $fnCmp($date, $dateMin);
 
-        if (0 > $statusMin) {
+        if ( 0 > $statusMin ) {
             return static::message();
         }
 
         $statusMax = $fnCmp($date, $dateMax);
 
-        if (0 < $statusMax) {
+        if ( 0 < $statusMax ) {
             return static::message();
         }
 

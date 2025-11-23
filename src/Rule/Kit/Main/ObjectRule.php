@@ -21,11 +21,11 @@ class ObjectRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        $status = is_object($value[ 0 ]);
+        $status = is_object($value[0]);
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

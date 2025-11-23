@@ -1147,6 +1147,14 @@ class Rule implements RuleDefinitionInterface
         )->orThrow();
     }
 
+    public static function ratio(array $parameters = [])
+    {
+        return \Gzhegow\Validator\Rule\GenericRule::fromRuleClass(
+            \Gzhegow\Validator\Rule\Kit\Type\RatioRule::class,
+            [ 'parameters' => $parameters ]
+        )->orThrow();
+    }
+
     public static function string(array $parameters = [])
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromRuleClass(

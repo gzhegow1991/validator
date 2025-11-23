@@ -13,10 +13,10 @@ class IpInSubnetsRule extends AbstractRule
 {
     public static function parse(string $ruleName, array $ruleArguments = []) : GenericRule
     {
-        $ruleParameters[ 0 ] = $ruleArguments[ 0 ] ?? null;
+        $ruleParameters[0] = $ruleArguments[0] ?? null;
 
-        $ruleParameters[ 0 ] = is_string($ruleParameters[ 0 ])
-            ? explode(',', $ruleParameters[ 0 ])
+        $ruleParameters[0] = is_string($ruleParameters[0])
+            ? explode(',', $ruleParameters[0])
             : [];
 
         return GenericRule::fromRuleClass(
@@ -39,19 +39,19 @@ class IpInSubnetsRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        if (! isset($this->parameters[ 0 ])) {
+        if ( ! isset($this->parameters[0]) ) {
             throw new LogicException(
                 'The `parameters[0]` should be present, and known as `subnets`'
             );
         }
 
-        $parameter0 = $this->parameters[ 0 ];
+        $parameter0 = $this->parameters[0];
 
         $theType = Lib::type();
 
-        if (! $theType->address_ip($value[ 0 ])->isOk([ &$addressIp ])) {
+        if ( ! $theType->address_ip($value[0])->isOk([ &$addressIp ]) ) {
             return static::message();
         }
 
@@ -62,7 +62,7 @@ class IpInSubnetsRule extends AbstractRule
 
         $status = Lib::net()->is_ip_in_subnets($addressIp, $subnets);
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

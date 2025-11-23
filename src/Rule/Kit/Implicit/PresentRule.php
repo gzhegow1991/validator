@@ -20,7 +20,7 @@ class PresentRule extends AbstractRuleImplicit
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) {
+        if ( [] === $value ) {
             // > missing - FAIL
             return static::message();
         }

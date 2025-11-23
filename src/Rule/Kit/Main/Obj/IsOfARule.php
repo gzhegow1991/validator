@@ -23,23 +23,23 @@ class IsOfARule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
-        if (! isset($this->parameters[ 0 ])) {
+        if ( ! isset($this->parameters[0]) ) {
             throw new LogicException(
                 'The `parameters[0]` should be present, and known as `class`'
             );
         }
 
-        $parameter0 = $this->parameters[ 0 ];
+        $parameter0 = $this->parameters[0];
 
-        $object = $value[ 0 ];
+        $object = $value[0];
 
-        if (! is_object($object)) {
+        if ( ! is_object($object) ) {
             return static::message();
         }
 
-        if (! Lib::type()->struct_exists($parameter0)->isOk([ &$instanceClass ])) {
+        if ( ! Lib::type()->struct_exists($parameter0)->isOk([ &$instanceClass ]) ) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be existing struct', $parameter0 ]
             );
@@ -47,7 +47,7 @@ class IsOfARule extends AbstractRule
 
         $status = is_a($object, $instanceClass, false);
 
-        if (! $status) {
+        if ( ! $status ) {
             return static::message();
         }
 

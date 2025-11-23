@@ -23,47 +23,47 @@ class SizeBetweenRule extends AbstractRule
         ValidationInterface $validation
     ) : ?string
     {
-        if ([] === $value) return static::message();
+        if ( [] === $value ) return static::message();
 
         $theType = Lib::type();
 
-        if (! isset($this->parameters[ 0 ])) {
+        if ( ! isset($this->parameters[0]) ) {
             throw new LogicException(
                 'The `parameters[0]` should be present, and known as `sizeMin`'
             );
         }
 
-        if (! isset($this->parameters[ 1 ])) {
+        if ( ! isset($this->parameters[1]) ) {
             throw new LogicException(
                 'The `parameters[0]` should be present, and known as `sizeMax`'
             );
         }
 
-        $parameter0 = $this->parameters[ 0 ];
-        $parameter1 = $this->parameters[ 1 ];
-        $parameter2 = $this->parameters[ 2 ] ?? null;
+        $parameter0 = $this->parameters[0];
+        $parameter1 = $this->parameters[1];
+        $parameter2 = $this->parameters[2] ?? null;
 
-        if (! $theType->int($parameter0)->isOk([ &$sizeMin ])) {
+        if ( ! $theType->int($parameter0)->isOk([ &$sizeMin ]) ) {
             throw new LogicException(
                 [ 'The `parameters[0]` should be integer', $parameter0 ]
             );
         }
 
-        if (! $theType->int($parameter1)->isOk([ &$sizeMax ])) {
+        if ( ! $theType->int($parameter1)->isOk([ &$sizeMax ]) ) {
             throw new LogicException(
                 [ 'The `parameters[1]` should be integer', $parameter1 ]
             );
         }
 
-        if ($sizeMin > $sizeMax) {
+        if ( $sizeMin > $sizeMax ) {
             throw new LogicException(
                 [ 'The `sizeMin` should be greater than `sizeMax`', $sizeMin, $sizeMax ]
             );
         }
 
         $mode = 'size';
-        if (null !== $parameter2) {
-            if (! $theType->string_not_empty($parameter2)->isOk([ &$mode ])) {
+        if ( null !== $parameter2 ) {
+            if ( ! $theType->string_not_empty($parameter2)->isOk([ &$mode ]) ) {
                 throw new LogicException(
                     [ 'The `parameters[2]` should be non-empty string, and known as `mode`', $parameter2 ]
                 );
@@ -76,7 +76,7 @@ class SizeBetweenRule extends AbstractRule
                 'strlen'  => true,
             ];
 
-            if (! isset($modes[ $mode ])) {
+            if ( ! isset($modes[$mode]) ) {
                 throw new LogicException(
                     [
                         ''
@@ -90,30 +90,30 @@ class SizeBetweenRule extends AbstractRule
         }
 
         $fnSize = '';
-        if ('size' === $mode) {
+        if ( 'size' === $mode ) {
             $fnSize = [ Lib::php(), 'size' ];
 
-        } elseif ('count' === $mode) {
+        } elseif ( 'count' === $mode ) {
             $fnSize = [ Lib::php(), 'count' ];
 
-        } elseif ('strsize' === $mode) {
+        } elseif ( 'strsize' === $mode ) {
             $fnSize = [ Lib::str(), 'strsize' ];
 
-        } elseif ('strlen' === $mode) {
+        } elseif ( 'strlen' === $mode ) {
             $fnSize = [ Lib::str(), 'strlen' ];
         }
 
-        $size = $fnSize($value[ 0 ]);
+        $size = $fnSize($value[0]);
 
-        if (! is_int($size)) {
+        if ( ! is_int($size) ) {
             return static::message();
         }
 
-        if ($size < $sizeMin) {
+        if ( $size < $sizeMin ) {
             return static::message();
         }
 
-        if ($size > $sizeMax) {
+        if ( $size > $sizeMax ) {
             return static::message();
         }
 
