@@ -33,9 +33,11 @@ php test.php
 <?php
 
 // > настраиваем PHP
-\Gzhegow\Lib\Lib::entrypoint()
-    ->setDirRoot(__DIR__ . '/..')
-    ->useAllRecommended()
+($ent = \Gzhegow\Lib\Lib::entrypoint())
+    ->setAllRecommended()
+    ->setOpt($ent::OPT_CUSTOM_DIR_ROOT, __DIR__ . '/..')
+    //
+    ->useAll()
 ;
 
 
