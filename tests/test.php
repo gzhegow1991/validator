@@ -125,36 +125,33 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //
 // (function ($validation) {
 //     $validation->addData([
-//         'blank'             => null,
-//         'not_blank'         => 0,
-//         //
-//         'present'           => null,
+//         'present'            => null,
 //         // 'not_present'              => null,
 //         //
-//         '_present_any_a'    => null,
+//         '_present_any_a'     => null,
 //         // '_present_any_b'       => null,
 //         // 'present_any'          => 0,
 //         // 'presented_without_all' => 0,
 //         //
-//         '_present_pair_a'   => null,
+//         '_present_pair_a'    => null,
 //         // '_present_pair_b'      => null,
-//         'present_pair'      => 0,
+//         'present_pair'       => 0,
 //         'presented_with_one' => 0,
 //         //
-//         '_present_side_a'   => null,
-//         '_present_side_b'   => null,
+//         '_present_side_a'    => null,
+//         '_present_side_b'    => null,
 //         // 'present_side'         => 0,
 //         // 'presented_without_one' => 0,
 //         //
-//         '_present_set_a'    => null,
-//         '_present_set_b'    => null,
-//         'present_set'       => 0,
+//         '_present_set_a'     => null,
+//         '_present_set_b'     => null,
+//         'present_set'        => 0,
 //         'presented_with_all' => 0,
+//         //
+//         'blank'              => null,
+//         'not_blank'          => 0,
 //     ]);
 //
-//     $validation->addRules('blank', [ \Gzhegow\Validator\Rule\Kit\Rule::blank() ]);
-//     $validation->addRules('not_blank', [ \Gzhegow\Validator\Rule\Kit\Rule::not_blank() ]);
-//     //
 //     $validation->addRules('present', [ \Gzhegow\Validator\Rule\Kit\Rule::present() ]);
 //     $validation->addRules('not_present', [ \Gzhegow\Validator\Rule\Kit\Rule::not_present() ]);
 //     //
@@ -169,6 +166,9 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //     //
 //     $validation->addRules('present_set', [ \Gzhegow\Validator\Rule\Kit\Rule::present_set([ [ '_present_set_a', '_present_set_b' ] ]) ]);
 //     $validation->addRules('presented_with_all', [ \Gzhegow\Validator\Rule\Kit\Rule::presented_with_all([ [ '_present_set_a', '_present_set_b' ] ]) ]);
+//     //
+//     $validation->addRules('blank', [ \Gzhegow\Validator\Rule\Kit\Rule::blank() ]);
+//     $validation->addRules('not_blank', [ \Gzhegow\Validator\Rule\Kit\Rule::not_blank() ]);
 // })($validation);
 //
 // (function ($validation) {
@@ -370,12 +370,12 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //
 // (function ($validation) {
 //     $validation->addData([
-//         'array'      => [ 0 => 1, 2 => 2, 'key3' => 3 ],
-//         'dict'       => [ 'key1' => 1, 'key2' => 2, 'key3' => 3 ],
-//         'gettype'    => 1.0,
-//         'list'       => [ 1, 2, 3 ],
-//         'object'     => new \stdClass(),
-//         'uuid'       => 'c511ee5f-2351-4b92-a544-769ce1eddfea',
+//         'array'   => [ 0 => 1, 2 => 2, 'key3' => 3 ],
+//         'dict'    => [ 'key1' => 1, 'key2' => 2, 'key3' => 3 ],
+//         'gettype' => 1.0,
+//         'list'    => [ 1, 2, 3 ],
+//         'object'  => new \stdClass(),
+//         'uuid'    => 'c511ee5f-2351-4b92-a544-769ce1eddfea',
 //     ]);
 //
 //     $validation->addRules('array', [ \Gzhegow\Validator\Rule\Kit\Rule::array() ]);
@@ -491,16 +491,19 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 //
 //     $validation->addRules('bool', [ \Gzhegow\Validator\Rule\Kit\Rule::bool() ]);
 //     $validation->addRules('boolean', [ \Gzhegow\Validator\Rule\Kit\Rule::boolean() ]);
-//     $validation->addRules('decimal', [ \Gzhegow\Validator\Rule\Kit\Rule::decimal([ 2 ]) ]);
-//     $validation->addRules('double', [ \Gzhegow\Validator\Rule\Kit\Rule::double() ]);
 //     $validation->addRules('float', [ \Gzhegow\Validator\Rule\Kit\Rule::float() ]);
+//     $validation->addRules('double', [ \Gzhegow\Validator\Rule\Kit\Rule::double() ]);
 //     $validation->addRules('int', [ \Gzhegow\Validator\Rule\Kit\Rule::int() ]);
 //     $validation->addRules('integer', [ \Gzhegow\Validator\Rule\Kit\Rule::integer() ]);
 //     $validation->addRules('num', [ \Gzhegow\Validator\Rule\Kit\Rule::num() ]);
 //     $validation->addRules('numeric', [ \Gzhegow\Validator\Rule\Kit\Rule::numeric() ]);
 //     $validation->addRules('numeric_float', [ \Gzhegow\Validator\Rule\Kit\Rule::numeric_float() ]);
 //     $validation->addRules('numeric_int', [ \Gzhegow\Validator\Rule\Kit\Rule::numeric_int() ]);
+//     $validation->addRules('decimal', [ \Gzhegow\Validator\Rule\Kit\Rule::decimal([ 2 ]) ]);
 //     $validation->addRules('ratio', [ \Gzhegow\Validator\Rule\Kit\Rule::ratio() ]);
+//     $validation->addRules('ratio_numeric', [ \Gzhegow\Validator\Rule\Kit\Rule::ratio_numeric() ]);
+//     $validation->addRules('percent', [ \Gzhegow\Validator\Rule\Kit\Rule::percent() ]);
+//     $validation->addRules('percent_numeric', [ \Gzhegow\Validator\Rule\Kit\Rule::percent_numeric() ]);
 //     $validation->addRules('string', [ \Gzhegow\Validator\Rule\Kit\Rule::string() ]);
 //     $validation->addRules('trim', [ \Gzhegow\Validator\Rule\Kit\Rule::trim() ]);
 //     //
@@ -513,6 +516,8 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 // $ffn->print($status, $validation->messages());
 // $ffn->print_array_multiline($validation->getRules());
 // die();
+//
+// // < ПРИМЕР со всеми правилами, которые идут в комплекте
 
 
 // >>> ТЕСТЫ

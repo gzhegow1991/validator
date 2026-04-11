@@ -39,7 +39,6 @@ class ValidatorPassTranslator implements ValidatorTranslatorInterface
         $throwable = $error['throwable'] ?? null;
 
         if ( null !== $throwable ) {
-            dd($throwable);
             throw new RuntimeException('Unable to ' . __METHOD__, $throwable);
         }
 

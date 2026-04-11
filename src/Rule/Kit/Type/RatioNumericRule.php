@@ -6,13 +6,13 @@ use Gzhegow\Lib\Lib;
 use Gzhegow\Validator\Validation\ValidationInterface;
 
 
-class RatioRule extends AbstractRuleType
+class RatioNumericRule extends AbstractRuleType
 {
-    const NAME = 'ratio';
+    const NAME = 'ratio_numeric';
 
     public static function message(array $conditions = []) : string
     {
-        return 'validation.ratio';
+        return 'validation.ratio_numeric';
     }
 
 
@@ -23,7 +23,7 @@ class RatioRule extends AbstractRuleType
     {
         if ( [] === $value ) return static::message();
 
-        $status = Lib::type()->ratio($value[0])->isOk();
+        $status = Lib::type()->ratio_decimal($value[0])->isOk();
 
         if ( ! $status ) {
             return static::message();

@@ -1075,10 +1075,10 @@ class Rule implements RuleDefinitionInterface
         )->orThrow();
     }
 
-    public static function decimal(array $parameters = [])
+    public static function float(array $parameters = [])
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromRuleClass(
-            \Gzhegow\Validator\Rule\Kit\Type\DecimalRule::class,
+            \Gzhegow\Validator\Rule\Kit\Type\FloatRule::class,
             [ 'parameters' => $parameters ]
         )->orThrow();
     }
@@ -1091,10 +1091,10 @@ class Rule implements RuleDefinitionInterface
         )->orThrow();
     }
 
-    public static function float(array $parameters = [])
+    public static function int(array $parameters = [])
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromRuleClass(
-            \Gzhegow\Validator\Rule\Kit\Type\FloatRule::class,
+            \Gzhegow\Validator\Rule\Kit\Type\IntRule::class,
             [ 'parameters' => $parameters ]
         )->orThrow();
     }
@@ -1107,10 +1107,10 @@ class Rule implements RuleDefinitionInterface
         )->orThrow();
     }
 
-    public static function int(array $parameters = [])
+    public static function num(array $parameters = [])
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromRuleClass(
-            \Gzhegow\Validator\Rule\Kit\Type\IntRule::class,
+            \Gzhegow\Validator\Rule\Kit\Type\NumRule::class,
             [ 'parameters' => $parameters ]
         )->orThrow();
     }
@@ -1139,10 +1139,26 @@ class Rule implements RuleDefinitionInterface
         )->orThrow();
     }
 
-    public static function num(array $parameters = [])
+    public static function decimal(array $parameters = [])
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromRuleClass(
-            \Gzhegow\Validator\Rule\Kit\Type\NumRule::class,
+            \Gzhegow\Validator\Rule\Kit\Type\DecimalRule::class,
+            [ 'parameters' => $parameters ]
+        )->orThrow();
+    }
+
+    public static function percent(array $parameters = [])
+    {
+        return \Gzhegow\Validator\Rule\GenericRule::fromRuleClass(
+            \Gzhegow\Validator\Rule\Kit\Type\PercentRule::class,
+            [ 'parameters' => $parameters ]
+        )->orThrow();
+    }
+
+    public static function percent_numeric(array $parameters = [])
+    {
+        return \Gzhegow\Validator\Rule\GenericRule::fromRuleClass(
+            \Gzhegow\Validator\Rule\Kit\Type\PercentNumericRule::class,
             [ 'parameters' => $parameters ]
         )->orThrow();
     }
@@ -1151,6 +1167,14 @@ class Rule implements RuleDefinitionInterface
     {
         return \Gzhegow\Validator\Rule\GenericRule::fromRuleClass(
             \Gzhegow\Validator\Rule\Kit\Type\RatioRule::class,
+            [ 'parameters' => $parameters ]
+        )->orThrow();
+    }
+
+    public static function ratio_numeric(array $parameters = [])
+    {
+        return \Gzhegow\Validator\Rule\GenericRule::fromRuleClass(
+            \Gzhegow\Validator\Rule\Kit\Type\RatioNumericRule::class,
             [ 'parameters' => $parameters ]
         )->orThrow();
     }
@@ -1170,6 +1194,7 @@ class Rule implements RuleDefinitionInterface
             [ 'parameters' => $parameters ]
         )->orThrow();
     }
+
 
     public static function userbool_false(array $parameters = [])
     {
