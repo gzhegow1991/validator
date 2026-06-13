@@ -1,10 +1,17 @@
 <?php
 
-// > настраиваем PHP
+define('__DIR_ROOT__', __DIR__ . '/..');
+
+// > создаем enum-ы для тестирования правила InEnum (только для PHP >8.1.0)
+if ( PHP_VERSION_ID >= 80100 ) {
+    require_once __DIR_ROOT__ . '/tests/src/Enum/HelloWorldEnum.php';
+    require_once __DIR_ROOT__ . '/tests/src/Enum/HelloWorldBackedEnum.php';
+}
+
 \Gzhegow\Lib\Lib::entrypoint()
     ->setAllRecommended()
     //
-    ->setCustomDirRoot(__DIR__ . '/..')
+    ->setCustomDirRoot(__DIR_ROOT__)
     //
     ->useAll()
     //
@@ -12,71 +19,12 @@
 ;
 
 
-// > объявляем несколько функция для тестирования
-$ffn = new class {
-    function root() : string
-    {
-        return realpath(__DIR__ . '/..');
-    }
-
-
-    function value_array_multiline($value, ?int $maxLevel = null, array $options = []) : string
-    {
-        return \Gzhegow\Lib\Lib::debug()->dump_value_array_multiline($value, $maxLevel, $options);
-    }
-
-    function var_export($value, array $options = []) : string
-    {
-        return \Gzhegow\Lib\Lib::debug()->var_export($value, $options);
-    }
-
-
-    function values($separator = null, ...$values) : string
-    {
-        return \Gzhegow\Lib\Lib::debug()->dump_values([], $separator, ...$values);
-    }
-
-
-    function print(...$values) : void
-    {
-        echo $this->values(' | ', ...$values) . PHP_EOL;
-    }
-
-    function print_array_multiline($value, ?int $maxLevel = null, array $options = []) : void
-    {
-        echo $this->value_array_multiline($value, $maxLevel, $options) . PHP_EOL;
-    }
-
-    function print_var_export($value, array $options = []) : void
-    {
-        echo ''
-            . '###' . PHP_EOL
-            . $this->var_export($value, $options) . PHP_EOL
-            . '###' . PHP_EOL;
-    }
-
-
-    function test(\Closure $fn, array $args = []) : \Gzhegow\Lib\Modules\Test\TestCase
-    {
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-
-        return \Gzhegow\Lib\Lib::test()->newTestCase()
-            ->fn($fn, $args)
-            ->trace($trace)
-        ;
-    }
-};
-
-
-// > создаем enum-ы для тестирования правила InEnum (только для PHP >8.1.0)
-if ( PHP_VERSION_ID >= 80100 ) {
-    require_once $ffn->root() . '/tests/src/Enum/HelloWorldEnum.php';
-    require_once $ffn->root() . '/tests/src/Enum/HelloWorldBackedEnum.php';
-}
+$theDebug = \Gzhegow\Lib\Lib::debug();
+$theTest = \Gzhegow\Lib\Lib::test();
 
 
 
-// >>> ЗАПУСКАЕМ!
+// >>> ЗАПУСК
 
 // > сначала всегда фабрика (она также создает зарегистрированные Rule, т.е. можно подключить IoC контейнер)
 $factory = new \Gzhegow\Validator\ValidatorFactory();
@@ -526,8 +474,8 @@ $validator = new \Gzhegow\Validator\ValidatorFacade(
 
 // > TEST
 // > создаем валидатор и запускаем проверку
-$fn = function () use ($ffn) {
-    $ffn->print('TEST 1');
+$fn = function () use ($theDebug) {
+    $theDebug->dump_value('TEST 1');
     echo PHP_EOL;
 
 
@@ -555,9 +503,9 @@ $fn = function () use ($ffn) {
     ;
 
     $messages = $validation->messages();
-    $ffn->print_array_multiline($messages, 2);
+    $theDebug->dump_array_multiline($messages, 2);
 };
-$test = $ffn->test($fn);
+$test = $theTest->newCase($fn);
 $test->expectStdout('
 "TEST 1"
 
@@ -583,8 +531,8 @@ $test->run();
 
 // > TEST
 // > проверяем вложенный массив
-$fn = function () use ($ffn) {
-    $ffn->print('TEST 2');
+$fn = function () use ($theDebug) {
+    $theDebug->dump_value('TEST 2');
     echo PHP_EOL;
 
 
@@ -595,21 +543,21 @@ $fn = function () use ($ffn) {
         'uuid_null'         => null,
         'uuid_empty_string' => '',
         'uuid_wrong'        => 'test',
-        'uuid'              => \Gzhegow\Lib\Lib::random()->uuid(),
+        'uuid'              => \Gzhegow\Lib\Lib::random()->uuid_v4(),
         //
         'my_nested_array'   => [
             // uuid_missing
             'uuid_null'         => null,
             'uuid_empty_string' => '',
             'uuid_wrong'        => 'test',
-            'uuid'              => \Gzhegow\Lib\Lib::random()->uuid(),
+            'uuid'              => \Gzhegow\Lib\Lib::random()->uuid_v4(),
             //
             'my_nested_array'   => [
                 // uuid_missing
                 'uuid_null'         => null,
                 'uuid_empty_string' => '',
                 'uuid_wrong'        => 'test',
-                'uuid'              => \Gzhegow\Lib\Lib::random()->uuid(),
+                'uuid'              => \Gzhegow\Lib\Lib::random()->uuid_v4(),
             ],
         ],
     ];
@@ -642,12 +590,12 @@ $fn = function () use ($ffn) {
     ;
 
     $rules = $validation->rules();
-    $ffn->print_array_multiline($rules, 2);
+    $theDebug->dump_array_multiline($rules, 2);
 
     $messages = $validation->messages();
-    $ffn->print_array_multiline($messages, 2);
+    $theDebug->dump_array_multiline($messages, 2);
 };
-$test = $ffn->test($fn);
+$test = $theTest->newCase($fn);
 $test->expectStdout('
 "TEST 2"
 
@@ -714,8 +662,8 @@ $test->run();
 // > например, (string) '1' часто приводится к (int) 1, перед тем как его проверить
 // > можно указать "значение по-умолчанию"
 // > перед проверкой если (value === default) - поле считается валидным
-$fn = function () use ($ffn) {
-    $ffn->print('TEST 3');
+$fn = function () use ($theDebug) {
+    $theDebug->dump_value('TEST 3');
     echo PHP_EOL;
 
 
@@ -786,15 +734,15 @@ $fn = function () use ($ffn) {
     // $errors = $validation->errors();        // > получить все ошибки в виде двумерного массива
     $messages = $validation->messages();       // > получить все ошибки в виде массива строк
 
-    $ffn->print_array_multiline($valid, 3);
+    $theDebug->dump_array_multiline($valid, 3);
     echo PHP_EOL;
 
-    $ffn->print_array_multiline($invalid, 3);
+    $theDebug->dump_array_multiline($invalid, 3);
     echo PHP_EOL;
 
-    $ffn->print_array_multiline($messages, 2);
+    $theDebug->dump_array_multiline($messages, 2);
 };
-$test = $ffn->test($fn);
+$test = $theTest->newCase($fn);
 $test->expectStdout('
 "TEST 3"
 
@@ -875,8 +823,8 @@ $test->run();
 // > TEST
 // > проверка режимов API и WEB
 // > в режиме API из запроса выбрасываются NULL, а в режиме WEB - пустые строки
-$fn = function () use ($ffn) {
-    $ffn->print('TEST 4');
+$fn = function () use ($theDebug) {
+    $theDebug->dump_value('TEST 4');
     echo PHP_EOL;
 
 
@@ -902,7 +850,7 @@ $fn = function () use ($ffn) {
     ;
 
     $messages = $validation->messages();
-    $ffn->print_array_multiline($messages, 2);
+    $theDebug->dump_array_multiline($messages, 2);
     echo PHP_EOL;
 
 
@@ -912,7 +860,7 @@ $fn = function () use ($ffn) {
     ;
 
     $messages = $validation->messages();
-    $ffn->print_array_multiline($messages, 2);
+    $theDebug->dump_array_multiline($messages, 2);
     echo PHP_EOL;
 
 
@@ -922,7 +870,7 @@ $fn = function () use ($ffn) {
     ;
 
     $messages = $validation->messages();
-    $ffn->print_array_multiline($messages, 2);
+    $theDebug->dump_array_multiline($messages, 2);
     echo PHP_EOL;
 
 
@@ -932,10 +880,10 @@ $fn = function () use ($ffn) {
     ;
 
     $messages = $validation->messages();
-    $ffn->print_array_multiline($messages, 2);
+    $theDebug->dump_array_multiline($messages, 2);
     echo PHP_EOL;
 };
-$test = $ffn->test($fn);
+$test = $theTest->newCase($fn);
 $test->expectStdout('
 "TEST 4"
 
@@ -982,8 +930,8 @@ $test->run();
 
 // > TEST
 // > проверка разных способов указания нескольких правил и режимов маппинга на массив и объект1
-$fn = function () use ($ffn) {
-    $ffn->print('TEST 5');
+$fn = function () use ($theDebug) {
+    $theDebug->dump_value('TEST 5');
     echo PHP_EOL;
 
 
@@ -1028,16 +976,16 @@ $fn = function () use ($ffn) {
 
     $status = $validation->passes();
     $messages = $validation->messages();
-    $ffn->print($status);
-    $ffn->print_array_multiline($messages, 2);
+    $theDebug->dump_value($status);
+    $theDebug->dump_array_multiline($messages, 2);
 
     echo PHP_EOL;
 
 
     $validAttributes = $validation->validAttributes();
     $invalidAttributes = $validation->invalidAttributes();
-    $ffn->print_array_multiline($validAttributes, 2);
-    $ffn->print_array_multiline($invalidAttributes, 2);
+    $theDebug->dump_array_multiline($validAttributes, 2);
+    $theDebug->dump_array_multiline($invalidAttributes, 2);
 
     echo PHP_EOL;
 
@@ -1048,10 +996,10 @@ $fn = function () use ($ffn) {
     $bindObject = new \stdClass();
     $validation->valid($bindObject);
 
-    $ffn->print_var_export($bindArray);
-    $ffn->print_var_export($bindObject);
+    $theDebug->dump_var_export($bindArray);
+    $theDebug->dump_var_export($bindObject);
 };
-$test = $ffn->test($fn);
+$test = $theTest->newCase($fn);
 $test->expectStdout('
 "TEST 5"
 
