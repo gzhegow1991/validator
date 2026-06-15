@@ -109,7 +109,7 @@ class ValidatorProcessor implements ValidatorProcessorInterface
             } else {
                 $fn = $filter->getFunctionStringInternal();
                 $fn = static function ($value) use ($fn) {
-                    return Lib::func()->call_user_func($fn, $value);
+                    return $fn($value);
                 };
             }
         }
